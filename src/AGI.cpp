@@ -48,7 +48,7 @@ dsyev_("V", "U", &n, A, &n, w, work, &lwork, &info);
 */
     int m = data->getdim();
 	float  f1[m], f2[m];
-	int f1i = 0, f2i = 0;
+	//int f1i = 0, f2i = 0;
 	float distf1 = 0, distf2 = 0;
 	//k-means変更  今だけ あとでクラスターの要素を読み込む
 	for(int i = 0;i< m/2;i++){
@@ -87,6 +87,7 @@ dsyev_("V", "U", &n, A, &n, w, work, &lwork, &info);
 		e[i][0] = f1[i]/distf1;
 		e[i][1] = f2[i]/distf2;
 	}
+	 std::cerr << e[0][0] << std::endl;
 }
 //行列の計算   とりあえず実装　最適化とかなし　最終的にはBlasを使う
 void Agi::cal2Mtr() {
@@ -117,6 +118,7 @@ void Agi::cal2Mtr() {
 			ymin = B[i][1];
 	}
 	//6/2追加 最小値が0以下なので 下駄を履かせる
+	//　可視空間のほうが大きかった理由これ
 	for(int i = 0;i< n;i++){
 		B[i][0] = B[i][0]- xmin;
 		B[i][1] = B[i][1]- ymin;
@@ -125,32 +127,53 @@ void Agi::cal2Mtr() {
 	ymax = ymax - ymin;
 }
 //射影の更新
-void Agi::refine(float* _pre, float* _new, int index) {
+
+
+int Agi::refine(float* _pre, float* _new, int index) {
 		//まずはe3を求める
 	int n = data->getnum();
 	int m = data->getdim();
 	float p[m];
+	float powpinorm = 0;
 	for(int i = 0; i<m; i++){
 		p[i] = data->getA(index,i);
+		powpinorm = pow(p[i],2)+powpinorm;
 	}
+	float pinorm = sqrt(powpinorm);
 
+	float powprenorm =   pow(_pre[0]+xmin,2)+pow(_pre[1]+ymin,2);
+	float prenorm = sqrt(powprenorm);
+	float newnorm = sqrt(pow(_new[0]+xmin,2)+pow(_new[1]+ymin,2));
+	
+	
 
+ 	if(pinorm < prenorm ) {
+ 		std::cerr << "X error pinorm " << std::endl;
+ 		std::cerr << pinorm << std::endl;
+ 		std::cerr << "prenorm" << std::endl;
+ 		std::cerr << prenorm << std::endl;
+ 		return -1;
+ 	} 
+ 	if (pinorm < newnorm ){
+ 		std::cerr << "X2 error" << std::endl;
+ 		return -2;
+ 	}
+ 	
 	float f3[m];
-	float f3norm = 0;
-	for(int i = 0; i<m; i++) {
-		f3[i] = p[i] -_pre[0]*e[i][0]-_pre[1]*e[i][1];
-		f3norm = pow(f3[i],2)+ f3norm;
+ 	float f3norm = 0;
+ 	for(int i = 0; i<m; i++) {
+ 		f3[i] = p[i] -_pre[0]*e[i][0]-_pre[1]*e[i][1];
 	}
-	f3norm = sqrt(f3norm);
+	f3norm = sqrt(powpinorm- powprenorm );
 	for(int i = 0; i<m; i++){
 		f3[i] = f3[i]/f3norm;
-	}
+	}	
 	//初期値設定
 	const int _N = 6;
 	float init[_N];
-	 for (int i = 0; i < _N; i++) {
-        init[i] = ConstSolve2D::defaultInit[i];
-      }
+	for (int i = 0; i < _N; i++) {
+      	init[i] = ConstSolve2D::defaultInit[i];
+     }
 	// 後は制約式を解く
 	float* ans = solver2D( _pre, _new, f3norm,init);
 	std::cerr << ans[0] << std::endl;
@@ -167,7 +190,7 @@ void Agi::refine(float* _pre, float* _new, int index) {
 		e[i][1] = e2[i];
 	}
 	cal2Mtr();
-
+	return 0;
 }
 float Agi::getXMax(){
 	return xmax;
@@ -180,14 +203,15 @@ void AGIPane::mouseMoved(wxMouseEvent& event) {
 	 if(nowindex != -1){
     //このxとyが点の2次元配列に含まれるならOK
     //もちろんある程度の誤差は許容しなければならない
-
-    _new[0] = event.GetX()/xrate;
-    _new[1] = event.GetY()/yrate;
-    ag -> refine(_pre,_new,nowindex);
-      setRate();
-      Refresh();
-  //  _pre[0] = _new[0];
-//_pre[1] = _new[1];
+	 _new[0] = event.GetX()/xrate;
+     _new[1] = event.GetY()/yrate;
+     ag->refine(_pre,_new,nowindex) ;
+     	setRate();
+     	Refresh();
+     
+    
+    _pre[0] = _new[0];
+    _pre[1] = _new[1];
   }
 
 }
@@ -200,8 +224,8 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
     nowindex = getindex(x,y);
 //    std::cerr << nowindex  << std::endl;
     if(nowindex != -1){
-    _pre[0] = x/xrate;
-    _pre[1] = y/yrate;
+    _pre[0] = ag->getB(nowindex,0);
+    _pre[1] = ag->getB(nowindex,1);
 }
 
 }
@@ -212,7 +236,9 @@ void AGIPane::mouseReleased(wxMouseEvent& event){
   if(nowindex != -1){
     //このxとyが点の2次元配列に含まれるならOK
     //もちろんある程度の誤差は許容しなければならない
-      
+   
+     // _pre[0] = _new[0];
+     // _pre[1] = _new[1];
       nowindex = -1;
   }
 }
