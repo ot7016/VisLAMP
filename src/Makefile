@@ -5,6 +5,7 @@ SOURCES = ReadData.cpp ConstraintSolver2D.cpp AGI.cpp PCP.cpp  MyFrame.cpp
 ../bin/$(APP): $(SOURCES)
 	clang++ -g -o $@ $^ `wx-config --libs --cxxflags --gl-libs` -llbfgs
 
+
 clean:
 	rm -f *.o pcoordagi
 

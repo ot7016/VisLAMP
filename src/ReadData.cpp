@@ -35,7 +35,7 @@ void ReadData::read(){
 	//汚いのであとで整理
 	int n2 = 0;
 	//Aの読み取り
-	ifstream ifs(dir+"-scl.csv");
+	ifstream ifs(dir+"-cood.csv");
 	string str;
 	if (ifs.fail()){
         cerr << "失敗" << endl;
@@ -86,9 +86,9 @@ void ReadData::read(){
 
 void ReadData::readevalue(){
 
-  /*
+  
 	string str;
-    ifstream ifs2(dir+"-eigen.csv");
+    ifstream ifs2(dir+"-evalue.csv");
 	if (ifs2.fail())
     {
         cerr << "失敗" << endl;
@@ -105,23 +105,21 @@ void ReadData::readevalue(){
       	evalue[i] = stod(s);
       	i++;
       }
-      */
       
-
+      
+/*
       evalue = new float[dim];
        cerr << "evalue" << endl;
   for(int i = 0; i <dim; i++){
     double sum = 0;
     for (int j = 0; j < num; j++){
       sum = sum + pow(A[j][i],2); 
-
-     //  cerr << "sum" << endl;
-     //   cerr <<  sum << endl;
     }
     evalue[i] = sqrt(sum);
      cerr << evalue[i] << endl;
   }    
    cerr << "evalue end" << endl;
+   */
 }
 
 

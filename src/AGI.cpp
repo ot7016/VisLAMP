@@ -51,6 +51,7 @@ dsyev_("V", "U", &n, A, &n, w, work, &lwork, &info);
 	//int f1i = 0, f2i = 0;
 	float distf1 = 0, distf2 = 0;
 	//k-means変更  今だけ あとでクラスターの要素を読み込む
+	/*
 	for(int i = 0;i< m/2;i++){
 		float e = data->getevalue(i);
 		f1[i] = e;
@@ -63,21 +64,22 @@ dsyev_("V", "U", &n, A, &n, w, work, &lwork, &info);
 		f2[i] = e;
 		distf2 = distf2 + pow(e, 2);
 	}
+	*/
 
 	//二次元平面上への射影の場合
-	/*
+	
 	for (int i = 0; i < m; i++) {
 		if (i%2 == 0) {
-			f1[i] = evalue[i] ;// 固有値を代入
+			f1[i] = data->getevalue(i) ;// 固有値を代入
 			f2[i] = 0;
-			distf1 = distf1 + pow(evalue[i], 2);
+			distf1 = distf1 + pow(f1[i], 2);
 		} else {
-			f2[i] = evalue[i];
+			f2[i] = data->getevalue(i);
 			f1[i] = 0;
-			distf2 = distf2 + pow(evalue[i], 2);
+			distf2 = distf2 + pow(f2[i], 2);
 		}
 	}
-	*/
+	
 	distf1 = sqrt(distf1);
 	distf2 = sqrt(distf2);
 	//射影行列確認
@@ -91,8 +93,13 @@ dsyev_("V", "U", &n, A, &n, w, work, &lwork, &info);
 }
 //行列の計算   とりあえず実装　最適化とかなし　最終的にはBlasを使う
 void Agi::cal2Mtr() {
-	xmax = 1;  //初期値確認	
-	ymax = 1;
+	float prexmax = 0;
+	float preymax = 0;
+	float prexmin = 0;
+	float preymin = 0; 
+
+	xmax = 0;  //初期値確認	
+	ymax = 0;
 	int n = data->getnum();
 	int m = data->getdim();
 	B = new float*[n];      
@@ -108,23 +115,27 @@ void Agi::cal2Mtr() {
 		B[i][0] = b1;
 		B[i][1] = b2;
 		// 最大値を求める
-		if(B[i][0]>xmax)
-			xmax = B[i][0];
-		if(B[i][0]< xmin)
-			xmin = B[i][0];
-		if(B[i][1]>ymax)
-			ymax = B[i][1];
-		if(B[i][1]<ymin)
-			ymin = B[i][1];
+		if(B[i][0]>prexmax)
+			prexmax = B[i][0];
+		if(B[i][0]< prexmin)
+			prexmin = B[i][0];
+		if(B[i][1]> preymax)
+			preymax = B[i][1];
+		if(B[i][1]<preymin)
+			preymin = B[i][1];
 	}
+	xmin = prexmin;
+	ymin = preymin;
+
+
 	//6/2追加 最小値が0以下なので 下駄を履かせる
 	//　可視空間のほうが大きかった理由これ
 	for(int i = 0;i< n;i++){
 		B[i][0] = B[i][0]- xmin;
 		B[i][1] = B[i][1]- ymin;
 	}
-	xmax = xmax - xmin;
-	ymax = ymax - ymin;
+	xmax = prexmax - prexmin;
+	ymax = preymax - preymin;
 }
 //射影の更新
 
@@ -308,8 +319,8 @@ int AGIPane::getHeight()
 
 void AGIPane::setRate(){
    
-    float xmax = ag->getXMax()+1;
-    float ymax = ag->getYMax()+1;
+    float xmax = ag->getXMax();
+    float ymax = ag->getYMax();
     xrate = getWidth() /xmax ;
     yrate = getHeight() /ymax;
     //     std::cerr << xrate << std::endl;
