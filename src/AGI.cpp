@@ -318,8 +318,8 @@ void AGIPane::setRate(){
    
     float xmax = ag->getXMax();
     float ymax = ag->getYMax();
-    xrate = getWidth() /(3*xmax);
-    yrate = getHeight()/(3* ymax);
+    xrate = getWidth() /(2*xmax);
+    yrate = getHeight()/(2* ymax);
     //     std::cerr << xrate << std::endl;
     //        std::cerr << yrate << std::endl;
 }

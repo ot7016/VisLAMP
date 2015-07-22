@@ -21,23 +21,33 @@ class ReadData{
 	std::vector<std::string> split(const std::string &str,char delim);
 	void read();
 	void readevalue();
+	void readoriginal();
 	float getA();
 	int getnum();
 	int getdim();
+	int getatr();
 	float getevalue(int i);
 	float getA(int i, int j);
+	float getD(int i,int j);
+	std::string getName(int i);
 	float getAmin(int i);
 	float getAmax(int i);
+	float getDmax(int i);
+	float getDmin(int i);
 
 	private:
 		std::string dir;
 		float *evalue;
 		float** A;
+		float** D;
+		std::string* name;
 		float* Amin;
 		float* Amax;
+		float* Dmax;
+		float* Dmin;
 	//	float** e;
 	//	float** B; 
-		int num,dim;
+		int num,dim,atr;
 
 
 
