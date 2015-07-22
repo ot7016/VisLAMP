@@ -80,10 +80,10 @@ int PCPPane::getHeight()
 
 void PCPPane::setRate(){
    //各属性ごとに倍率があるので
-    int dim = data->getdim();
-    rate = new int[dim];
+    int dim = data->getatr();
+    rate = new float[dim];
     for(int i = 0;i< dim;i++ ){
-        rate[i] = (getHeight()*3)/(4*(data->getAmax(i)-data->getAmin(i)));
+        rate[i] = (getHeight()*3)/(4*(data->getDmax(i)-data->getDmin(i)));
          std::cerr << rate[i] << std::endl;
     }
  //        std::cerr << xrate << std::endl;
@@ -138,7 +138,7 @@ void PCPPane::render( wxPaintEvent& evt )
      
     glColor4f(0.0f,0.0f,0.0f,1.0f);
     glBegin(GL_LINES);
-    int dim = data-> getdim();
+    int dim = data-> getatr();
 
     for(int i = 0; i< dim;i++){  //要素数
         int x = getWidth() * i / dim;
@@ -155,10 +155,9 @@ void PCPPane::render( wxPaintEvent& evt )
     for(int i = 0; i< data->getnum();i++){
         glBegin(GL_LINE_STRIP);
     	for(int j = 0;j< dim;j++){
-            float y = data->getA(i,j);
-            if(y<0)
-                y = data->getAmax(j)-y;
-            glVertex3f(getWidth()*j/dim, (y*rate[j] + getHeight()/8) ,0);    
+            //if(y<0)
+              //  y = data->getDmax(j)-y;
+            glVertex3f(getWidth()*j/dim, (data->getDmax(j) - data->getD(i,j) ) *rate[j] + getHeight()/8 ,0);    
         }
         glEnd();
     }

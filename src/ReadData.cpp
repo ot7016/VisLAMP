@@ -15,10 +15,13 @@ ReadData::ReadData(){
 	getline(ifs,dir);
 	read();	
   readevalue();
+  readoriginal();
 
 }
 ReadData::~ReadData(){
   delete[] A;
+  delete[] D;
+  delete[] name;
   delete[] evalue;
   delete[] Amin;
   delete[] Amax;
@@ -35,7 +38,7 @@ void ReadData::read(){
 	//汚いのであとで整理
 	int n2 = 0;
 	//Aの読み取り
-	ifstream ifs(dir+"-scl.csv");
+	ifstream ifs(dir+"-cood.csv");
 	string str;
 	if (ifs.fail()){
         cerr << "失敗" << endl;
@@ -83,10 +86,11 @@ void ReadData::read(){
     delete[] T;
 
 }
-
 void ReadData::readevalue(){
+
+  
 	string str;
-    ifstream ifs2(dir+"-eigen.csv");
+    ifstream ifs2(dir+"-evalue.csv");
 	if (ifs2.fail())
     {
         cerr << "失敗" << endl;
@@ -103,6 +107,21 @@ void ReadData::readevalue(){
       	evalue[i] = stod(s);
       	i++;
       }
+      
+      
+/*
+      evalue = new float[dim];
+       cerr << "evalue" << endl;
+  for(int i = 0; i <dim; i++){
+    double sum = 0;
+    for (int j = 0; j < num; j++){
+      sum = sum + pow(A[j][i],2); 
+    }
+    evalue[i] = sqrt(sum);
+     cerr << evalue[i] << endl;
+  }    
+   cerr << "evalue end" << endl;
+   */
 }
 
 
@@ -117,11 +136,64 @@ void ReadData::readevalue(){
     return v;
 }
 
+void ReadData::readoriginal(){
+  ifstream ifs(dir+"-original.csv");
+  string str;
+  if(ifs.fail()){
+    cerr << "失敗" << endl;
+        exit(1);
+  }
+  //これ以前にAを読み込んでいるので numはもう決まっている
+  D = new float*[num];
+  name = new string[num];
+  getline(ifs,str);
+  int k = 0;
+  bool isatr = true;
+  while(getline(ifs,str)){
+    vector<string> v = split(str,',');
+    int n = v.size();
+    if(isatr){
+      atr = n-1;
+      isatr = false;
+    }
+     D[k] = new float[n-1];
+    //carsが最後に名前がきているので暫定的にこうする
+    for(int j = 0;j<n-1;j++){
+      D[k][j] = stod(v.at(j));
+    }
+    name[k] = v.at(n-1);
+    k++;
+  }
+  Dmin = new float[atr];
+  Dmax = new float[atr];
+  for(int i = 0; i< atr; i++){
+    Dmin[i] = D[0][i];
+    Dmax[i] = D[0][i];   
+  }
+
+  for(int i = 0; i< num; i++){
+    for(int j = 0; j<atr; j++){
+      float d = D[i][j];
+      if(Dmin[j] >d)
+        Dmin[j] = d;
+      if(Dmax[j] < d)
+        Dmax[j] = d; 
+    }
+  }
+
+}
+
+
+
+
 int ReadData::getnum(){
 	return num;
 }
 int ReadData::getdim(){
 	return dim;
+}
+int ReadData::getatr(){
+  return atr;
 }
 float ReadData::getevalue(int i){
 	return evalue[i];
@@ -129,10 +201,21 @@ float ReadData::getevalue(int i){
 float ReadData::getA(int i, int j){
 	return A[i][j];
 }
+float ReadData::getD(int i,int j){
+  return D[i][j];
+}
+string ReadData::getName(int i){
+  return name[i];
+}
 float ReadData::getAmin(int i){
   return Amin[i];
 }
 float ReadData::getAmax(int i){
   return Amax[i];
 }
-
+float ReadData::getDmax(int i){
+  return Dmax[i];
+}
+float ReadData::getDmin(int i){
+  return Dmin[i];
+}

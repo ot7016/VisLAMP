@@ -32,7 +32,7 @@
 		virtual ~Agi();
 		void calprj();
 		void cal2Mtr() ;
-		void refine(float* _pre, float* _new,int index);
+		int refine(float* _pre, float* _new,int index);
 		float getB(int i,int j);
 		float getXMax();
 		float getYMax();

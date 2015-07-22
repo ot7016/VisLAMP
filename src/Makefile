@@ -1,12 +1,13 @@
-APP = anytime
+APP = pcoordagi
 
 SOURCES = ReadData.cpp ConstraintSolver2D.cpp AGI.cpp PCP.cpp  MyFrame.cpp 
 
 ../bin/$(APP): $(SOURCES)
 	clang++ -g -o $@ $^ `wx-config --libs --cxxflags --gl-libs` -llbfgs
 
+
 clean:
-	rm -f *.o myapp
+	rm -f *.o pcoordagi
 
 
 #myapp: protoagi.o myframe.o pcp.o ctl.o

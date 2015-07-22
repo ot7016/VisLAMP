@@ -48,9 +48,10 @@ dsyev_("V", "U", &n, A, &n, w, work, &lwork, &info);
 */
     int m = data->getdim();
 	float  f1[m], f2[m];
-	int f1i = 0, f2i = 0;
+	//int f1i = 0, f2i = 0;
 	float distf1 = 0, distf2 = 0;
 	//k-means変更  今だけ あとでクラスターの要素を読み込む
+	/*
 	for(int i = 0;i< m/2;i++){
 		float e = data->getevalue(i);
 		f1[i] = e;
@@ -63,21 +64,22 @@ dsyev_("V", "U", &n, A, &n, w, work, &lwork, &info);
 		f2[i] = e;
 		distf2 = distf2 + pow(e, 2);
 	}
+	*/
 
 	//二次元平面上への射影の場合
-	/*
+	
 	for (int i = 0; i < m; i++) {
 		if (i%2 == 0) {
-			f1[i] = evalue[i] ;// 固有値を代入
+			f1[i] = data->getevalue(i) ;// 固有値を代入
 			f2[i] = 0;
-			distf1 = distf1 + pow(evalue[i], 2);
+			distf1 = distf1 + pow(f1[i], 2);
 		} else {
-			f2[i] = evalue[i];
+			f2[i] = data->getevalue(i);
 			f1[i] = 0;
-			distf2 = distf2 + pow(evalue[i], 2);
+			distf2 = distf2 + pow(f2[i], 2);
 		}
 	}
-	*/
+	
 	distf1 = sqrt(distf1);
 	distf2 = sqrt(distf2);
 	//射影行列確認
@@ -87,19 +89,22 @@ dsyev_("V", "U", &n, A, &n, w, work, &lwork, &info);
 		e[i][0] = f1[i]/distf1;
 		e[i][1] = f2[i]/distf2;
 	}
+	 std::cerr << e[0][0] << std::endl;
 }
 //行列の計算   とりあえず実装　最適化とかなし　最終的にはBlasを使う
 void Agi::cal2Mtr() {
-	xmax = 1;  //初期値確認	
-	ymax = 1;
+	float prexmax = -100;
+	float preymax = -100;
+	float prexmin = 100;
+	float preymin = 100; 
+
 	int n = data->getnum();
 	int m = data->getdim();
 	B = new float*[n];      
-	int i, j,k;
-	for (i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++) {
 		B[i] = new float[2];
 		float b1 = 0, b2 = 0;
-		for(j = 0; j < m; j++) {
+		for(int j = 0; j < m; j++) {
 			float  A= data-> getA(i,j);
 			b1 += e[j][0] * A;
 			b2 += e[j][1] * A;
@@ -107,50 +112,75 @@ void Agi::cal2Mtr() {
 		B[i][0] = b1;
 		B[i][1] = b2;
 		// 最大値を求める
-		if(B[i][0]>xmax)
-			xmax = B[i][0];
-		if(B[i][0]< xmin)
-			xmin = B[i][0];
-		if(B[i][1]>ymax)
-			ymax = B[i][1];
-		if(B[i][1]<ymin)
-			ymin = B[i][1];
+		if(B[i][0]>prexmax)
+			prexmax = B[i][0];
+		if(B[i][0]< prexmin)
+			prexmin = B[i][0];
+		if(B[i][1]> preymax)
+			preymax = B[i][1];
+		if(B[i][1]<preymin)
+			preymin = B[i][1];
 	}
+	xmin = prexmin;
+	ymin = preymin;
+
+
 	//6/2追加 最小値が0以下なので 下駄を履かせる
+	//　可視空間のほうが大きかった理由これ
 	for(int i = 0;i< n;i++){
-		B[i][0] = B[i][0]- xmin;
-		B[i][1] = B[i][1]- ymin;
+		B[i][0] = B[i][0];
+		B[i][1] = B[i][1];
 	}
-	xmax = xmax - xmin;
-	ymax = ymax - ymin;
+	xmax = prexmax ;
+	ymax = preymax ;
 }
 //射影の更新
-void Agi::refine(float* _pre, float* _new, int index) {
+
+
+int Agi::refine(float* _pre, float* _new, int index) {
 		//まずはe3を求める
 	int n = data->getnum();
 	int m = data->getdim();
-	float p[m];
+	float pi[m];
+	float powpinorm = 0;
 	for(int i = 0; i<m; i++){
-		p[i] = data->getA(index,i);
+		pi[i] = data->getA(index,i);
+		powpinorm = pow(pi[i],2)+powpinorm;
 	}
+	float pinorm = sqrt(powpinorm);
+	float powprenorm =   pow(_pre[0],2)+pow(_pre[1],2);
+	float prenorm = sqrt(powprenorm);
+	float newnorm = sqrt(pow(_new[0],2)+pow(_new[1],2));
+	
+	
 
-
+ 	if(pinorm < prenorm ) {
+ 		std::cerr << "X error pinorm " << std::endl;
+ 		std::cerr << pinorm << std::endl;
+ 		std::cerr << "prenorm" << std::endl;
+ 		std::cerr << prenorm << std::endl;
+ 		return -1;
+ 	} 
+ 	if (pinorm < newnorm ){
+ 		std::cerr << "X2 error" << std::endl;
+ 		return -2;
+ 	}
+ 	
 	float f3[m];
-	float f3norm = 0;
-	for(int i = 0; i<m; i++) {
-		f3[i] = p[i] -_pre[0]*e[i][0]-_pre[1]*e[i][1];
-		f3norm = pow(f3[i],2)+ f3norm;
+ 	float f3norm = 0;
+ 	for(int i = 0; i<m; i++) {
+ 		f3[i] = pi[i] -_pre[0]*e[i][0]-_pre[1]*e[i][1];
 	}
-	f3norm = sqrt(f3norm);
+	f3norm = sqrt(powpinorm- powprenorm );
 	for(int i = 0; i<m; i++){
 		f3[i] = f3[i]/f3norm;
-	}
+	}	
 	//初期値設定
 	const int _N = 6;
 	float init[_N];
-	 for (int i = 0; i < _N; i++) {
-        init[i] = ConstSolve2D::defaultInit[i];
-      }
+	for (int i = 0; i < _N; i++) {
+      	init[i] = ConstSolve2D::defaultInit[i];
+     }
 	// 後は制約式を解く
 	float* ans = solver2D( _pre, _new, f3norm,init);
 	std::cerr << ans[0] << std::endl;
@@ -167,7 +197,7 @@ void Agi::refine(float* _pre, float* _new, int index) {
 		e[i][1] = e2[i];
 	}
 	cal2Mtr();
-
+	return 0;
 }
 float Agi::getXMax(){
 	return xmax;
@@ -180,14 +210,14 @@ void AGIPane::mouseMoved(wxMouseEvent& event) {
 	 if(nowindex != -1){
     //このxとyが点の2次元配列に含まれるならOK
     //もちろんある程度の誤差は許容しなければならない
-
-    _new[0] = event.GetX()/xrate;
-    _new[1] = event.GetY()/yrate;
-    ag -> refine(_pre,_new,nowindex);
-      setRate();
-      Refresh();
-  //  _pre[0] = _new[0];
-//_pre[1] = _new[1];
+	 _new[0] = (event.GetX() - getWidth()/2)/xrate;
+     _new[1] = (event.GetY()-getHeight()/2)/yrate;
+     ag->refine(_pre,_new,nowindex) ;
+     	Refresh();
+     
+    
+    _pre[0] = _new[0];
+    _pre[1] = _new[1];
   }
 
 }
@@ -200,8 +230,8 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
     nowindex = getindex(x,y);
 //    std::cerr << nowindex  << std::endl;
     if(nowindex != -1){
-    _pre[0] = x/xrate;
-    _pre[1] = y/yrate;
+    _pre[0] = ag->getB(nowindex,0);
+    _pre[1] = ag->getB(nowindex,1);
 }
 
 }
@@ -212,7 +242,9 @@ void AGIPane::mouseReleased(wxMouseEvent& event){
   if(nowindex != -1){
     //このxとyが点の2次元配列に含まれるならOK
     //もちろんある程度の誤差は許容しなければならない
-      
+   
+     // _pre[0] = _new[0];
+     // _pre[1] = _new[1];
       nowindex = -1;
   }
 }
@@ -280,12 +312,14 @@ int AGIPane::getHeight()
     return GetSize().y;
 }
 
+//呼び出すのは最初の一度だけ
+
 void AGIPane::setRate(){
    
-    float xmax = ag->getXMax()+1;
-    float ymax = ag->getYMax()+1;
-    xrate = getWidth() /xmax ;
-    yrate = getHeight() /ymax;
+    float xmax = ag->getXMax();
+    float ymax = ag->getYMax();
+    xrate = getWidth() /(2*xmax);
+    yrate = getHeight()/(2* ymax);
     //     std::cerr << xrate << std::endl;
     //        std::cerr << yrate << std::endl;
 }
@@ -296,8 +330,11 @@ int AGIPane::getindex(int x, int y){
     const float min = 25;
     float minnow = min; 
     float d; 
+    float x2 = (x - getWidth()/2)/xrate;
+    float y2 = (y - getWidth()/2 )/yrate;
+
     for(int i = 0;i< data->getnum();i++){
-        d = pow( ag->getB(i,0)* xrate -x,2)+pow( ag->getB(i,1)* yrate - y,2);
+        d = pow( ag->getB(i,0) -x2,2)+pow( ag->getB(i,1)- y2,2);
         if(d < minnow){
             minnow = d;
             index = i;
@@ -338,7 +375,7 @@ void AGIPane::render( wxPaintEvent& evt )
 
     //ここで点を描画する  倍率をきめる関数をどこかで定義する必要あり  データの最大値を使うべきだろう
     for(int i = 0; i< data->getnum();i++){
-        glVertex3f(ag->getB(i,0)*xrate,ag->getB(i,1)*yrate,0);
+        glVertex3f(ag->getB(i,0)*xrate+getWidth()/2,ag->getB(i,1)*yrate+getHeight()/2,0);
     }
     glEnd();
     glFlush();

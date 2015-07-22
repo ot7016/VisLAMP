@@ -49,6 +49,6 @@ public:
  
 	DECLARE_EVENT_TABLE()
 private:
-	int* rate; 
+	float* rate; 
 };
 #endif
