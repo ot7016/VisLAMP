@@ -216,11 +216,11 @@ void AGIPane::mouseMoved(wxMouseEvent& event) {
      	Refresh();
      	int atr = data->getatr();
      	int n = data->getnum();
-     	float** v = new float[atr];
+     	float** v = new float*[atr];
      	for(int i = 0 ; i< atr; i++){
      		v[i] = new float[2];
-     		v[i][0] = B[num + i][0];
-     		v[i][1] = B[num + i][1];
+     		v[i][0] = ag->getB(n + i, 0);
+     		v[i][1] = ag->getB(n + i, 1);
      	}
      	pcp->refine(v); 
      

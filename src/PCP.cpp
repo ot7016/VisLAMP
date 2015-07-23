@@ -36,7 +36,7 @@ PCPPane::PCPPane(wxFrame* parent, int* args,ReadData* d ) :
     setRate();
     int atr = data->getatr();
     order = new int[atr];
-    for(int i = 0; i< n; i++)
+    for(int i = 0; i< atr; i++)
         order[i] = i;
     
     // To avoid flashing on MSW
