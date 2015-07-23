@@ -51,8 +51,9 @@ bool MyApp::OnInit()
     int args[] = {WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0};
     data = new ReadData();
 
-    glPane = new AGIPane( (wxFrame*) frame, args,data); 
     pcPane = new PCPPane((wxFrame*) frame, args,data);
+    glPane = new AGIPane( (wxFrame*) frame, args,data,pcPane); 
+    
             
     wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
 

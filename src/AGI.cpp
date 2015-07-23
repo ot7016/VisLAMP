@@ -98,7 +98,7 @@ void Agi::cal2Mtr() {
 	float prexmin = 100;
 	float preymin = 100; 
 
-	int n = data->getnum();
+	int n = data->getnumatr();
 	int m = data->getdim();
 	B = new float*[n];      
 	for (int i = 0; i < n; i++) {
@@ -127,7 +127,7 @@ void Agi::cal2Mtr() {
 
 	//6/2追加 最小値が0以下なので 下駄を履かせる
 	//　可視空間のほうが大きかった理由これ
-	for(int i = 0;i< n;i++){
+	for(int i = 0; i< n; i++){
 		B[i][0] = B[i][0];
 		B[i][1] = B[i][1];
 	}
@@ -139,29 +139,29 @@ void Agi::cal2Mtr() {
 
 int Agi::refine(float* _pre, float* _new, int index) {
 		//まずはe3を求める
-	int n = data->getnum();
+	int n = data->getnumatr();
 	int m = data->getdim();
 	float pi[m];
 	float powpinorm = 0;
 	for(int i = 0; i<m; i++){
-		pi[i] = data->getA(index,i);
-		powpinorm = pow(pi[i],2)+powpinorm;
+		pi[i] = data->getA(index, i);
+		powpinorm = pow(pi[i], 2)+powpinorm;
 	}
 	float pinorm = sqrt(powpinorm);
-	float powprenorm =   pow(_pre[0],2)+pow(_pre[1],2);
+	float powprenorm = pow(_pre[0], 2)+pow(_pre[1], 2);
 	float prenorm = sqrt(powprenorm);
-	float newnorm = sqrt(pow(_new[0],2)+pow(_new[1],2));
+	float newnorm = sqrt(pow(_new[0], 2)+pow(_new[1], 2));
 	
 	
 
- 	if(pinorm < prenorm ) {
+ 	if(pinorm < prenorm) {
  		std::cerr << "X error pinorm " << std::endl;
  		std::cerr << pinorm << std::endl;
  		std::cerr << "prenorm" << std::endl;
  		std::cerr << prenorm << std::endl;
  		return -1;
  	} 
- 	if (pinorm < newnorm ){
+ 	if (pinorm < newnorm){
  		std::cerr << "X2 error" << std::endl;
  		return -2;
  	}
@@ -182,12 +182,12 @@ int Agi::refine(float* _pre, float* _new, int index) {
       	init[i] = ConstSolve2D::defaultInit[i];
      }
 	// 後は制約式を解く
-	float* ans = solver2D( _pre, _new, f3norm,init);
+	float* ans = solver2D( _pre, _new, f3norm, init);
 	std::cerr << ans[0] << std::endl;
 	std::cerr << ans[1] << std::endl;
 	float e1[m],e2[m];
-	float a3 = (_new[0]- _pre[0]*ans[0]-_pre[1]*ans[1])/f3norm;
-	float b3 = (_new[1]- _pre[0]*ans[2]-_pre[1]*ans[3])/f3norm;
+	float a3 = (_new[0] -_pre[0]*ans[0] -_pre[1]*ans[1])/f3norm;
+	float b3 = (_new[1] -_pre[0]*ans[2] -_pre[1]*ans[3])/f3norm;
 	for(int i = 0; i < m; i++){
 		e1[i] = ans[0] * e[i][0] + ans[1]* e[i][1] + a3 *  f3[i];
 		e2[i] = ans[2] * e[i][0] + ans[3]* e[i][1] + b3 *  f3[i];
@@ -210,10 +210,19 @@ void AGIPane::mouseMoved(wxMouseEvent& event) {
 	 if(nowindex != -1){
     //このxとyが点の2次元配列に含まれるならOK
     //もちろんある程度の誤差は許容しなければならない
-	 _new[0] = (event.GetX() - getWidth()/2)/xrate;
-     _new[1] = (event.GetY()-getHeight()/2)/yrate;
-     ag->refine(_pre,_new,nowindex) ;
+	 _new[0] = (event.GetX() - getWidth() /2) /xrate;
+     _new[1] = (event.GetY() - getHeight() /2) /yrate;
+     ag->refine(_pre, _new, nowindex) ;
      	Refresh();
+     	int atr = data->getatr();
+     	int n = data->getnum();
+     	float** v = new float[atr];
+     	for(int i = 0 ; i< atr; i++){
+     		v[i] = new float[2];
+     		v[i][0] = B[num + i][0];
+     		v[i][1] = B[num + i][1];
+     	}
+     	pcp->refine(v); 
      
     
     _pre[0] = _new[0];
@@ -223,15 +232,15 @@ void AGIPane::mouseMoved(wxMouseEvent& event) {
 }
 void AGIPane::mouseDown(wxMouseEvent& event) {
     //マウスがクリックされたときの処理
-    float x =  event.GetX();
+    float x = event.GetX();
     float y = event.GetY();
     //このxとyが点の2次元配列に含まれるならOK
     //もちろんある程度の誤差は許容しなければならない
     nowindex = getindex(x,y);
 //    std::cerr << nowindex  << std::endl;
     if(nowindex != -1){
-    _pre[0] = ag->getB(nowindex,0);
-    _pre[1] = ag->getB(nowindex,1);
+    _pre[0] = ag->getB(nowindex, 0);
+    _pre[1] = ag->getB(nowindex, 1);
 }
 
 }
@@ -255,12 +264,13 @@ void AGIPane::keyReleased(wxKeyEvent& event) {}
 
 
  
-AGIPane::AGIPane(wxFrame* parent, int* args,ReadData* d) :
+AGIPane::AGIPane(wxFrame* parent, int* args,ReadData* d, PCPPane* p) :
     wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxSize(800,600), wxFULL_REPAINT_ON_RESIZE)
 {
     m_context = new wxGLContext(this);
     data = d;
     ag = new Agi(d);
+    pcp = p;
     _pre = new float[2];
     _new = new float[2];
     nowindex = -1;
@@ -318,8 +328,8 @@ void AGIPane::setRate(){
    
     float xmax = ag->getXMax();
     float ymax = ag->getYMax();
-    xrate = getWidth() /(2*xmax);
-    yrate = getHeight()/(2* ymax);
+    xrate = getWidth() / (2 * xmax);
+    yrate = getHeight() /(2 * ymax);
     //     std::cerr << xrate << std::endl;
     //        std::cerr << yrate << std::endl;
 }
@@ -330,11 +340,11 @@ int AGIPane::getindex(int x, int y){
     const float min = 25;
     float minnow = min; 
     float d; 
-    float x2 = (x - getWidth()/2)/xrate;
-    float y2 = (y - getWidth()/2 )/yrate;
+    float x2 = (x - getWidth()/2) /xrate;
+    float y2 = (y - getWidth()/2) /yrate;
 
-    for(int i = 0;i< data->getnum();i++){
-        d = pow( ag->getB(i,0) -x2,2)+pow( ag->getB(i,1)- y2,2);
+    for(int i = 0;i< data->getnumatr();i++){
+        d = pow(ag->getB(i, 0)-x2, 2)+pow(ag->getB(i, 1)-y2, 2);
         if(d < minnow){
             minnow = d;
             index = i;
@@ -345,7 +355,7 @@ int AGIPane::getindex(int x, int y){
 
 
  //本当は再描画のことも考えた関数設計にする
-void AGIPane::render( wxPaintEvent& evt )
+void AGIPane::render(wxPaintEvent& evt)
 {
 
     if(!IsShown()) return;
@@ -356,26 +366,26 @@ void AGIPane::render( wxPaintEvent& evt )
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
  
     // ------------- draw some 2D ----------------
-    prepare2DViewport(0,0,getWidth(), getHeight());
+    prepare2DViewport(0, 0, getWidth(), getHeight());
     glLoadIdentity();
  
     // white background
     glColor4f(1, 1, 1, 1);
     glBegin(GL_QUADS);
-    glVertex3f(0,0,0);
-    glVertex3f(getWidth(),0,0);
-    glVertex3f(getWidth(),getHeight(),0);
-    glVertex3f(0,getHeight(),0);
+    glVertex3f(0, 0, 0);
+    glVertex3f(getWidth(), 0, 0);
+    glVertex3f(getWidth(), getHeight(), 0);
+    glVertex3f(0, getHeight(), 0);
     glEnd();
    
     // 追加部分 点を書く
-    glColor4f(0.0f,0.0f,1.0f,1.0f);
+    glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
     glPointSize(10.0);
     glBegin(GL_POINTS);
 
     //ここで点を描画する  倍率をきめる関数をどこかで定義する必要あり  データの最大値を使うべきだろう
-    for(int i = 0; i< data->getnum();i++){
-        glVertex3f(ag->getB(i,0)*xrate+getWidth()/2,ag->getB(i,1)*yrate+getHeight()/2,0);
+    for(int i = 0; i< data->getnumatr(); i++){
+        glVertex3f(ag->getB(i,0)*xrate + getWidth()/2, ag->getB(i,1)*yrate + getHeight()/2,0);
     }
     glEnd();
     glFlush();

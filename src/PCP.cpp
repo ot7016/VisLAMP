@@ -12,12 +12,14 @@
 // some useful events to use
 void PCPPane::mouseMoved(wxMouseEvent& event) {}
 void PCPPane::mouseDown(wxMouseEvent& event) {
+  /*
     //マウスがクリックされたときの処理
     int x = event.GetX();
     int y = event.GetY();
     //このxとyが点の2次元配列に含まれるならOK
     //もちろんある程度の誤差は許容しなければならない
       std::cerr << getindex(x,y)  << std::endl;
+      */
 }
 void PCPPane::mouseWheelMoved(wxMouseEvent& event) {}
 void PCPPane::mouseReleased(wxMouseEvent& event) {}
@@ -31,9 +33,12 @@ PCPPane::PCPPane(wxFrame* parent, int* args,ReadData* d ) :
 {
  	m_context = new wxGLContext(this);
     data = d;
-     
     setRate();
-
+    int atr = data->getatr();
+    order = new int[atr];
+    for(int i = 0; i< n; i++)
+        order[i] = i;
+    
     // To avoid flashing on MSW
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
 }
@@ -90,10 +95,10 @@ void PCPPane::setRate(){
    //         std::cerr << yrate << std::endl;
 }
 
-
+/*
 int PCPPane::getindex(int x, int y){
     
-    /*
+    
     int index = -1;
     const float min = 25;
     float minnow = min; 
@@ -106,13 +111,24 @@ int PCPPane::getindex(int x, int y){
         }
     }
     return index;
-    */
+    
     return -1;
 } 
+*/
+
+
+void PCPPane::refine(float** v){
+    //TSPを解く
+    solveTSP(v);
+}
+
+int PCPPane::solveTSP(float **v){
+
+}
 
 
  //本当は再描画のことも考えた関数設計にする
-void PCPPane::render( wxPaintEvent& evt )
+void PCPPane::render(wxPaintEvent& evt)
 {
 
     if(!IsShown()) return;
@@ -157,7 +173,7 @@ void PCPPane::render( wxPaintEvent& evt )
     	for(int j = 0;j< dim;j++){
             //if(y<0)
               //  y = data->getDmax(j)-y;
-            glVertex3f(getWidth()*j/dim, (data->getDmax(j) - data->getD(i,j) ) *rate[j] + getHeight()/8 ,0);    
+            glVertex3f(getWidth()*j/dim, (data->getDmax(order[j]) - data->getD(i,order[j]) ) *rate[order[j]] + getHeight()/8 ,0);    
         }
         glEnd();
     }

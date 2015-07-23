@@ -143,25 +143,26 @@ void ReadData::readoriginal(){
     cerr << "失敗" << endl;
         exit(1);
   }
-  //これ以前にAを読み込んでいるので numはもう決まっている
+  //これ以前にAを読み込んでいるので numはもう決まっている がこれは 本来のnum + 属性分になる
+  
+
+  //最初に1行目(ラベル)を読み込んで　属性数を決定 
+  getline(ifs,str);
+  vector<string> v = split(str,',');
+  atr = v.size()-1;
+
+  num = num -atr;
   D = new float*[num];
   name = new string[num];
-  getline(ifs,str);
   int k = 0;
-  bool isatr = true;
   while(getline(ifs,str)){
     vector<string> v = split(str,',');
-    int n = v.size();
-    if(isatr){
-      atr = n-1;
-      isatr = false;
-    }
-     D[k] = new float[n-1];
+     D[k] = new float[atr];
     //carsが最後に名前がきているので暫定的にこうする
-    for(int j = 0;j<n-1;j++){
+    for(int j = 0;j<atr-1;j++){
       D[k][j] = stod(v.at(j));
     }
-    name[k] = v.at(n-1);
+    name[k] = v.at(atr-1);
     k++;
   }
   Dmin = new float[atr];
@@ -194,6 +195,9 @@ int ReadData::getdim(){
 }
 int ReadData::getatr(){
   return atr;
+}
+int ReadData::getnumatr(){
+  return num+atr;
 }
 float ReadData::getevalue(int i){
 	return evalue[i];

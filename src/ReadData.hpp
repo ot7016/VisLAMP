@@ -26,6 +26,7 @@ class ReadData{
 	int getnum();
 	int getdim();
 	int getatr();
+	int getnumatr();
 	float getevalue(int i);
 	float getA(int i, int j);
 	float getD(int i,int j);

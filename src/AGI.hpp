@@ -20,6 +20,7 @@
 #include "wx/stattext.h"
 #include "wx/glcanvas.h"
 #include "ReadData.hpp"
+#include "PCP.hpp"
 #include "ConstraintSolver2D.hpp"
 //#else
 #ifndef agi 
@@ -51,8 +52,9 @@
 		wxGLContext* m_context;
 		Agi* ag;
 		ReadData* data;
+		PCPPane* pcp;
 	public:
-		AGIPane(wxFrame* parent, int* args,ReadData* d);
+		AGIPane(wxFrame* parent, int* args,ReadData* d, PCPPane* p);
 		virtual ~AGIPane();
 		void resized(wxSizeEvent& evt);
 		int getWidth();

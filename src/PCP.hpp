@@ -26,15 +26,17 @@
 class PCPPane: public wxGLCanvas
 {
     wxGLContext*	m_context;
-    ReadData* data  ;
+    ReadData* data;
 public:
-	PCPPane(wxFrame* parent, int* args,ReadData* d);
+	PCPPane(wxFrame* parent, int* args, ReadData* d);
 	virtual ~PCPPane();
 	void resized(wxSizeEvent& evt);
 	int getWidth();
 	int getHeight();
 	void render(wxPaintEvent& evt);
 	void prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y);
+	void refine(float** v);
+	int solveTSP(float** v);
 	// events
 	void mouseMoved(wxMouseEvent& event);
 	void mouseDown(wxMouseEvent& event);
@@ -44,11 +46,12 @@ public:
 	void mouseLeftWindow(wxMouseEvent& event);
 	void keyPressed(wxKeyEvent& event);
 	void keyReleased(wxKeyEvent& event);
-	int getindex(int x, int y);
+	//int getindex(int x, int y);
 	void setRate();
  
 	DECLARE_EVENT_TABLE()
 private:
 	float* rate; 
+	int* order;
 };
 #endif
