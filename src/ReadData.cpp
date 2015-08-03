@@ -41,7 +41,7 @@ void ReadData::read(){
 	ifstream ifs(dir+"-cood.csv");
 	string str;
 	if (ifs.fail()){
-        cerr << "失敗" << endl;
+        cerr << "cood失敗" << endl;
         exit(1);
     }
     int i = 0;
@@ -93,7 +93,7 @@ void ReadData::readevalue(){
     ifstream ifs2(dir+"-evalue.csv");
 	if (ifs2.fail())
     {
-        cerr << "失敗" << endl;
+        cerr << "evalue失敗" << endl;
         exit(1);
     }
     getline(ifs2,str);
@@ -140,7 +140,7 @@ void ReadData::readoriginal(){
   ifstream ifs(dir+"-original.csv");
   string str;
   if(ifs.fail()){
-    cerr << "失敗" << endl;
+    cerr << "original失敗" << endl;
         exit(1);
   }
   //これ以前にAを読み込んでいるので numはもう決まっている がこれは 本来のnum + 属性分になる
@@ -159,10 +159,10 @@ void ReadData::readoriginal(){
     vector<string> v = split(str,',');
      D[k] = new float[atr];
     //carsが最後に名前がきているので暫定的にこうする
-    for(int j = 0;j<atr-1;j++){
+    for(int j = 0;j<atr;j++){
       D[k][j] = stod(v.at(j));
     }
-    name[k] = v.at(atr-1);
+    name[k] = v.at(atr);
     k++;
   }
   Dmin = new float[atr];
@@ -174,6 +174,8 @@ void ReadData::readoriginal(){
 
   for(int i = 0; i< num; i++){
     for(int j = 0; j<atr; j++){
+      //int index1 = i;
+      //int index2 = j;
       float d = D[i][j];
       if(Dmin[j] >d)
         Dmin[j] = d;

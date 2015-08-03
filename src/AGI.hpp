@@ -2,7 +2,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
-#include <dirent.h>
+//#include <dirent.h>
 #include <exception>
 #include <math.h>
 #include <sstream>
@@ -70,7 +70,7 @@
 	void mouseLeftWindow(wxMouseEvent& event);
 	void keyPressed(wxKeyEvent& event);
 	void keyReleased(wxKeyEvent& event);
-	int getindex(int x, int y);
+	int getindex(float x, float y);
 	void setRate();
  
 
@@ -81,5 +81,6 @@ private:
 	int nowindex;
 	float* _pre;
 	float* _new;
+	bool isMoved;
 };
 #endif

@@ -1,14 +1,9 @@
 #include <sstream>
 #include <string>
-#include <iostream>
 #include <vector>
 #include <stdio.h>
-#include <vector>
 #include <fstream>
-#include <dirent.h>
-#include <exception>
 #include <math.h>
-#include <sstream>
 
 #ifndef tsp 
 #define tsp
@@ -28,19 +23,21 @@
 //}forindex;
 
 
-class TSPsolver {
+class TSPsolver{
 public:
 	TSPsolver(float** v, int a);
 	~TSPsolver();
 	void solve();
-	std::vector<int> solveTSP1(int index);
+	void solveTSP1(int index);
 	bool iscontain(std::vector<int> v, int n);
+	float getlength(int i);
+	float getsumlength();
+	int getorder(int i);
 private: 
 	float** dist;  
 	int atr;
-	float* length;
-	
-
-
+	float length;
+	float mints;
+	std::vector<int> order;
 };
 #endif

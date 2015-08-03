@@ -45,8 +45,9 @@ class MyApp: public wxApp{
     AGIPane *glPane;
     PCPPane *pcPane;
     ReadData *data;
+    wxButton* button1;
 public:
- 
+    void buttonclicked(wxCommandEvent& event);
 };
 IMPLEMENT_APP(MyApp);
 enum

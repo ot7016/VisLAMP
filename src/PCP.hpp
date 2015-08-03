@@ -2,7 +2,6 @@
 // include OpenGL
 //#ifdef __WXMAC__
 #include <stdio.h>
-#include <vector>
 #include <string>
 #include <fstream>
 #include <dirent.h>
@@ -11,7 +10,6 @@
 //#include <vecLib/vecLib.h>
 
 #include <wx/wxprec.h>
-//#ifndef WX_PRECOMP
 #include "wx/wx.h"
 #include "wx/panel.h"
 #include "wx/event.h"
@@ -46,12 +44,16 @@ public:
 	void mouseLeftWindow(wxMouseEvent& event);
 	void keyPressed(wxKeyEvent& event);
 	void keyReleased(wxKeyEvent& event);
+	void setIndex(int i);
 	//int getindex(int x, int y);
 	void setRate();
  
 	DECLARE_EVENT_TABLE()
 private:
+	int index;
 	float* rate; 
 	int* order;
+	float* length;
+	float sumlength;
 };
 #endif

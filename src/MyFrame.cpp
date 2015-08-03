@@ -58,22 +58,22 @@ bool MyApp::OnInit()
     wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
 
     //パネルを生成、場合によっては拡張
-   wxPanel* glPanel;
-   wxButton* button1;
+   wxPanel* ctlPanel;
+  
    wxButton* button2; 
 
-    glPanel = new wxPanel((wxFrame*) frame,wxID_ANY,wxPoint(50,50),wxSize(300,600));
-    button1 = new wxButton((wxPanel*) glPanel,wxID_ANY,"ボタンのテスト");
-    button2 = new wxButton((wxPanel*) glPanel,wxID_ANY,"ボタンのテスト2");
+    ctlPanel = new wxPanel((wxFrame*) frame,wxID_ANY,wxPoint(50,50),wxSize(300,600));
+    button1 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"ボタンのテスト");
+    button2 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"ボタンのテスト2");
     //button1->SetLabel("ボタンのテスト");
     sizer2->Add(button1,1,wxEXPAND);
     sizer2->Add(button2,1,wxEXPAND);
-    glPanel->SetSizer(sizer2);
-    glPanel->SetAutoLayout(true);
+    ctlPanel->SetSizer(sizer2);
+    ctlPanel->SetAutoLayout(true);
 
    sizer->Add(glPane, 1, wxEXPAND);
    sizer ->Add(pcPane,1,wxEXPAND);
-   sizer->Add(glPanel,1,wxEXPAND);
+   sizer->Add(ctlPanel,1,wxEXPAND);
  
     frame->SetSizer(sizer);
     frame->SetAutoLayout(true);
@@ -82,7 +82,9 @@ bool MyApp::OnInit()
     return true;
 } 
 
+void MyApp::buttonclicked(wxCommandEvent& event){
 
+}
 
 
 BEGIN_EVENT_TABLE(AGIPane, wxGLCanvas)
@@ -111,6 +113,7 @@ EVT_MOUSEWHEEL(PCPPane::mouseWheelMoved)
 EVT_PAINT(PCPPane::render)
 END_EVENT_TABLE()
  
+ //EVT_BUTTON((wxButton*) button1, MyApp::Buttonclicked)
  
 // some useful events to use
 

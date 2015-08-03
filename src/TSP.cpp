@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <math.h>
+#include <algorithm>
+#include <iterator>
+#include <sstream>
 #include "TSP.hpp"
 
 using namespace std;
@@ -12,22 +15,23 @@ TSPsolver::TSPsolver(float** v,int a){
 	for(int i = 0; i< atr; i++){
 		dist[i] = new float[atr];
 		for(int j = 0; j < atr; j++){ 
-			dist[i][j] = pow(v[i][0] - v[j][0],2) + pow(v[i][1] - v[j][1],2);
+			dist[i][j] = sqrt(pow(v[i][0] - v[j][0],2) + pow(v[i][1] - v[j][1],2));
 		}
 	}
 }
 void TSPsolver::solve(){
-	vector< vector<int> > ans ;
-	length = new float[atr];
-
-	for(int i = 0; i< atr; i++){
-		ans.push_back(solveTSP1(i));
-	}
+	
+	length = 0;
+	solveTSP1(0);
+	
+	
+	//copy(ans.at(minindex).begin(),ans.at(minindex).end(),back_inserter(noworder));
+	return ;
 
 }
 // 始点は決まっている
- vector<int> TSPsolver::solveTSP1(int index){
-	vector<int> order = vector<int>();
+void TSPsolver::solveTSP1(int index){
+ 	order = vector <int>();
 	order.push_back(index);
 	    //data =  minplus(data,dist[index]); //ここで最初のをきめる
 	while(order.size() < atr ){
@@ -36,22 +40,27 @@ void TSPsolver::solve(){
 		int notcontain[num];
 		int j = 0;
 		for(int i = 0; i< atr ; i++){
-			if(!iscontain(order,i))
+			if(!iscontain(order,i)){
 				notcontain[j] = i; 
+				j++;
+			}
 		}
 		float min = dist[last][notcontain[0]];
 		int minindex = notcontain[0];
 	    for(int i = 0; i< num; i++){
-	    	int d = dist[last][i];
+	    	int nc = notcontain[i];
+	    	float d = dist[last][nc];
 	    	if(min >= d ){
 	    		min = d;
-				minindex = i;
+				minindex = nc;
 			}
 		}
-		length[index] += min;
+		length += min;
 		order.push_back(minindex);
+		//cerr << minindex << endl;
 	}
-	return order;
+	
+	return ;
 }
 bool TSPsolver::iscontain(vector<int> v,int n){
 	for(int i = 0; i < v.size(); i++){
@@ -63,6 +72,25 @@ bool TSPsolver::iscontain(vector<int> v,int n){
 
 TSPsolver::~TSPsolver(){
 	delete[] dist;
+	
+ }
+//一つ前との距離を返す
+float TSPsolver::getlength(int index){
+	if(index >0){
+		int pre = 0;
+		for(int i = 0; i< atr;i++){
+			if(index == order.at(i))
+				pre = i;
+		}
+		return dist[order.at(pre)][order.at(pre-1)];
+	}
+	else return -1;
+}
+float TSPsolver::getsumlength(){
+	return mints ;	
+}
+int TSPsolver::getorder(int i){
+	return order.at(i);
 }
 
 

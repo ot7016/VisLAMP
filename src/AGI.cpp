@@ -7,7 +7,6 @@
 #include "Agi.hpp"
 #include "wx/wx.h"
 #include "ConstraintSolver2D.hpp"
-//いらないの多分あるのであとで見直し
 
 //高次元ベクトルをMDSでもとめる→　その必要はとりあえずない
 //与えられた高次元配置を表す行列から計算
@@ -48,33 +47,17 @@ dsyev_("V", "U", &n, A, &n, w, work, &lwork, &info);
 */
     int m = data->getdim();
 	float  f1[m], f2[m];
-	//int f1i = 0, f2i = 0;
 	float distf1 = 0, distf2 = 0;
-	//k-means変更  今だけ あとでクラスターの要素を読み込む
-	/*
-	for(int i = 0;i< m/2;i++){
-		float e = data->getevalue(i);
-		f1[i] = e;
-		f2[i] = 0;
-		distf1 = distf1 + pow(e, 2);
-	}
-	for(int i = m/2;i<m;i++){
-		float e = data ->getevalue(i);
-		f1[i] = 0;
-		f2[i] = e;
-		distf2 = distf2 + pow(e, 2);
-	}
-	*/
 
 	//二次元平面上への射影の場合
 	
 	for (int i = 0; i < m; i++) {
 		if (i%2 == 0) {
-			f1[i] = data->getevalue(i) ;// 固有値を代入
+			f1[i] = sqrt(data->getevalue(i)) ;// 固有値を代入   現在はとりあえず projection factor 0.5とする
 			f2[i] = 0;
 			distf1 = distf1 + pow(f1[i], 2);
 		} else {
-			f2[i] = data->getevalue(i);
+			f2[i] = sqrt(data->getevalue(i));
 			f1[i] = 0;
 			distf2 = distf2 + pow(f2[i], 2);
 		}
@@ -89,7 +72,7 @@ dsyev_("V", "U", &n, A, &n, w, work, &lwork, &info);
 		e[i][0] = f1[i]/distf1;
 		e[i][1] = f2[i]/distf2;
 	}
-	 std::cerr << e[0][0] << std::endl;
+	// std::cerr << e[0][0] << std::endl;
 }
 //行列の計算   とりあえず実装　最適化とかなし　最終的にはBlasを使う
 void Agi::cal2Mtr() {
@@ -183,8 +166,7 @@ int Agi::refine(float* _pre, float* _new, int index) {
      }
 	// 後は制約式を解く
 	float* ans = solver2D( _pre, _new, f3norm, init);
-	std::cerr << ans[0] << std::endl;
-	std::cerr << ans[1] << std::endl;
+	//std::cerr << ans[0] << std::endl;
 	float e1[m],e2[m];
 	float a3 = (_new[0] -_pre[0]*ans[0] -_pre[1]*ans[1])/f3norm;
 	float b3 = (_new[1] -_pre[0]*ans[2] -_pre[1]*ans[3])/f3norm;
@@ -207,7 +189,7 @@ float Agi::getYMax(){
 }
 
 void AGIPane::mouseMoved(wxMouseEvent& event) {
-	 if(nowindex != -1){
+	 if(nowindex != -1 && isMoved){
     //このxとyが点の2次元配列に含まれるならOK
     //もちろんある程度の誤差は許容しなければならない
 	 _new[0] = (event.GetX() - getWidth() /2) /xrate;
@@ -231,7 +213,7 @@ void AGIPane::mouseMoved(wxMouseEvent& event) {
 
 }
 void AGIPane::mouseDown(wxMouseEvent& event) {
-    //マウスがクリックされたときの処理
+    //マウスがクリックされたときの処理?
     float x = event.GetX();
     float y = event.GetY();
     //このxとyが点の2次元配列に含まれるならOK
@@ -241,6 +223,7 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
     if(nowindex != -1){
     _pre[0] = ag->getB(nowindex, 0);
     _pre[1] = ag->getB(nowindex, 1);
+    isMoved = true;
 }
 
 }
@@ -248,16 +231,27 @@ void AGIPane::mouseWheelMoved(wxMouseEvent& event) {
 	
 }
 void AGIPane::mouseReleased(wxMouseEvent& event){
-  if(nowindex != -1){
+  if(nowindex != -1 && isMoved){
     //このxとyが点の2次元配列に含まれるならOK
     //もちろんある程度の誤差は許容しなければならない
    
      // _pre[0] = _new[0];
      // _pre[1] = _new[1];
       nowindex = -1;
+      isMoved = false;
   }
 }
-void AGIPane::rightClick(wxMouseEvent& event) {}
+void AGIPane::rightClick(wxMouseEvent& event) {
+	float x = event.GetX();
+	float y = event.GetY();
+	//ドラッグ中に右クリックされると間違いなくバグるのであとで対処
+	nowindex = getindex(x,y);
+	if(nowindex !=  -1){
+		pcp->setIndex(nowindex);
+		pcp->Refresh();
+		Refresh();
+	}
+}
 void AGIPane::mouseLeftWindow(wxMouseEvent& event) {}
 void AGIPane::keyPressed(wxKeyEvent& event) {}
 void AGIPane::keyReleased(wxKeyEvent& event) {}
@@ -274,6 +268,7 @@ AGIPane::AGIPane(wxFrame* parent, int* args,ReadData* d, PCPPane* p) :
     _pre = new float[2];
     _new = new float[2];
     nowindex = -1;
+    isMoved = false;
     setRate();
 
     // To avoid flashing on MSW
@@ -335,21 +330,22 @@ void AGIPane::setRate(){
 }
 
 
-int AGIPane::getindex(int x, int y){
+int AGIPane::getindex(float x, float y){
     int index = -1;
-    const float min = 25;
+    const float min = 5;
     float minnow = min; 
     float d; 
     float x2 = (x - getWidth()/2) /xrate;
-    float y2 = (y - getWidth()/2) /yrate;
+    float y2 = (y - getHeight()/2) /yrate;
 
     for(int i = 0;i< data->getnumatr();i++){
-        d = pow(ag->getB(i, 0)-x2, 2)+pow(ag->getB(i, 1)-y2, 2);
+        d = sqrt(pow(ag->getB(i, 0)-x2, 2)+pow(ag->getB(i, 1)-y2, 2));
         if(d < minnow){
             minnow = d;
             index = i;
         }
     }
+     std::cerr << data->getName(index) << std::endl;
     return index;
 } 
 
@@ -384,10 +380,28 @@ void AGIPane::render(wxPaintEvent& evt)
     glBegin(GL_POINTS);
 
     //ここで点を描画する  倍率をきめる関数をどこかで定義する必要あり  データの最大値を使うべきだろう
-    for(int i = 0; i< data->getnumatr(); i++){
-        glVertex3f(ag->getB(i,0)*xrate + getWidth()/2, ag->getB(i,1)*yrate + getHeight()/2,0);
-    }
+
+
+    if(nowindex != -1){
+  		for(int i = 0; i< nowindex; i++){
+        	glVertex3f(ag->getB(i,0)*xrate + getWidth()/2, ag->getB(i,1)*yrate + getHeight()/2,0);
+    	}
+    	glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+    	glVertex3f(ag->getB(nowindex,0)*xrate + getWidth()/2, ag->getB(nowindex,1)*yrate + getHeight()/2,0);
+    	glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
+
+    	for(int i = nowindex+1; i< data->getnumatr(); i++){
+        	glVertex3f(ag->getB(i,0)*xrate + getWidth()/2, ag->getB(i,1)*yrate + getHeight()/2,0);
+    	}
+	}
+	else{
+		for(int i = 0; i< data->getnumatr(); i++){
+        	glVertex3f(ag->getB(i,0)*xrate + getWidth()/2, ag->getB(i,1)*yrate + getHeight()/2,0);
+    	}
+	}
     glEnd();
     glFlush();
     SwapBuffers();
 }
+
+

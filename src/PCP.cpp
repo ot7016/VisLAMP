@@ -2,11 +2,10 @@
 #include "OpenGL/glu.h"
 #include "OpenGL/gl.h"
 #include "ReadData.hpp"
+#include "TSP.hpp"
 //PCPを実装する場合 agi描画部分も独立させるべき
 //それぞれをパネルに乗っけるのが無難か 大幅な書き換えがいる
-
-
-
+using namespace std;
  
  
 // some useful events to use
@@ -36,15 +35,21 @@ PCPPane::PCPPane(wxFrame* parent, int* args,ReadData* d ) :
     setRate();
     int atr = data->getatr();
     order = new int[atr];
-    for(int i = 0; i< atr; i++)
+    length = new float[atr];
+    for(int i = 0; i< atr; i++){
         order[i] = i;
+        length[i] = 1;
+    }
     
+    sumlength = atr;
     // To avoid flashing on MSW
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
 }
  
 PCPPane::~PCPPane(){
 	delete m_context;
+    delete[] order;
+    delete[] length;
 }
  
 void PCPPane::resized(wxSizeEvent& evt)
@@ -89,7 +94,7 @@ void PCPPane::setRate(){
     rate = new float[dim];
     for(int i = 0;i< dim;i++ ){
         rate[i] = (getHeight()*3)/(4*(data->getDmax(i)-data->getDmin(i)));
-         std::cerr << rate[i] << std::endl;
+        // cerr << rate[i] << endl;
     }
  //        std::cerr << xrate << std::endl;
    //         std::cerr << yrate << std::endl;
@@ -116,15 +121,29 @@ int PCPPane::getindex(int x, int y){
 } 
 */
 
-
+void PCPPane::setIndex(int i){
+    index = i;
+}
 void PCPPane::refine(float** v){
     //TSPを解く
-    solveTSP(v);
+     int atr = data->getatr();
+    TSPsolver* ts = new TSPsolver(v,atr);
+    ts->solve();
+    order = new int[atr];
+    for(int i = 0; i< atr;i++){
+        order[i] = ts->getorder(i);
+     }
+
+    sumlength = 0;
+     length = new float[atr];
+    for(int i = 0;i < atr-1; i++){
+        length[i] = ts->getlength(i+1);
+        sumlength += length[i];
+    }
+    length[atr-1] = 0;
+     Refresh();
 }
 
-int PCPPane::solveTSP(float **v){
-
-}
 
 
  //本当は再描画のことも考えた関数設計にする
@@ -155,13 +174,17 @@ void PCPPane::render(wxPaintEvent& evt)
     glColor4f(0.0f,0.0f,0.0f,1.0f);
     glBegin(GL_LINES);
     int dim = data-> getatr();
-
+    //float xrate = getWidth()/sumlength;
+    float len1 = 0;
     for(int i = 0; i< dim;i++){  //要素数
-        int x = getWidth() * i / dim;
+        int x = (len1/sumlength)*getWidth();
+        //int x = getWidth() * i / dim;
     	glVertex3f(x,getHeight()*7/8,0);
     	glVertex3f(x,getHeight()*1/8,0);
+        len1 = len1 + length[i];  
     }
     glEnd();
+    
 
     // 追加部分 点を書く
     glColor4f(0.0f,0.0f,1.0f,1.0f);
@@ -170,11 +193,20 @@ void PCPPane::render(wxPaintEvent& evt)
 
     for(int i = 0; i< data->getnum();i++){
         glBegin(GL_LINE_STRIP);
-    	for(int j = 0;j< dim;j++){
+        float len = 0;
+        if(i == index)
+            glColor4f(1.0f,0.0f,1.0f,1.0f); 
+    	for(int j = 0; j< dim; j++){
             //if(y<0)
               //  y = data->getDmax(j)-y;
-            glVertex3f(getWidth()*j/dim, (data->getDmax(order[j]) - data->getD(i,order[j]) ) *rate[order[j]] + getHeight()/8 ,0);    
+            int index = order[j];
+            float l = (len/sumlength)*getWidth();
+            glVertex3f(l, (data->getDmax(index) - data->getD(i,index) ) *rate[index] + getHeight()/8 ,0);  
+            len = len + length[j];   
         }
+        if(i == index)
+            glColor4f(0.0f,0.0f,1.0f,1.0f); 
+
         glEnd();
     }
 
