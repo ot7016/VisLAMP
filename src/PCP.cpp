@@ -36,6 +36,7 @@ PCPPane::PCPPane(wxFrame* parent, int* args,ReadData* d ) :
     int atr = data->getatr();
     order = new int[atr];
     length = new float[atr];
+    index = -1;
     for(int i = 0; i< atr; i++){
         order[i] = i;
         length[i] = 1;
@@ -192,26 +193,31 @@ void PCPPane::render(wxPaintEvent& evt)
     //glBegin(GL_POINTS);
 
     for(int i = 0; i< data->getnum();i++){
-        glBegin(GL_LINE_STRIP);
-        float len = 0;
-        if(i == index)
-            glColor4f(1.0f,0.0f,1.0f,1.0f); 
-    	for(int j = 0; j< dim; j++){
-            //if(y<0)
-              //  y = data->getDmax(j)-y;
-            int index = order[j];
-            float l = (len/sumlength)*getWidth();
-            glVertex3f(l, (data->getDmax(index) - data->getD(i,index) ) *rate[index] + getHeight()/8 ,0);  
-            len = len + length[j];   
-        }
-        if(i == index)
-            glColor4f(0.0f,0.0f,1.0f,1.0f); 
-
-        glEnd();
+       
+        if(i != index)
+            draw(i);     
     }
-
+    if(index >=0){
+      glColor4f(1.0f,0.0f,0.0f,1.0f); 
+      draw(index);
+  }
 
     //glEnd();
     glFlush();
     SwapBuffers();
 }
+
+void PCPPane::draw(int i){
+    glBegin(GL_LINE_STRIP);
+        float len = 0;
+    for(int j = 0; j< data->getatr(); j++){
+        //if(y<0)
+         //  y = data->getDmax(j)-y;
+        int index = order[j];
+        float l = (len/sumlength)*getWidth();
+        glVertex3f(l, (data->getDmax(index) - data->getD(i,index) ) *rate[index] + getHeight()/8 ,0);  
+        len = len + length[j];   
+    }
+     glEnd();
+}
+

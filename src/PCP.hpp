@@ -32,6 +32,7 @@ public:
 	int getWidth();
 	int getHeight();
 	void render(wxPaintEvent& evt);
+	void draw(int i);
 	void prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y);
 	void refine(float** v);
 	int solveTSP(float** v);

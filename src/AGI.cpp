@@ -17,6 +17,7 @@ Agi::Agi(ReadData* d){
 	data = d;
 	calprj();
 	cal2Mtr();
+	delta = 0.5;
 }
 
 Agi::~Agi(){
@@ -53,11 +54,11 @@ dsyev_("V", "U", &n, A, &n, w, work, &lwork, &info);
 	
 	for (int i = 0; i < m; i++) {
 		if (i%2 == 0) {
-			f1[i] = sqrt(data->getevalue(i)) ;// 固有値を代入   現在はとりあえず projection factor 0.5とする
+			f1[i] = pow(data->getevalue(i),delta) ;// 固有値を代入   現在はとりあえず projection factor 0.5とする
 			f2[i] = 0;
 			distf1 = distf1 + pow(f1[i], 2);
 		} else {
-			f2[i] = sqrt(data->getevalue(i));
+			f2[i] = pow(data->getevalue(i),delta);
 			f1[i] = 0;
 			distf2 = distf2 + pow(f2[i], 2);
 		}
@@ -186,6 +187,9 @@ float Agi::getXMax(){
 }
 float Agi::getYMax(){
 	return ymax;
+}
+void Agi::setdelta(float d){
+	delta = d;
 }
 
 void AGIPane::mouseMoved(wxMouseEvent& event) {
@@ -326,8 +330,13 @@ void AGIPane::setRate(){
     xrate = getWidth() / (2 * xmax);
     yrate = getHeight() /(2 * ymax);
     //     std::cerr << xrate << std::endl;
-    //        std::cerr << yrate << std::endl;
-}
+    //        
+  }
+
+ void AGIPane::setdelta(float d){
+ 	ag->setdelta(d);
+ 	Refresh();
+ }
 
 
 int AGIPane::getindex(float x, float y){

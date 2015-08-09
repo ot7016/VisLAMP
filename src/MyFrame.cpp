@@ -46,7 +46,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 bool MyApp::OnInit()
 {
     wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-    frame = new wxFrame((wxFrame *)NULL, -1, wxT("Hello GL World"),wxPoint(50,50), wxSize(1900,600));
+    frame = new wxFrame((wxFrame *)NULL, -1, wxT("Pcoordagi"),wxPoint(50,50), wxSize(1900,600));
  
     int args[] = {WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0};
     data = new ReadData();
@@ -65,9 +65,18 @@ bool MyApp::OnInit()
     ctlPanel = new wxPanel((wxFrame*) frame,wxID_ANY,wxPoint(50,50),wxSize(300,600));
     button1 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"ボタンのテスト");
     button2 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"ボタンのテスト2");
-    //button1->SetLabel("ボタンのテスト");
+    slider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,50,0,400);
+   // slider->SetLabelText("Projection Factor");
+    button1->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
+        wxCommandEventHandler(MyApp::buttonclicked),
+        NULL, this);
+    slider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
+      wxCommandEventHandler(MyApp::getslider),
+        NULL, this);
+
     sizer2->Add(button1,1,wxEXPAND);
     sizer2->Add(button2,1,wxEXPAND);
+    sizer2->Add(slider,1,wxEXPAND);
     ctlPanel->SetSizer(sizer2);
     ctlPanel->SetAutoLayout(true);
 
@@ -82,10 +91,16 @@ bool MyApp::OnInit()
     return true;
 } 
 
-void MyApp::buttonclicked(wxCommandEvent& event){
+
+void MyApp::buttonclicked(wxCommandEvent& WXUNUSED(event)){
+    std::cerr << "ボタンクリック" << std::endl;
 
 }
+void MyApp::getslider(wxCommandEvent& WXUNUSED(event)){
+    float d = slider->GetValue()/100;
+    glPane->setdelta(d);
 
+}
 
 BEGIN_EVENT_TABLE(AGIPane, wxGLCanvas)
 EVT_MOTION(AGIPane::mouseMoved)
@@ -112,6 +127,7 @@ EVT_KEY_UP(PCPPane::keyReleased)
 EVT_MOUSEWHEEL(PCPPane::mouseWheelMoved)
 EVT_PAINT(PCPPane::render)
 END_EVENT_TABLE()
+ 
  
  //EVT_BUTTON((wxButton*) button1, MyApp::Buttonclicked)
  

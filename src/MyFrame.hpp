@@ -46,9 +46,14 @@ class MyApp: public wxApp{
     PCPPane *pcPane;
     ReadData *data;
     wxButton* button1;
+    wxSlider *slider;
 public:
     void buttonclicked(wxCommandEvent& event);
+    void getslider(wxCommandEvent& event);
 };
+
+
+
 IMPLEMENT_APP(MyApp);
 enum
 {

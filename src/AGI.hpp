@@ -37,9 +37,11 @@
 		float getB(int i,int j);
 		float getXMax();
 		float getYMax();
+		void setdelta(float d);
 	private:
 		ReadData* data;
 		float *evalue;
+		float delta;
 		float** e;
 		float** B; 
 		float xmax ,xmin;  //初期値を適切に定めるのはあとで確認
@@ -72,6 +74,7 @@
 	void keyReleased(wxKeyEvent& event);
 	int getindex(float x, float y);
 	void setRate();
+	void setdelta(float d);
  
 
 	DECLARE_EVENT_TABLE()

@@ -16,12 +16,24 @@ readmatrix <-function(infile,out){
 	
 	
 }
-readmatrix3<-function(infile,out){
-	t <- read.table(infile,header = T)
-    t2 <- t[,1:8]   #現在 cars専用状態なのであとで対処
-	tscl <- scale(t2)[,]
-    dim <-ncol(t2)
-    m <- rbind(data.matric(tscl),diag(dim))
+readmatrix2<-function(t2,out){
+    #t <- read.table(infile,header = T)
+    #t2 <- t[,1:8]   #この部分はデータごとに違うので　関数作る
+	#tscl <- scale(t2)[,]
+	tmin <- apply(t2,2,min)
+	tmax <- apply(t2,2,max)
+	trate <- tmax -tmin
+	#trate <- tmax -tmin
+	n <- nrow(t2)
+	 dim <-ncol(t2)
+	for(i in 1:n){
+		ta <- t2[i,] - tmin
+		ta2 <- ta/trate
+	    t2 <- rbind(t2,ta2)
+	} 
+	tscl <- t2[(n+1):(2*n),]
+   
+    m <- rbind(data.matrix(tscl),diag(dim))
 	D0 <-dist(m,method ="euclidean",upper =TRUE) #距離オブジェクト作成
     D <-- as.matrix(D0) #距離行列に
 	#cmdscale(D,k?,eig = TRUE)
@@ -39,13 +51,30 @@ readmatrix3<-function(infile,out){
 	dim <- length(lamh)
 	X <- apply(e$vectors[,1:dim],1,mul,sqrt(lamh))
 	write.csv(t(X),paste(out,"-cood.csv",sep = ""),quote=FALSE,row.names=FALSE)
-	  }
-	powsum <- function(a){
-		sum(a^2)
-	}
-	minus <- function(a,b){
-		a-b
-	}
+ }
+powsum <- function(a){
+	sum(a^2)
+}
+minus <- function(a,b){
+	a-b
+}
 mul <- function(a,b){
-    a*b
+   	a*b
+}
+dee <- function(a,b){
+	a/b
+}
+
+
+readcars<- function(){
+    t <- read.table("cars-8/auto-mpg_withname.data",header = T)
+    t2 <- t[,1:8]
+    readmatrix2(t2,"cars-8/kcars")
+}
+readspid <- function(){
+    t <- read.csv("spid2015/2015SocialprogressIndexData.csv",header = T)
+    t2 <- t[1:133,3:18]  #全部表示すると潰れてしまうので今はこれで
+    t1 <- t[1:133,1]
+    write.csv(data.frame(t2,t1),"spid2015/spid-original.csv",quote = FALSE,row.names =FALSE)
+    readmatrix2(t2,"spid2015/spid")
 }
