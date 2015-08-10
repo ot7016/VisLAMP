@@ -22,6 +22,7 @@ ReadData::~ReadData(){
   delete[] A;
   delete[] D;
   delete[] name;
+  delete[] atrname;
   delete[] evalue;
   delete[] Amin;
   delete[] Amax;
@@ -150,6 +151,10 @@ void ReadData::readoriginal(){
   getline(ifs,str);
   vector<string> v = split(str,',');
   atr = v.size()-1;
+  atrname = new string[atr];
+  for(int i = 0 ;i< atr; i++){
+    atrname[i] =  v.at(i);
+  }
 
   num = num -atr;
   D = new float*[num];
@@ -212,6 +217,9 @@ float ReadData::getD(int i,int j){
 }
 string ReadData::getName(int i){
   return name[i];
+}
+string ReadData::getAtrName(int i){
+  return atrname[i];
 }
 float ReadData::getAmin(int i){
   return Amin[i];

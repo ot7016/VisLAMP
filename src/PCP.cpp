@@ -3,6 +3,7 @@
 #include "OpenGL/gl.h"
 #include "ReadData.hpp"
 #include "TSP.hpp"
+#include <GLUT/glut.h>
 //PCPを実装する場合 agi描画部分も独立させるべき
 //それぞれをパネルに乗っけるのが無難か 大幅な書き換えがいる
 using namespace std;
@@ -143,6 +144,7 @@ void PCPPane::refine(float** v){
     }
     length[atr-1] = 0;
      Refresh();
+    // Update();
 }
 
 
@@ -177,14 +179,28 @@ void PCPPane::render(wxPaintEvent& evt)
     int dim = data-> getatr();
     //float xrate = getWidth()/sumlength;
     float len1 = 0;
+    float xwidth[dim]; 
+    int ydown = getHeight()*7/8;
+    int yup = getHeight()/8 ;
     for(int i = 0; i< dim;i++){  //要素数
-        int x = (len1/sumlength)*getWidth();
+        xwidth[i] = (len1/sumlength)*getWidth();
         //int x = getWidth() * i / dim;
-    	glVertex3f(x,getHeight()*7/8,0);
-    	glVertex3f(x,getHeight()*1/8,0);
+    	glVertex3f(xwidth[i],ydown,0);
+    	glVertex3f(xwidth[i],yup,0);
         len1 = len1 + length[i];  
     }
     glEnd();
+
+    for(int i = 0 ;i< dim;i++){
+        glRasterPos2d(xwidth[i],ydown+40);
+        string str = data->getAtrName(order[i]);
+        int size = (int)str.size();
+        for(int j = 0;j< size;j++){
+            char ic = str[j];
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ic);
+        }
+    }
+
     
 
     // 追加部分 点を書く

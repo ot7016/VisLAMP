@@ -75,6 +75,7 @@
 	int getindex(float x, float y);
 	void setRate();
 	void setdelta(float d);
+	void calcagain(float x, float y);
  
 
 	DECLARE_EVENT_TABLE()

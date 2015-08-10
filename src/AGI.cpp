@@ -192,31 +192,9 @@ void Agi::setdelta(float d){
 	delta = d;
 }
 
-void AGIPane::mouseMoved(wxMouseEvent& event) {
-	 if(nowindex != -1 && isMoved){
-    //このxとyが点の2次元配列に含まれるならOK
-    //もちろんある程度の誤差は許容しなければならない
-	 _new[0] = (event.GetX() - getWidth() /2) /xrate;
-     _new[1] = (event.GetY() - getHeight() /2) /yrate;
-     ag->refine(_pre, _new, nowindex) ;
-     	Refresh();
-     	int atr = data->getatr();
-     	int n = data->getnum();
-     	float** v = new float*[atr];
-     	for(int i = 0 ; i< atr; i++){
-     		v[i] = new float[2];
-     		v[i][0] = ag->getB(n + i, 0);
-     		v[i][1] = ag->getB(n + i, 1);
-     	}
-     	pcp->refine(v); 
-     
-    
-    _pre[0] = _new[0];
-    _pre[1] = _new[1];
-  }
 
-}
 void AGIPane::mouseDown(wxMouseEvent& event) {
+	std::cerr << "MouseDown " << std::endl;
     //マウスがクリックされたときの処理?
     float x = event.GetX();
     float y = event.GetY();
@@ -225,27 +203,42 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
     nowindex = getindex(x,y);
 //    std::cerr << nowindex  << std::endl;
     if(nowindex != -1){
-    _pre[0] = ag->getB(nowindex, 0);
-    _pre[1] = ag->getB(nowindex, 1);
-    isMoved = true;
+	    _pre[0] = ag->getB(nowindex, 0);
+    	_pre[1] = ag->getB(nowindex, 1);
+    	isMoved = true;
+    	pcp->setIndex(nowindex);
+		pcp->Refresh();
+		pcp->Update();
+		Refresh();
+	}
 }
 
+void AGIPane::mouseMoved(wxMouseEvent& event) {
+	 if(nowindex != -1 && isMoved){
+	 	std::cerr << "mouseMoved " << std::endl;
+	 	
+  }
+
 }
+
 void AGIPane::mouseWheelMoved(wxMouseEvent& event) {
 	
 }
 void AGIPane::mouseReleased(wxMouseEvent& event){
+	std::cerr << "MouseReleased " << std::endl;
   if(nowindex != -1 && isMoved){
+  	calcagain(event.GetX(),event.GetY());
     //このxとyが点の2次元配列に含まれるならOK
     //もちろんある程度の誤差は許容しなければならない
    
      // _pre[0] = _new[0];
      // _pre[1] = _new[1];
-      nowindex = -1;
+    //  nowindex = -1;
       isMoved = false;
   }
 }
 void AGIPane::rightClick(wxMouseEvent& event) {
+	std::cerr << "Right click " << std::endl;
 	float x = event.GetX();
 	float y = event.GetY();
 	//ドラッグ中に右クリックされると間違いなくバグるのであとで対処
@@ -253,12 +246,34 @@ void AGIPane::rightClick(wxMouseEvent& event) {
 	if(nowindex !=  -1){
 		pcp->setIndex(nowindex);
 		pcp->Refresh();
+		pcp->Update();
 		Refresh();
+		//Update();
 	}
 }
 void AGIPane::mouseLeftWindow(wxMouseEvent& event) {}
 void AGIPane::keyPressed(wxKeyEvent& event) {}
 void AGIPane::keyReleased(wxKeyEvent& event) {}
+
+void AGIPane::calcagain(float x,float y){
+	_new[0] = (x - getWidth() /2) /xrate;
+     _new[1] = (y - getHeight() /2) /yrate;
+     //if(pow(_pre[0] - _new[0],2) - pow(_pre[1] - _new[1],2) > 0.01){ //判定あとで考える
+     	ag->refine(_pre, _new, nowindex) ;
+     	Refresh();
+     	//Update();
+     	int atr = data->getatr();
+     	int n = data->getnum();
+     	float** v = new float*[atr];
+     	for(int i = 0 ; i< atr; i++){
+     		v[i] = new float[2];
+   			v[i][0] = ag->getB(n + i, 0);
+    		v[i][1] = ag->getB(n + i, 1);
+     	}
+     	pcp->refine(v); 
+    // }
+    
+}
 
 
  
@@ -335,7 +350,11 @@ void AGIPane::setRate(){
 
  void AGIPane::setdelta(float d){
  	ag->setdelta(d);
+ 	//不十分　バグあり　ノード移動による射影の変更が反映されない
+ 	ag->calprj();
+ 	ag->cal2Mtr();
  	Refresh();
+ 	//Update();
  }
 
 
@@ -362,7 +381,7 @@ int AGIPane::getindex(float x, float y){
  //本当は再描画のことも考えた関数設計にする
 void AGIPane::render(wxPaintEvent& evt)
 {
-
+	std::cerr << "AGIRender" << std::endl;
     if(!IsShown()) return;
  
     wxGLCanvas::SetCurrent(*m_context);

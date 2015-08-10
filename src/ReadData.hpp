@@ -31,6 +31,7 @@ class ReadData{
 	float getA(int i, int j);
 	float getD(int i,int j);
 	std::string getName(int i);
+	std::string getAtrName(int i);
 	float getAmin(int i);
 	float getAmax(int i);
 	float getDmax(int i);
@@ -42,6 +43,7 @@ class ReadData{
 		float** A;
 		float** D;
 		std::string* name;
+		std::string* atrname;
 		float* Amin;
 		float* Amax;
 		float* Dmax;
