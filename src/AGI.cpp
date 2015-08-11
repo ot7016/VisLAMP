@@ -1,4 +1,3 @@
-
 #include <sstream>
 #include <string>
 #include <vector>
@@ -107,14 +106,6 @@ void Agi::cal2Mtr() {
 	}
 	xmin = prexmin;
 	ymin = preymin;
-
-
-	//6/2追加 最小値が0以下なので 下駄を履かせる
-	//　可視空間のほうが大きかった理由これ
-	for(int i = 0; i< n; i++){
-		B[i][0] = B[i][0];
-		B[i][1] = B[i][1];
-	}
 	xmax = prexmax ;
 	ymax = preymax ;
 }
@@ -187,6 +178,12 @@ float Agi::getXMax(){
 }
 float Agi::getYMax(){
 	return ymax;
+}
+float Agi::getXMin(){
+	return xmin;
+}
+float Agi::getYMin(){
+	return ymin;
 }
 void Agi::setdelta(float d){
 	delta = d;
@@ -340,10 +337,11 @@ int AGIPane::getHeight()
 
 void AGIPane::setRate(){
    
-    float xmax = ag->getXMax();
-    float ymax = ag->getYMax();
-    xrate = getWidth() / (2 * xmax);
-    yrate = getHeight() /(2 * ymax);
+    float xabs = std::max(ag->getXMax(),-(ag->getXMin()));
+    float yabs = std::max(ag->getYMax(),-(ag->getYMin()));
+
+    xrate = getWidth()  / (2 * xabs);
+    yrate = getHeight() /(2 * yabs);
     //     std::cerr << xrate << std::endl;
     //        
   }

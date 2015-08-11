@@ -16,9 +16,7 @@ readmatrix <-function(infile,out){
 	
 	
 }
-readmatrix2<-function(t2,out){
-    #t <- read.table(infile,header = T)
-    #t2 <- t[,1:8]   #この部分はデータごとに違うので　関数作る
+readmatrix2<-function(t2,out,thr){
 	#tscl <- scale(t2)[,]
 	tmin <- apply(t2,2,min)
 	tmax <- apply(t2,2,max)
@@ -47,7 +45,7 @@ readmatrix2<-function(t2,out){
 	e <- eigen(B,TRUE)
 	write.csv(t(e$values),paste(out,"-evalue.csv",sep = ""),quote=FALSE,row.names=FALSE)
 	write.csv(t(e$vectors),paste(out,"-evector.csv",sep = ""),quote=FALSE,row.names=FALSE)
-	lamh <- e$values[e$values>0]
+	lamh <- e$values[e$values>thr]
 	dim <- length(lamh)
 	X <- apply(e$vectors[,1:dim],1,mul,sqrt(lamh))
 	write.csv(t(X),paste(out,"-cood.csv",sep = ""),quote=FALSE,row.names=FALSE)
@@ -66,15 +64,16 @@ dee <- function(a,b){
 }
 
 
-readcars<- function(){
+#thrは 閾値
+readcars<- function(thr = 0){
     t <- read.table("cars-8/auto-mpg_withname.data",header = T)
     t2 <- t[,1:8]
-    readmatrix2(t2,"cars-8/kcars")
+    readmatrix2(t2,"cars-8/kcars",thr)
 }
-readspid <- function(){
+readspid <- function(thr = 0){
     t <- read.csv("spid2015/2015SocialprogressIndexData.csv",header = T)
     t2 <- t[1:133,3:18]  #全部表示すると潰れてしまうので今はこれで
     t1 <- t[1:133,1]
     write.csv(data.frame(t2,t1),"spid2015/spid-original.csv",quote = FALSE,row.names =FALSE)
-    readmatrix2(t2,"spid2015/spid")
+    readmatrix2(t2,"spid2015/spid",thr)
 }

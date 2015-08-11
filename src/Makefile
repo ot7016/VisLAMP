@@ -6,7 +6,7 @@ SOURCES = ReadData.cpp ConstraintSolver2D.cpp TSP.cpp AGI.cpp PCP.cpp MyFrame.cp
 	clang++ -g -o $@ $^ `wx-config --libs --cxxflags --gl-libs` -llbfgs -framework GLUT -framework OpenGL
 
 clean:
-	rm -f *.o pcoordagi
+	rm -f *.o ../bin/pcoordagi
 
 
 #myapp: protoagi.o myframe.o pcp.o ctl.o

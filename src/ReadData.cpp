@@ -13,6 +13,7 @@ ReadData::ReadData(){
         exit(1);
     }
 	getline(ifs,dir);
+    cerr << dir << endl;
 	read();	
   readevalue();
   readoriginal();
@@ -58,7 +59,7 @@ void ReadData::read(){
       	j++;
       }
       if(notread){
-        dim = v.size(); //一度のみ
+        dim = v.size(); //一度のみ   この時点で高次元行列を作っているので dim >0
         notread = false;
     }
       i++; 

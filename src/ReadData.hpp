@@ -6,7 +6,7 @@
 #include <vector>
 #include <fstream>
 #include <dirent.h>
-#include <exception>
+//#include <exception>
 #include <math.h>
 #include <sstream>
 

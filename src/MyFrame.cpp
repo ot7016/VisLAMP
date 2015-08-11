@@ -65,6 +65,8 @@ bool MyApp::OnInit()
     ctlPanel = new wxPanel((wxFrame*) frame,wxID_ANY,wxPoint(50,50),wxSize(300,600));
     button1 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"ボタンのテスト");
     button2 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"ボタンのテスト2");
+    wxStaticText* pftext;
+    pftext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"Projection Factor");
     slider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,50,0,400);
    // slider->SetLabelText("Projection Factor");
     button1->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
@@ -76,6 +78,7 @@ bool MyApp::OnInit()
 
     sizer2->Add(button1,1,wxEXPAND);
     sizer2->Add(button2,1,wxEXPAND);
+    sizer2->Add(pftext,1,wxEXPAND);
     sizer2->Add(slider,1,wxEXPAND);
     ctlPanel->SetSizer(sizer2);
     ctlPanel->SetAutoLayout(true);

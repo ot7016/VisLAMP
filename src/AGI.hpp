@@ -16,7 +16,6 @@
 #include "wx/panel.h"
 #include "wx/event.h"
 #include "wx/sizer.h"
-//#include "wx/slider.h"
 #include "wx/stattext.h"
 #include "wx/glcanvas.h"
 #include "ReadData.hpp"
@@ -37,6 +36,8 @@
 		float getB(int i,int j);
 		float getXMax();
 		float getYMax();
+		float getXMin();
+		float getYMin();
 		void setdelta(float d);
 	private:
 		ReadData* data;
@@ -80,8 +81,8 @@
 
 	DECLARE_EVENT_TABLE()
 private:
-	int xrate ;
-	int yrate ;
+	float xrate ;
+	float yrate ;
 	int nowindex;
 	float* _pre;
 	float* _new;

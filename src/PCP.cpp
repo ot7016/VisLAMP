@@ -11,16 +11,7 @@ using namespace std;
  
 // some useful events to use
 void PCPPane::mouseMoved(wxMouseEvent& event) {}
-void PCPPane::mouseDown(wxMouseEvent& event) {
-  /*
-    //マウスがクリックされたときの処理
-    int x = event.GetX();
-    int y = event.GetY();
-    //このxとyが点の2次元配列に含まれるならOK
-    //もちろんある程度の誤差は許容しなければならない
-      std::cerr << getindex(x,y)  << std::endl;
-      */
-}
+void PCPPane::mouseDown(wxMouseEvent& event) {}
 void PCPPane::mouseWheelMoved(wxMouseEvent& event) {}
 void PCPPane::mouseReleased(wxMouseEvent& event) {}
 void PCPPane::rightClick(wxMouseEvent& event) {}
@@ -152,9 +143,8 @@ void PCPPane::refine(float** v){
  //本当は再描画のことも考えた関数設計にする
 void PCPPane::render(wxPaintEvent& evt)
 {
-
     if(!IsShown()) return;
- 
+
     wxGLCanvas::SetCurrent(*m_context);
     wxPaintDC(this); // only to be used in paint events. use wxClientDC to paint outside the paint event
  
