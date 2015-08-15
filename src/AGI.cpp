@@ -205,7 +205,8 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
     	isMoved = true;
     	pcp->setIndex(nowindex);
 		pcp->Refresh();
-		pcp->Update();
+		//pcp->Update();
+		md->setText(nowindex);
 		Refresh();
 	}
 }
@@ -243,8 +244,9 @@ void AGIPane::rightClick(wxMouseEvent& event) {
 	if(nowindex !=  -1){
 		pcp->setIndex(nowindex);
 		pcp->Refresh();
-		pcp->Update();
-		Refresh();
+		//pcp->Update();
+		md->setText(nowindex);
+				Refresh();
 		//Update();
 	}
 }
@@ -274,10 +276,11 @@ void AGIPane::calcagain(float x,float y){
 
 
  
-AGIPane::AGIPane(wxFrame* parent, int* args,ReadData* d, PCPPane* p) :
+AGIPane::AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p, MatrixView* m) :
     wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxSize(800,600), wxFULL_REPAINT_ON_RESIZE)
 {
     m_context = new wxGLContext(this);
+    md = m;
     data = d;
     ag = new Agi(d);
     pcp = p;

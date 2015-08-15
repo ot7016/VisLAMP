@@ -14,10 +14,8 @@
 //#include <GL/gl.h>
 //#endif
 #include "wx/sizer.h"
-#include "wx/glcanvas.h"
-#include "wx/wx.h"
-#include "PCP.hpp"
-
+//#include "wx/glcanvas.h"
+//#include "wx/wx.h"
 
 /*
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
@@ -42,17 +40,18 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 */
  
- 
 bool MyApp::OnInit()
 {
     wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-    frame = new wxFrame((wxFrame *)NULL, -1, wxT("Pcoordagi"),wxPoint(50,50), wxSize(1900,600));
+    frame = new wxFrame((wxFrame *)NULL, -1, wxT("Pcoordagi"),wxPoint(0,50), wxSize(1900,700));
  
     int args[] = {WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0};
+    wxWindow* mainPanel = new wxWindow((wxFrame*) frame,wxID_ANY);
+    wxBoxSizer* mainsizer = new wxBoxSizer(wxVERTICAL);
     data = new ReadData();
-
-    pcPane = new PCPPane((wxFrame*) frame, args,data);
-    glPane = new AGIPane( (wxFrame*) frame, args,data,pcPane); 
+    md  = new MatrixView((wxFrame*) frame,data);
+    pcPane = new PCPPane( (wxWindow*)mainPanel, args,data);
+    glPane = new AGIPane( (wxWindow*)mainPanel, args,data,pcPane,md); 
     
             
     wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
@@ -62,7 +61,7 @@ bool MyApp::OnInit()
   
    wxButton* button2; 
 
-    ctlPanel = new wxPanel((wxFrame*) frame,wxID_ANY,wxPoint(50,50),wxSize(300,600));
+    ctlPanel = new wxPanel((wxPanel*) mainPanel,wxID_ANY);
     button1 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"ボタンのテスト");
     button2 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"ボタンのテスト2");
     wxStaticText* pftext;
@@ -84,16 +83,20 @@ bool MyApp::OnInit()
     ctlPanel->SetAutoLayout(true);
 
    sizer->Add(glPane, 1, wxEXPAND);
-   sizer ->Add(pcPane,1,wxEXPAND);
+   sizer->Add(pcPane,1,wxEXPAND);
    sizer->Add(ctlPanel,1,wxEXPAND);
- 
-    frame->SetSizer(sizer);
+   mainPanel->SetSizer(sizer);
+   mainPanel->SetAutoLayout(true);
+
+   mainsizer->Add(mainPanel,1,wxEXPAND);
+   mainsizer->Add(md,1,wxEXPAND);
+   frame->SetSizer(mainsizer);
+
     frame->SetAutoLayout(true);
     frame->Show();
 
     return true;
 } 
-
 
 void MyApp::buttonclicked(wxCommandEvent& WXUNUSED(event)){
     std::cerr << "ボタンクリック" << std::endl;
@@ -131,12 +134,6 @@ EVT_MOUSEWHEEL(PCPPane::mouseWheelMoved)
 EVT_PAINT(PCPPane::render)
 END_EVENT_TABLE()
  
- 
  //EVT_BUTTON((wxButton*) button1, MyApp::Buttonclicked)
  
-// some useful events to use
-
-
-
-
- 
+// some useful events to use 

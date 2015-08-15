@@ -7,7 +7,6 @@
 #include <sstream>
 #include <iostream>
 
-
 //#include <vecLib/vecLib.h>
 
 #include <wx/wxprec.h>
@@ -22,6 +21,7 @@
 #include "AGI.hpp"
 #include "ReadData.hpp"
 #include "PCP.hpp"
+#include "MatrixView.hpp"
 
 /* //エラーが出るので一旦停止
 class MyFrame: public wxFrame{
@@ -47,6 +47,7 @@ class MyApp: public wxApp{
     ReadData *data;
     wxButton* button1;
     wxSlider *slider;
+    MatrixView *md;
 public:
     void buttonclicked(wxCommandEvent& event);
     void getslider(wxCommandEvent& event);

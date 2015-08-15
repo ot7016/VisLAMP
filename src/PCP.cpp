@@ -19,7 +19,7 @@ void PCPPane::mouseLeftWindow(wxMouseEvent& event) {}
 void PCPPane::keyPressed(wxKeyEvent& event) {}
 void PCPPane::keyReleased(wxKeyEvent& event) {}
  
-PCPPane::PCPPane(wxFrame* parent, int* args,ReadData* d ) :
+PCPPane::PCPPane(wxWindow* parent, int* args,ReadData* d ) :
     wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxSize(800,600), wxFULL_REPAINT_ON_RESIZE)
 {
  	m_context = new wxGLContext(this);

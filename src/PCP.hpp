@@ -26,7 +26,7 @@ class PCPPane: public wxGLCanvas
     wxGLContext*	m_context;
     ReadData* data;
 public:
-	PCPPane(wxFrame* parent, int* args, ReadData* d);
+	PCPPane(wxWindow* parent, int* args, ReadData* d);
 	virtual ~PCPPane();
 	void resized(wxSizeEvent& evt);
 	int getWidth();
