@@ -14,15 +14,11 @@
 #define mview
 class MatrixView : public wxPanel{
 private:
-//	wxStaticText* tx;
 	ReadData* data;
 	wxGridSizer* sizer;
-	//std::vector<wxStaticText> value; 
-	//wxStaticText *value;
 public:
 	MatrixView(wxFrame* frame, ReadData* d);
 	~MatrixView();
-	//wxStaticText getMVText();
 	void setText(int index);
 };
 #endif

@@ -4,20 +4,16 @@
 #include <stdio.h>
 #include <string>
 #include <fstream>
-#include <dirent.h>
-#include <exception>
 #include <sstream>
-//#include <vecLib/vecLib.h>
-
 #include <wx/wxprec.h>
 #include "wx/wx.h"
 #include "wx/panel.h"
 #include "wx/event.h"
 #include "wx/sizer.h"
-//#include "wx/slider.h"
 #include "wx/stattext.h"
 #include "wx/glcanvas.h"
 #include "ReadData.hpp"
+#include "TSP.hpp"
 #ifndef pc 
 #define pc
 
@@ -35,7 +31,8 @@ public:
 	void draw(int i);
 	void prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y);
 	void refine(float** v);
-	int solveTSP(float** v);
+	void solveTSP(float** v,int atr);
+	void solveAngle(float** v, int atr);
 	// events
 	void mouseMoved(wxMouseEvent& event);
 	void mouseDown(wxMouseEvent& event);
@@ -48,12 +45,12 @@ public:
 	void setIndex(int i);
 	//int getindex(int x, int y);
 	void setRate();
+	typedef std::pair<int,float*> ipair;
  
 	DECLARE_EVENT_TABLE()
 private:
 	int index;
 	float* rate; 
-	int* order;
 	float* length;
 	float sumlength;
 };

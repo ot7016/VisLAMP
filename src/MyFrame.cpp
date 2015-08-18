@@ -1,10 +1,6 @@
-
-
 #include <sstream>
 #include <iostream>
 #include "MyFrame.hpp"
-#include "AGI.hpp"
-#include "ReadData.hpp"
 // include OpenGL
 //#ifdef __WXMAC__
 #include "OpenGL/glu.h"
@@ -13,33 +9,7 @@
 //#include <GL/glu.h>
 //#include <GL/gl.h>
 //#endif
-#include "wx/sizer.h"
-//#include "wx/glcanvas.h"
-//#include "wx/wx.h"
 
-/*
-MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
-: wxFrame(NULL,-1, title, pos, size){
- wxMenu *menuFile = new wxMenu;
-    menuFile->Append(ID_Hello, "&Hello...\tCtrl-H",
-                     "Help string shown in status bar for this menu item");
-    menuFile->AppendSeparator();
-    menuFile->Append(wxID_EXIT);
-    wxMenu *menuHelp = new wxMenu;
-    menuHelp->Append(wxID_ABOUT);
-    wxMenuBar *menuBar = new wxMenuBar;
-    menuBar->Append( menuFile, "&File" );
-    menuBar->Append( menuHelp, "&Help" );
-    SetMenuBar( menuBar );
-    CreateStatusBar();
-    SetStatusText( "Welcome to wxWidgets!" );
-}
- void MyFrame::OnExit(wxCommandEvent& event){
-    Close( true );
-}
-
-*/
- 
 bool MyApp::OnInit()
 {
     wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -67,7 +37,6 @@ bool MyApp::OnInit()
     wxStaticText* pftext;
     pftext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"Projection Factor");
     slider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,50,0,400);
-   // slider->SetLabelText("Projection Factor");
     button1->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
         wxCommandEventHandler(MyApp::buttonclicked),
         NULL, this);
@@ -133,7 +102,5 @@ EVT_KEY_UP(PCPPane::keyReleased)
 EVT_MOUSEWHEEL(PCPPane::mouseWheelMoved)
 EVT_PAINT(PCPPane::render)
 END_EVENT_TABLE()
- 
- //EVT_BUTTON((wxButton*) button1, MyApp::Buttonclicked)
  
 // some useful events to use 

@@ -3,12 +3,9 @@
 #include <iostream>
 #include <vector>
 #include <stdio.h>
-#include <vector>
 #include <fstream>
-#include <dirent.h>
-//#include <exception>
 #include <math.h>
-#include <sstream>
+#include "TSP.hpp"
 
 #ifndef rdata 
 #define rdata 
@@ -28,6 +25,7 @@ class ReadData{
 	int getatr();
 	int getnumatr();
 	float getevalue(int i);
+	float getevector(int i,int j);
 	float getA(int i, int j);
 	float getD(int i,int j);
 	std::string getName(int i);
@@ -36,10 +34,15 @@ class ReadData{
 	float getAmax(int i);
 	float getDmax(int i);
 	float getDmin(int i);
+	int getOrder(int i);
+	void setOrder(TSPsolver* ts);
+	void setOrder(int* o);
+	bool isTSP();
 
 	private:
 		std::string dir;
 		float *evalue;
+		float** evector;
 		float** A;
 		float** D;
 		std::string* name;
@@ -48,9 +51,9 @@ class ReadData{
 		float* Amax;
 		float* Dmax;
 		float* Dmin;
-	//	float** e;
-	//	float** B; 
+		int* order;
 		int num,dim,atr;
+		bool ists ;
 
 
 

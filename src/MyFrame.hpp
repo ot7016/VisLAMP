@@ -53,8 +53,6 @@ public:
     void getslider(wxCommandEvent& event);
 };
 
-
-
 IMPLEMENT_APP(MyApp);
 enum
 {

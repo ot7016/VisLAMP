@@ -14,22 +14,26 @@ ReadData::ReadData(){
     }
 	getline(ifs,dir);
     cerr << dir << endl;
+  ists = false;
 	read();	
   readevalue();
   readoriginal();
+  order = new int[atr];
+  for(int i = 0;i<atr;i++){
+    order[i] = i;
+  }
 
 }
 ReadData::~ReadData(){
   delete[] A;
   delete[] D;
   delete[] name;
+  delete[] order;
   delete[] atrname;
   delete[] evalue;
   delete[] Amin;
   delete[] Amax;
   }
-
-
 
 void ReadData::read(){
 	//仮に入れて置く場所
@@ -109,24 +113,19 @@ void ReadData::readevalue(){
       	evalue[i] = stod(s);
       	i++;
       }
-      
-      
-/*
-      evalue = new float[dim];
-       cerr << "evalue" << endl;
-  for(int i = 0; i <dim; i++){
-    double sum = 0;
-    for (int j = 0; j < num; j++){
-      sum = sum + pow(A[j][i],2); 
-    }
-    evalue[i] = sqrt(sum);
-     cerr << evalue[i] << endl;
-  }    
-   cerr << "evalue end" << endl;
-   */
+      ifstream ifs3(dir+"-evector.csv");
+      evector = new float*[m];
+      getline(ifs3,str);
+      i = 0;
+      while(getline(ifs3,str)){
+        vector<string> v = split(str,',');
+        evector[i] = new float[num];
+        for(int j = 0;j < num;j++){
+          evector[i][j] = stod(v.at(j));
+        }
+        i++;
+      }
 }
-
-
 
  vector<string> ReadData::split(const std::string &str,char delim){
     vector<string> v;
@@ -146,7 +145,6 @@ void ReadData::readoriginal(){
         exit(1);
   }
   //これ以前にAを読み込んでいるので numはもう決まっている がこれは 本来のnum + 属性分になる
-  
 
   //最初に1行目(ラベル)を読み込んで　属性数を決定 
   getline(ifs,str);
@@ -180,8 +178,6 @@ void ReadData::readoriginal(){
 
   for(int i = 0; i< num; i++){
     for(int j = 0; j<atr; j++){
-      //int index1 = i;
-      //int index2 = j;
       float d = D[i][j];
       if(Dmin[j] >d)
         Dmin[j] = d;
@@ -191,9 +187,6 @@ void ReadData::readoriginal(){
   }
 
 }
-
-
-
 
 int ReadData::getnum(){
 	return num;
@@ -209,6 +202,9 @@ int ReadData::getnumatr(){
 }
 float ReadData::getevalue(int i){
 	return evalue[i];
+}
+float ReadData::getevector(int i, int j){
+  return evector[i][j];
 }
 float ReadData::getA(int i, int j){
 	return A[i][j];
@@ -233,4 +229,22 @@ float ReadData::getDmax(int i){
 }
 float ReadData::getDmin(int i){
   return Dmin[i];
+}
+void ReadData::setOrder(TSPsolver* ts){
+  order = new int[atr];
+  for(int i= 0;i<atr;i++){
+    order[i] = ts->getorder(i);
+  }
+}
+void ReadData::setOrder(int* o){
+  order = new int[atr];
+  for(int i = 0;i<atr;i++){
+    order[i] = o[i];
+  }
+}
+int ReadData::getOrder(int i){
+  return order[i];
+}
+bool ReadData::isTSP(){
+  return ists;
 }

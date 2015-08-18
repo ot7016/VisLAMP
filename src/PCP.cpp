@@ -1,8 +1,6 @@
 #include "PCP.hpp"
 #include "OpenGL/glu.h"
 #include "OpenGL/gl.h"
-#include "ReadData.hpp"
-#include "TSP.hpp"
 #include <GLUT/glut.h>
 //PCPを実装する場合 agi描画部分も独立させるべき
 //それぞれをパネルに乗っけるのが無難か 大幅な書き換えがいる
@@ -26,11 +24,9 @@ PCPPane::PCPPane(wxWindow* parent, int* args,ReadData* d ) :
     data = d;
     setRate();
     int atr = data->getatr();
-    order = new int[atr];
     length = new float[atr];
     index = -1;
     for(int i = 0; i< atr; i++){
-        order[i] = i;
         length[i] = 1;
     }
     
@@ -41,7 +37,6 @@ PCPPane::PCPPane(wxWindow* parent, int* args,ReadData* d ) :
  
 PCPPane::~PCPPane(){
 	delete m_context;
-    delete[] order;
     delete[] length;
 }
  
@@ -120,13 +115,18 @@ void PCPPane::setIndex(int i){
 void PCPPane::refine(float** v){
     //TSPを解く
      int atr = data->getatr();
+     bool isTSP = data->isTSP();
+     if(isTSP)
+        solveTSP(v,atr);
+     else
+        solveAngle(v,atr);
+     Refresh();
+}
+
+void PCPPane::solveTSP(float** v,int atr){
     TSPsolver* ts = new TSPsolver(v,atr);
     ts->solve();
-    order = new int[atr];
-    for(int i = 0; i< atr;i++){
-        order[i] = ts->getorder(i);
-     }
-
+    data->setOrder(ts);
     sumlength = 0;
      length = new float[atr];
     for(int i = 0;i < atr-1; i++){
@@ -134,11 +134,67 @@ void PCPPane::refine(float** v){
         sumlength += length[i];
     }
     length[atr-1] = 0;
-     Refresh();
-    // Update();
 }
+void PCPPane::solveAngle(float** v,int atr){
+    float** v2 =new float*[atr] ;
+    for(int i = 0;i<atr;i++){
+        v2[i] = new float[2];
+        float d = sqrt(pow(v[i][0],2)+pow(v[i][1],2));
+        v2[i][0] = v[i][0]/d;
+        v2[i][1] = v[i][1]/d;
+    }
+    vector<ipair> c1 ;
+    vector<ipair> c2;
+    vector<ipair> c3 ;
+    vector<ipair> c4;
+    //それぞれに場合分け
+    for(int i = 0;i < atr;i++){
+        if(v2[i][0]>0 && v2[i][1] >0)
+            c1.push_back(ipair(i,v2[i]));
+        else if(v2[i][0]>0 && v2[i][1] <0)
+            c2.push_back(ipair(i,v2[i]));
+        else if(v2[i][0]<0 && v2[i][1] <0)
+            c3.push_back(ipair(i,v2[i]));
+        else 
+            c4.push_back(ipair(i,v2[i]));
+    }
+    struct {
+        bool operator()(ipair& a,ipair& b){
+            return a.second[0] < b.second[0];
+        }
+    } xlesspair;
+    struct {
+        bool operator()(ipair& a,ipair& b){
+            return a.second[0] > b.second[0]; 
+            }  
+    }xgreaterpair;
+    struct {
+        bool operator()(ipair& a,ipair& b){
+            return a.second[1] < b.second[1];   
+        }
+    }ylesspair;
+    struct {
+        bool operator()(ipair& a,ipair& b){
+            return a.second[1] > b.second[1];       
+        }
+    }ygreaterpair;
 
 
+
+    sort(c1.begin(),c1.end(),ygreaterpair);
+    sort(c2.begin(),c2.end(),xgreaterpair);
+    sort(c3.begin(),c3.end(),ylesspair);
+    sort(c4.begin(),c4.end(),xlesspair);
+    copy(c2.begin(),c2.end(),back_inserter(c1));
+    copy(c3.begin(),c3.end(),back_inserter(c1));
+    copy(c4.begin(),c4.end(),back_inserter(c1));
+    int order[atr];
+    for(int i = 0;i< atr ;i++){
+        order[i] = c1.at(i).first;
+    }
+    data->setOrder(order);
+
+}
 
  //本当は再描画のことも考えた関数設計にする
 void PCPPane::render(wxPaintEvent& evt)
@@ -163,18 +219,15 @@ void PCPPane::render(wxPaintEvent& evt)
     glVertex3f(0,getHeight(),0);
     glEnd();
 
-     
     glColor4f(0.0f,0.0f,0.0f,1.0f);
     glBegin(GL_LINES);
     int dim = data-> getatr();
-    //float xrate = getWidth()/sumlength;
     float len1 = 0;
     float xwidth[dim]; 
     int ydown = getHeight()*7/8;
     int yup = getHeight()/8 ;
     for(int i = 0; i< dim;i++){  //要素数
         xwidth[i] = (len1/sumlength)*getWidth();
-        //int x = getWidth() * i / dim;
     	glVertex3f(xwidth[i],ydown,0);
     	glVertex3f(xwidth[i],yup,0);
         len1 = len1 + length[i];  
@@ -183,7 +236,7 @@ void PCPPane::render(wxPaintEvent& evt)
 
     for(int i = 0 ;i< dim;i++){
         glRasterPos2d(xwidth[i],ydown+40);
-        string str = data->getAtrName(order[i]);
+        string str = data->getAtrName(data->getOrder(i));
         int size = (int)str.size();
         for(int j = 0;j< size;j++){
             char ic = str[j];
@@ -191,12 +244,9 @@ void PCPPane::render(wxPaintEvent& evt)
         }
     }
 
-    
-
     // 追加部分 点を書く
     glColor4f(0.0f,0.0f,1.0f,1.0f);
     glPointSize(10.0);
-    //glBegin(GL_POINTS);
 
     for(int i = 0; i< data->getnum();i++){
        
@@ -207,8 +257,6 @@ void PCPPane::render(wxPaintEvent& evt)
       glColor4f(1.0f,0.0f,0.0f,1.0f); 
       draw(index);
   }
-
-    //glEnd();
     glFlush();
     SwapBuffers();
 }
@@ -217,9 +265,7 @@ void PCPPane::draw(int i){
     glBegin(GL_LINE_STRIP);
         float len = 0;
     for(int j = 0; j< data->getatr(); j++){
-        //if(y<0)
-         //  y = data->getDmax(j)-y;
-        int index = order[j];
+        int index = data->getOrder(j);
         float l = (len/sumlength)*getWidth();
         glVertex3f(l, (data->getDmax(index) - data->getD(i,index) ) *rate[index] + getHeight()/8 ,0);  
         len = len + length[j];   

@@ -244,10 +244,8 @@ void AGIPane::rightClick(wxMouseEvent& event) {
 	if(nowindex !=  -1){
 		pcp->setIndex(nowindex);
 		pcp->Refresh();
-		//pcp->Update();
 		md->setText(nowindex);
 				Refresh();
-		//Update();
 	}
 }
 void AGIPane::mouseLeftWindow(wxMouseEvent& event) {}
@@ -355,7 +353,6 @@ void AGIPane::setRate(){
  	ag->calprj();
  	ag->cal2Mtr();
  	Refresh();
- 	//Update();
  }
 
 

@@ -22,8 +22,6 @@
 //#else
 #ifndef agi 
 #define agi 
-
-//#include <vecLib/vecLib.h>
 	class Agi{
 	public:
 		Agi(ReadData* d);
@@ -39,7 +37,6 @@
 		void setdelta(float d);
 	private:
 		ReadData* data;
-		float *evalue;
 		float delta;
 		float** e;
 		float** B; 
