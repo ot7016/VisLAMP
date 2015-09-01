@@ -15,6 +15,7 @@ ReadData::ReadData(){
 	getline(ifs,dir);
     cerr << dir << endl;
   ists = false;
+  lengthvariable = true;
 	read();	
   readevalue();
   readoriginal();
@@ -247,4 +248,10 @@ int ReadData::getOrder(int i){
 }
 bool ReadData::isTSP(){
   return ists;
+}
+bool ReadData::isLenVar(){
+  return lengthvariable;
+}
+void ReadData::turnLenVar(){
+  lengthvariable = !lengthvariable;
 }

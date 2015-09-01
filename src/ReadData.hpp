@@ -38,6 +38,8 @@ class ReadData{
 	void setOrder(TSPsolver* ts);
 	void setOrder(int* o);
 	bool isTSP();
+	bool isLenVar();
+	void turnLenVar();
 
 	private:
 		std::string dir;
@@ -54,6 +56,7 @@ class ReadData{
 		int* order;
 		int num,dim,atr;
 		bool ists ;
+		bool lengthvariable;
 
 
 

@@ -52,13 +52,14 @@ void PCPPane::prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x,
     glEnable(GL_TEXTURE_2D);   // textures
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_BLEND);
+    glEnable(GL_LINE_SMOOTH);
     glDisable(GL_DEPTH_TEST);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
  
     glViewport(topleft_x, topleft_y, bottomrigth_x-topleft_x, bottomrigth_y-topleft_y);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
- 
+
     gluOrtho2D(topleft_x, bottomrigth_x, bottomrigth_y, topleft_y);
     glMatrixMode(GL_MODELVIEW);
 
@@ -128,12 +129,20 @@ void PCPPane::solveTSP(float** v,int atr){
     ts->solve();
     data->setOrder(ts);
     sumlength = 0;
-     length = new float[atr];
-    for(int i = 0;i < atr-1; i++){
-        length[i] = ts->getlength(i+1);
-        sumlength += length[i];
+    length = new float[atr];
+    if(data->isLenVar()){
+        for(int i = 0;i < atr-1; i++){
+            length[i] = ts->getlength(i+1);
+            sumlength += length[i];
+        }
+        length[atr-1] = 0;
     }
-    length[atr-1] = 0;
+    else{
+        for(int i = 0;i<atr;i++)
+            length[i] = 1;
+        sumlength = atr;
+    }
+
 }
 void PCPPane::solveAngle(float** v,int atr){
     float** v2 =new float*[atr] ;
@@ -193,6 +202,20 @@ void PCPPane::solveAngle(float** v,int atr){
         order[i] = c1.at(i).first;
     }
     data->setOrder(order);
+    length = new float[atr];
+    if(data->isLenVar()){
+        sumlength = 0;
+        for(int i = 0 ; i <atr-1 ;i++){
+            length[i] = acos(c1.at(i).second[0]* c1.at(i+1).second[0] + c1.at(i).second[1]* c1.at(i+1).second[1]);
+            sumlength = sumlength + length[i];
+        }
+        length[atr-1] = 0;
+    }
+    else{
+        for(int i = 0;i<atr;i++)
+            length[i] =1;
+        sumlength = atr;
+    }
 
 }
 
@@ -247,14 +270,14 @@ void PCPPane::render(wxPaintEvent& evt)
     // 追加部分 点を書く
     glColor4f(0.0f,0.0f,1.0f,1.0f);
     glPointSize(10.0);
-
-    for(int i = 0; i< data->getnum();i++){
-       
+    glLineWidth(1);
+    for(int i = 0; i< data->getnum();i++){   
         if(i != index)
-            draw(i);     
+            draw(i);                  
     }
     if(index >=0){
-      glColor4f(1.0f,0.0f,0.0f,1.0f); 
+      glColor4f(1.0f,0.0f,0.0f,1.0f);
+      glLineWidth(2); 
       draw(index);
   }
     glFlush();

@@ -83,5 +83,6 @@ private:
 	float* _pre;
 	float* _new;
 	bool isMoved;
+	bool isDrug;
 };
 #endif

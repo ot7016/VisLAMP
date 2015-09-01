@@ -32,7 +32,7 @@ bool MyApp::OnInit()
    wxButton* button2; 
 
     ctlPanel = new wxPanel((wxPanel*) mainPanel,wxID_ANY);
-    button1 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"ボタンのテスト");
+    button1 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"軸間の距離変更の有無");
     button2 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"ボタンのテスト2");
     wxStaticText* pftext;
     pftext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"Projection Factor");
@@ -68,7 +68,11 @@ bool MyApp::OnInit()
 } 
 
 void MyApp::buttonclicked(wxCommandEvent& WXUNUSED(event)){
-    std::cerr << "ボタンクリック" << std::endl;
+  data-> turnLenVar();
+  if(data->isLenVar())
+    std::cerr << "軸間距離: 可変" << std::endl;
+  else 
+    std::cerr << "軸間距離: 固定" << std::endl;
 
 }
 void MyApp::getslider(wxCommandEvent& WXUNUSED(event)){

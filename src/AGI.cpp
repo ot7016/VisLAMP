@@ -214,6 +214,7 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
 void AGIPane::mouseMoved(wxMouseEvent& event) {
 	 if(nowindex != -1 && isMoved){
 	 	std::cerr << "mouseMoved " << std::endl;
+	 	isDrug = true;
 	 	
   }
 
@@ -224,7 +225,7 @@ void AGIPane::mouseWheelMoved(wxMouseEvent& event) {
 }
 void AGIPane::mouseReleased(wxMouseEvent& event){
 	std::cerr << "MouseReleased " << std::endl;
-  if(nowindex != -1 && isMoved){
+  if(nowindex != -1 && isDrug){
   	calcagain(event.GetX(),event.GetY());
     //このxとyが点の2次元配列に含まれるならOK
     //もちろんある程度の誤差は許容しなければならない
@@ -234,6 +235,7 @@ void AGIPane::mouseReleased(wxMouseEvent& event){
     //  nowindex = -1;
       isMoved = false;
   }
+   isDrug = false;
 }
 void AGIPane::rightClick(wxMouseEvent& event) {
 	std::cerr << "Right click " << std::endl;
@@ -286,6 +288,7 @@ AGIPane::AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p, MatrixView
     _new = new float[2];
     nowindex = -1;
     isMoved = false;
+    isDrug = false;
     setRate();
 
     // To avoid flashing on MSW
@@ -407,8 +410,8 @@ void AGIPane::render(wxPaintEvent& evt)
 
     //ここで点を描画する  倍率をきめる関数をどこかで定義する必要あり  データの最大値を使うべきだろう
 
-
-    if(nowindex != -1){
+    int num = data->getnum();
+    if(nowindex != -1&& nowindex<num){
   		for(int i = 0; i< nowindex; i++){
         	glVertex3f(ag->getB(i,0)*xrate + getWidth()/2, ag->getB(i,1)*yrate + getHeight()/2,0);
     	}
@@ -416,15 +419,20 @@ void AGIPane::render(wxPaintEvent& evt)
     	glVertex3f(ag->getB(nowindex,0)*xrate + getWidth()/2, ag->getB(nowindex,1)*yrate + getHeight()/2,0);
     	glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
 
-    	for(int i = nowindex+1; i< data->getnumatr(); i++){
+    	for(int i = nowindex+1; i< num; i++){
         	glVertex3f(ag->getB(i,0)*xrate + getWidth()/2, ag->getB(i,1)*yrate + getHeight()/2,0);
     	}
 	}
 	else{
-		for(int i = 0; i< data->getnumatr(); i++){
+		for(int i = 0; i< num; i++){
         	glVertex3f(ag->getB(i,0)*xrate + getWidth()/2, ag->getB(i,1)*yrate + getHeight()/2,0);
     	}
 	}
+	glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+	for(int i = 0; i<data->getatr() ;i++){
+		glVertex3f(ag->getB(i+num,0)*xrate + getWidth()/2, ag->getB(i+num,1)*yrate + getHeight()/2,0);
+	}
+	glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
     glEnd();
     glFlush();
     SwapBuffers();

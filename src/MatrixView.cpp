@@ -6,19 +6,31 @@
 MatrixView::MatrixView(wxFrame* parent,ReadData* d):wxPanel(parent,wxID_ANY){
 	data  = d;
 	//wxStaticText* title = new wxStaticText((wxPanel*) this,wxID_ANY,"MatrixView");
+	wxPanel* nPanel = new wxPanel(this,wxID_ANY);
+	wxPanel* space = new wxPanel(nPanel,wxID_ANY);
+	name = new wxStaticText(nPanel,wxID_ANY,"                                        ");
+	wxGridSizer* nsizer = new wxGridSizer(2,1,20,100);
+	nsizer->Add(space);
+	nsizer->Add(name);
+	nPanel->SetSizer(nsizer);
 
+	vPanel = new wxPanel(this,wxID_ANY);
 	int atr = data->getatr();
-	sizer = new wxGridSizer(2,atr,20,20); 
+	vsizer = new wxGridSizer(2,atr,20,20); 
 	for(int i = 0;i< atr;i++){
-		wxStaticText* label =  new wxStaticText(this,wxID_ANY,data->getAtrName(i));
-		sizer->Add(label);
+		wxStaticText* label =  new wxStaticText(vPanel,wxID_ANY,data->getAtrName(i));
+		vsizer->Add(label);
 	}
 	//wxwidget はobjectのコピーが出来ない 配列も作れない 
 	//sizerのメソッドをうまく使えばobjectの追加削除も可能
 	for(int i = 0;i<atr;i++){
-		wxStaticText* value = new wxStaticText(this,wxID_ANY,"");
-		sizer->Add(value);
+		wxStaticText* value = new wxStaticText(vPanel,wxID_ANY,"");
+		vsizer->Add(value);
 	}
+	vPanel->SetSizer(vsizer);
+	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+	sizer->Add(nPanel);
+	sizer->Add(vPanel);
 	SetSizer(sizer);
 	SetAutoLayout(true);
 
@@ -32,7 +44,9 @@ void MatrixView::setText(int index){
 	int atr = data->getatr();
 	//wxWindowList wlist = GetChildren();
 	//wxWindowList::iterator it = wlist.begin(); 
-	wxWindowList & children = GetChildren();
+	name->SetLabelText(data->getName(index));
+
+	wxWindowList & children = vPanel->GetChildren();
 	int j = 0;
 	for ( wxWindowList::Node *node = children.GetFirst(); node; node = node->GetNext() ){
 		wxStaticText *current = (wxStaticText *)node->GetData();
