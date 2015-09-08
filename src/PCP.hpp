@@ -26,19 +26,18 @@ class PCPPane: public wxPanel{
 public:
 	PCPPane(wxWindow* parent, int* args, ReadData* d);
 	virtual ~PCPPane();
-	int getWidth();   //master
-	int getHeight();  //master
-	void solveTSP(float** v, int atr);   //master
-	void solveAngle(float** v, int atr); //master
-	void setIndex(int i);  //master 
-	void setRate();        //master 
+	int getWidth();   
+	int getHeight();  
+	void solveTSP(float** v, int atr);   
+	void solveAngle(float** v, int atr); 
+	void setIndex(int i);  
+	void setRate();        
 	void refine(float** v);
 	typedef std::pair<int,float*> ipair;
 	// events
 	private:
 	int index;
 	float* rate; 
-	//float* length;
 	float sumlength;
 };
 
@@ -47,17 +46,16 @@ class PCPSub: public wxGLCanvas
 	wxGLContext* m_context;
 	ReadData* data;
 public:
-	 PCPSub(wxWindow* parent, int num, ReadData* d, int size);
-	//~ PCPSub();
+	 PCPSub(wxWindow* parent, int l, ReadData* d, int size);
 	int getWidth();   
 	int getHeight();  
 	void setRate(int l, int r, float left, float right);
 	void setLength(float p,float l);
 	void setSumLength(float l, float w);
 	void setIndex(int i);
-	void render(wxPaintEvent& evt);  //sub
-	void draw(int i);   //sub
-	void prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y);  //sub
+	void render(wxPaintEvent& evt);  
+	void draw(int i);   
+	void prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y);  
 	// events
 	void mouseMoved(wxMouseEvent& event);   
 	void mouseDown(wxMouseEvent& event);
@@ -71,57 +69,27 @@ public:
 	DECLARE_EVENT_TABLE()
 	/* data */
 private:
-	int leftindex;
-	int rightindex;
+	int leftatr;
+	int rightatr;
 	float length;
 	float prelength;
 	float sumlength;
 	float rrate;
 	float lrate;
 	int index;
+	int layer;
 };
 
-
-
-
-
-/*class PCPPane: public wxGLCanvas
-{
-    wxGLContext*	m_context;
-    ReadData* data;
+/*
+class PCPLast: public wxGLCanvas{
+	wxGLContext* m_context;
+	ReadData* data;
 public:
-	PCPPane(wxWindow* parent, int* args, ReadData* d);
-	virtual ~PCPPane();
-	int getWidth();   //master
-	int getHeight();  //master
-	void render(wxPaintEvent& evt);  //sub
-	void draw(int i);   //sub
-	void prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y);  //sub
-	void refine(float** v); //master
-	void solveTSP(float** v,int atr);   //master
-	void solveAngle(float** v, int atr); //master
-	void setIndex(int i);  //master 
-	void setRate();        //master 
-	typedef std::pair<int,float*> ipair;
-	// events
-	void mouseMoved(wxMouseEvent& event);   
-	void mouseDown(wxMouseEvent& event);
-	void mouseWheelMoved(wxMouseEvent& event);
-	void mouseReleased(wxMouseEvent& event);
-	void rightClick(wxMouseEvent& event);
-	void mouseLeftWindow(wxMouseEvent& event);
-	void keyPressed(wxKeyEvent& event);
-	void keyReleased(wxKeyEvent& event);
-	
-	DECLARE_EVENT_TABLE()
-private:
-	int index;
-	float* rate; 
-	float* length;
-	float sumlength;
+	PCPLast(wxWindow* parent,int anum,ReadData d, int size);
+	void render(wxPaintEvent& evt); 
 };
 */
+
+// 最後のだけ処理が変わるので　継承クラスを作ったほうがよさそう 継承元の関数に virtual をつけることで　元のキャストでも継承先の関数が利用可能
+
 #endif
-
-
-// PCPPaneと PCPsubにわける　masterが全体のパネル subが軸と軸の間を担当

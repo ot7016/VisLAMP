@@ -204,8 +204,7 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
     	_pre[1] = ag->getB(nowindex, 1);
     	isMoved = true;
     	pcp->setIndex(nowindex);
-		pcp->Refresh();
-		//pcp->Update();
+		//pcp->Refresh();
 		md->setText(nowindex);
 		Refresh();
 	}
@@ -230,9 +229,6 @@ void AGIPane::mouseReleased(wxMouseEvent& event){
     //このxとyが点の2次元配列に含まれるならOK
     //もちろんある程度の誤差は許容しなければならない
    
-     // _pre[0] = _new[0];
-     // _pre[1] = _new[1];
-    //  nowindex = -1;
       isMoved = false;
   }
    isDrug = false;
@@ -245,9 +241,9 @@ void AGIPane::rightClick(wxMouseEvent& event) {
 	nowindex = getindex(x,y);
 	if(nowindex !=  -1){
 		pcp->setIndex(nowindex);
-		pcp->Refresh();
+		//pcp->Refresh();
 		md->setText(nowindex);
-				Refresh();
+		Refresh();
 	}
 }
 void AGIPane::mouseLeftWindow(wxMouseEvent& event) {}
@@ -257,10 +253,9 @@ void AGIPane::keyReleased(wxKeyEvent& event) {}
 void AGIPane::calcagain(float x,float y){
 	_new[0] = (x - getWidth() /2) /xrate;
      _new[1] = (y - getHeight() /2) /yrate;
-     //if(pow(_pre[0] - _new[0],2) - pow(_pre[1] - _new[1],2) > 0.01){ //判定あとで考える
+  
      	ag->refine(_pre, _new, nowindex) ;
      	Refresh();
-     	//Update();
      	int atr = data->getatr();
      	int n = data->getnum();
      	float** v = new float*[atr];
@@ -270,7 +265,7 @@ void AGIPane::calcagain(float x,float y){
     		v[i][1] = ag->getB(n + i, 1);
      	}
      	pcp->refine(v); 
-    // }
+     	md->setText(nowindex);
     
 }
 
@@ -303,8 +298,6 @@ AGIPane::~AGIPane(){
  
 void AGIPane::resized(wxSizeEvent& evt)
 {
-//  wxGLCanvas::OnSize(evt);
-   // Refresh();
 }
  
 void AGIPane::prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y)
@@ -346,8 +339,7 @@ void AGIPane::setRate(){
 
     xrate = getWidth()  / (2 * xabs);
     yrate = getHeight() /(2 * yabs);
-    //     std::cerr << xrate << std::endl;
-    //        
+    //     std::cerr << xrate << std::endl;       
   }
 
  void AGIPane::setdelta(float d){

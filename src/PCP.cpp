@@ -14,14 +14,14 @@ PCPPane::PCPPane(wxWindow* parent, int* args,ReadData* d ) :
     int atr = data->getatr();
     index = -1;
     wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-  // wxGridSizer* sizer =   new wxGridSizer(1,atr-1,getWidth()/(atr-1),getHeight());
+    sumlength = atr-1;
     int len = getWidth()/(atr-1);
     for(int i = 0 ;i< atr-1;i++){
         PCPSub* sub =  new PCPSub(this,i,d,len);
-        sub->setSumLength(atr-1,getWidth()-atr+1);
+        sub->setSumLength(sumlength,getWidth()-sumlength);
         sizer->Add(sub);
     }
-     sumlength = atr-1;
+
     setRate(); 
     SetSizer(sizer);
     SetAutoLayout(true);
@@ -41,7 +41,6 @@ int PCPPane::getHeight()
 {
     return GetSize().y;
 }
- 
 
 void PCPPane::setRate(){
    //各属性ごとに倍率があるので
@@ -53,13 +52,13 @@ void PCPPane::setRate(){
     int k = 0;
     for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
         PCPSub *current = (PCPSub *)node->GetData();
-        current->setRate(k,k+1,rate[k],rate[k+1]);
+    //    if(k < atr-1)
+            current->setRate(k,k+1,rate[k],rate[k+1]);
+    //    else current->setRate(k,-1,rate[k],-1);
         k++;
         }
-    
-
  //        std::cerr << xrate << std::endl;
-   //         std::cerr << yrate << std::endl;
+   //    　std::cerr << yrate << std::endl;
 }
 
 
@@ -68,6 +67,7 @@ void PCPPane::setIndex(int i){
     for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
             PCPSub *current = (PCPSub *)node->GetData();
             current->setIndex(i);
+            current->Refresh();
         }
 
 }
@@ -79,7 +79,6 @@ void PCPPane::refine(float** v){
         solveTSP(v,atr);
      else
         solveAngle(v,atr);
-   // wxWindowList & children = GetChildren();
     int len[atr-1];
     int k = 0;
     for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
@@ -189,17 +188,12 @@ void PCPPane::solveAngle(float** v,int atr){
     int k = 0;   
     if(data->isLenVar()){
         sumlength = 0;
-       // for(int i = 0 ; i <atr-1 ;i++){
-           //length[i] = acos(c1.at(i).second[0]* c1.at(i+1).second[0] + c1.at(i).second[1]* c1.at(i+1).second[1]);
-            //sumlength = sumlength + length[i];
-        //}
-  
         for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
             PCPSub *current = (PCPSub *)node->GetData();
             float l = acos(c1.at(k).second[0]* c1.at(k+1).second[0] + c1.at(k).second[1]* c1.at(k+1).second[1]);
             current->setLength(sumlength,l);
-            int lindex = c1.at(k).first;
-            int rindex = c1.at(k+1).first;
+            int lindex = data->getOrder(k);
+            int rindex = data->getOrder(k+1);
             current->setRate(lindex,rindex,rate[lindex],rate[rindex]);
             sumlength = sumlength + l;
             k++;
@@ -229,14 +223,15 @@ void PCPSub::mouseLeftWindow(wxMouseEvent& event) {}
 void PCPSub::keyPressed(wxKeyEvent& event) {}
 void PCPSub::keyReleased(wxKeyEvent& event) {}
 
-PCPSub::PCPSub(wxWindow* parent, int num,ReadData* d,int size) :
-    wxGLCanvas(parent, wxID_ANY, NULL, wxPoint(num*size,0), wxSize(size,600), wxFULL_REPAINT_ON_RESIZE) //wxsize あとで変更
+PCPSub::PCPSub(wxWindow* parent,int l, ReadData* d, int size) :
+    wxGLCanvas(parent, wxID_ANY, NULL, wxPoint(l*size,0), wxSize(size,600), wxFULL_REPAINT_ON_RESIZE) //wxsize あとで変更
 {
     m_context = new wxGLContext(this);
     data = d;
     index = -1;
     length = 1; 
-    prelength = num; 
+    prelength = l;
+    layer = l; 
     // To avoid flashing on MSW
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
 }
@@ -267,13 +262,12 @@ int PCPSub::getWidth()
 }
 void PCPSub::setLength(float p,float l){
     prelength = p;
-    length = l;
-    //SetSize(l,getHeight());  
+    length = l; 
 }
 void PCPSub::setSumLength(float l,float w){
     sumlength = l;
     int size = (length/sumlength) *w;
-    SetSize(size  ,getHeight());
+    SetSize(size,getHeight());
     SetPosition(wxPoint((prelength/sumlength)*w,0));
 }
 void PCPSub::setIndex(int i){
@@ -285,8 +279,8 @@ int PCPSub::getHeight()
     return GetSize().y;
 }
 void PCPSub::setRate(int l, int r,float left,float right){
-    leftindex = l;
-    rightindex = r; 
+    leftatr = l;
+    rightatr = r; 
     lrate = left;
     rrate = right;
 }
@@ -316,26 +310,19 @@ void PCPSub::render(wxPaintEvent& evt)
 
     glColor4f(0.0f,0.0f,0.0f,1.0f);
     glBegin(GL_LINES);
-    //int dim = data-> getatr();
-    //float len1 = 0;
-   //float xwidth[dim]; 
     int ydown = getHeight()*7/8;
     int yup = getHeight()/8 ;
-  //  for(int i = 0; i< dim;i++){
-        //xwidth[i] = (len1/sumlength)*getWidth();
-    	glVertex3f(getWidth(),ydown,0);
-    	glVertex3f(getWidth(),yup,0); 
+    glVertex3f(getWidth(),ydown,0);
+    glVertex3f(getWidth(),yup,0); 
     glEnd();
-
-  //  for(int i = 0 ;i< dim;i++){
-        glRasterPos2d(getWidth()*0.5,ydown+40);
-        string str = data->getAtrName(data->getOrder(rightindex));
-        int size = (int)str.size();
-        for(int j = 0;j< size;j++){
-            char ic = str[j];
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ic);
-        }
-
+    glRasterPos2d(0,ydown+40);
+    //int s = data->getOrder(leftatr);
+    string str = data->getAtrName(leftatr);
+    int size = (int)str.size();
+    for(int j = 0;j< size;j++){
+        char ic = str[j];
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ic);
+    }
 
     // 追加部分 点を書く
     glColor4f(0.0f,0.0f,1.0f,1.0f);
@@ -356,12 +343,8 @@ void PCPSub::render(wxPaintEvent& evt)
 
 void PCPSub::draw(int i){
     glBegin(GL_LINE_STRIP);
-        float len = 0;
-// for(int j = 0; j< data->getatr(); j++){
-       // float l = (len/sumlength)*getWidth();  //rateの使用はあとで
-        glVertex3f(0, (data->getDmax(leftindex) - data->getD(i,leftindex) ) *lrate + getHeight()/8 ,0); 
-        glVertex3f(getWidth(), (data->getDmax(rightindex) - data->getD(i,rightindex) ) *rrate + getHeight()/8 ,0);  
-    
+    glVertex3f(0, (data->getDmax(leftatr) - data->getD(i,leftatr) ) *lrate + getHeight()/8 ,0); 
+    glVertex3f(getWidth(), (data->getDmax(rightatr) - data->getD(i,rightatr) ) *rrate + getHeight()/8 ,0);      
      glEnd();
 }
 
