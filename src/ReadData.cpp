@@ -249,6 +249,9 @@ int ReadData::getOrder(int i){
 bool ReadData::isTSP(){
   return ists;
 }
+void ReadData::setTSP(bool b){
+  ists = b;
+}
 bool ReadData::isLenVar(){
   return lengthvariable;
 }

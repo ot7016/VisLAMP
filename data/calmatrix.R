@@ -32,7 +32,7 @@ readmatrix2<-function(t2,out,thr){
 	tscl <- t2[(n+1):(2*n),]
    
     m <- rbind(data.matrix(tscl),diag(dim))
-	D0 <-dist(m,method ="euclidean",upper =TRUE) #距離オブジェクト作成
+	D0 <-dist(m,method ="euclidean",upper =TRUE) #距離オブジェクト作成　categorical dataは同じ値なら 0 違うなら1とか
     D <-- as.matrix(D0) #距離行列に
 	#cmdscale(D,k?,eig = TRUE)
 	num <- nrow(m)

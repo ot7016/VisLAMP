@@ -8,7 +8,7 @@ using namespace std;
  
  
 PCPPane::PCPPane(wxWindow* parent, int* args,ReadData* d ) :
-    wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(800,600), wxFULL_REPAINT_ON_RESIZE)
+    wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(600,600), wxFULL_REPAINT_ON_RESIZE)
 {
     data = d;
     int atr = data->getatr();

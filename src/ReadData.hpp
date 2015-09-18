@@ -38,6 +38,7 @@ class ReadData{
 	void setOrder(TSPsolver* ts);
 	void setOrder(int* o);
 	bool isTSP();
+	void setTSP(bool b);
 	bool isLenVar();
 	void turnLenVar();
 

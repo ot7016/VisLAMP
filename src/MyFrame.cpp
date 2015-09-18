@@ -13,7 +13,7 @@
 bool MyApp::OnInit()
 {
     wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-    frame = new wxFrame((wxFrame *)NULL, -1, wxT("Pcoordagi"),wxPoint(0,50), wxSize(1900,700));
+    frame = new wxFrame((wxFrame *)NULL, -1, wxT("Pcoordagi"),wxPoint(0,50), wxSize(1500,700));
  
     int args[] = {WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0};
     wxWindow* mainPanel = new wxWindow((wxFrame*) frame,wxID_ANY);
@@ -29,16 +29,19 @@ bool MyApp::OnInit()
     //パネルを生成、場合によっては拡張
    wxPanel* ctlPanel;
   
-   wxButton* button2; 
+ 
 
     ctlPanel = new wxPanel((wxPanel*) mainPanel,wxID_ANY);
-    button1 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"軸間の距離変更の有無");
-    button2 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"ボタンのテスト2");
+    button1 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"軸間の距離:可変");
+    button2 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"軸間距離:角度");
     wxStaticText* pftext;
     pftext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"Projection Factor");
     slider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,50,0,400);
     button1->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
         wxCommandEventHandler(MyApp::buttonclicked),
+        NULL, this);
+    button2->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
+        wxCommandEventHandler(MyApp::buttonclicked2),
         NULL, this);
     slider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
       wxCommandEventHandler(MyApp::getslider),
@@ -69,11 +72,30 @@ bool MyApp::OnInit()
 
 void MyApp::buttonclicked(wxCommandEvent& WXUNUSED(event)){
   data-> turnLenVar();
-  if(data->isLenVar())
-    std::cerr << "軸間距離: 可変" << std::endl;
-  else 
-    std::cerr << "軸間距離: 固定" << std::endl;
+  if(data->isLenVar()){
+   // std::cerr << "軸間距離: 可変" << std::endl;
+      button1->SetLabelText("軸間距離:可変");
+  }
+  else {
+   // std::cerr << "軸間距離: 固定" << std::endl;
+      button1->SetLabelText("軸間距離:固定");
+  }
 
+}
+void MyApp::buttonclicked2(wxCommandEvent& WXUNUSED(event)){
+  if(data->isTSP()){
+    data->setTSP(false);
+    
+     //   std::cerr << "軸間距離:角度" << std::endl;
+        button2->SetLabelText("軸間距離:角度");
+  }
+  else{ 
+    data->setTSP(true);
+    button2->SetLabelText("軸間距離:巡回路");
+  // std::cerr << "軸間距離: 巡回路 " << std::endl;
+
+  }
+  frame->Show();
 }
 void MyApp::getslider(wxCommandEvent& WXUNUSED(event)){
     float d = slider->GetValue()/100;
