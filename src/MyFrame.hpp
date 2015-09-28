@@ -46,12 +46,13 @@ class MyApp: public wxApp{
     PCPPane *pcPane;
     ReadData *data;
     wxButton* button1;
-      wxButton* button2; 
+    wxButton* button2; 
     wxSlider *slider;
     MatrixView *md;
 public:
     void buttonclicked(wxCommandEvent& event);
     void buttonclicked2(wxCommandEvent& event);
+    void undobuttonclicked(wxCommandEvent& event);
     void getslider(wxCommandEvent& event);
 };
 

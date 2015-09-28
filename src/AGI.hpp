@@ -5,6 +5,8 @@
 #include <exception>
 #include <math.h>
 #include <sstream>
+#include <stack>
+#include <array>
 #include "OpenGL/glu.h"
 #include "OpenGL/gl.h"
 //#include <vecLib/vecLib.h>
@@ -37,8 +39,10 @@
 		void setdelta(float d);
 	private:
 		ReadData* data;
+		std::stack<float**> pjstack; //射影行列のスタック 
 		float delta;
-		float** e;
+		float** e;   //射影行列
+		//std::array< std::array<>>
 		float** B; 
 		float xmax ,xmin;  //初期値を適切に定めるのはあとで確認
  		float ymax ,ymin;
@@ -73,6 +77,7 @@
 	void setRate();
 	void setdelta(float d);
 	void calcagain(float x, float y);
+	void undo();
  
 
 	DECLARE_EVENT_TABLE()

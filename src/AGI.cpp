@@ -30,21 +30,6 @@ float Agi::getB(int i,int j){
 
 //in  固有値 evalue 高次元配置ベクトル Aij  out 初期射影行列     
 void Agi::calprj(){
-	// 固有値計算 veclib使用せずとりあえずRで
-/*	
-int n=3;
-int lwork, info;
-float *A = new float[n*n]; float *w = new float[n];
-//setting A matrix A[0+0*n]=1;A[0+1*n]=2;A[0+2*n]=3; A[1+0*n]=2;A[1+1*n]=5;A[1+2*n]=4; A[2+0*n]=3;A[2+1*n]=4;A[2+2*n]=6;
-lwork = -1;
-float *work = new float[1];
-dsyev_("V", "U", &n, A, &n, w, work, &lwork, &info); lwork = (int)work[0];
-lwork = (int)work[0];
-delete[]work;
-work = new float[std::max((int) 1, lwork)]; 
-//get Eigenvalue
-dsyev_("V", "U", &n, A, &n, w, work, &lwork, &info);
-*/
     int m = data->getdim();
 	float  f1[m], f2[m];
 	float distf1 = 0, distf2 = 0;
@@ -72,6 +57,7 @@ dsyev_("V", "U", &n, A, &n, w, work, &lwork, &info);
 		e[i][0] = f1[i]/distf1;
 		e[i][1] = f2[i]/distf2;
 	}
+	pjstack.push(e);
 	// std::cerr << e[0][0] << std::endl;
 }
 //行列の計算   とりあえず実装　最適化とかなし　最終的にはBlasを使う
@@ -170,6 +156,7 @@ int Agi::refine(float* _pre, float* _new, int index) {
 		e[i][0] = e1[i];
 		e[i][1] = e2[i];
 	}
+	pjstack.push(e);
 	cal2Mtr();
 	return 0;
 }
@@ -369,6 +356,10 @@ int AGIPane::getindex(float x, float y){
      std::cerr << data->getName(index) << std::endl;
     return index;
 } 
+
+void AGIPane::undo(){
+	
+}
 
 
  //本当は再描画のことも考えた関数設計にする

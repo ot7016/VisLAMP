@@ -24,16 +24,16 @@ bool MyApp::OnInit()
     glPane = new AGIPane( (wxWindow*)mainPanel, args,data,pcPane,md); 
     
             
-    wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
+    wxGridSizer* sizer2 = new wxGridSizer(10,1,30,100);
 
     //パネルを生成、場合によっては拡張
-   wxPanel* ctlPanel;
-  
- 
+    wxPanel* ctlPanel;
+    wxButton* undobutton;
 
     ctlPanel = new wxPanel((wxPanel*) mainPanel,wxID_ANY);
     button1 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"軸間の距離:可変");
     button2 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"軸間距離:角度");
+    undobutton = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"Undo");
     wxStaticText* pftext;
     pftext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"Projection Factor");
     slider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,50,0,400);
@@ -43,12 +43,17 @@ bool MyApp::OnInit()
     button2->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
         wxCommandEventHandler(MyApp::buttonclicked2),
         NULL, this);
+    undobutton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
+        wxCommandEventHandler(MyApp::undobuttonclicked),
+        NULL, this);
+
     slider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
       wxCommandEventHandler(MyApp::getslider),
         NULL, this);
 
     sizer2->Add(button1,1,wxEXPAND);
     sizer2->Add(button2,1,wxEXPAND);
+    sizer2->Add(undobutton,1,wxEXPAND);
     sizer2->Add(pftext,1,wxEXPAND);
     sizer2->Add(slider,1,wxEXPAND);
     ctlPanel->SetSizer(sizer2);
@@ -95,6 +100,10 @@ void MyApp::buttonclicked2(wxCommandEvent& WXUNUSED(event)){
   // std::cerr << "軸間距離: 巡回路 " << std::endl;
 
   }
+  frame->Show();
+}
+void MyApp::undobuttonclicked(wxCommandEvent& WXUNUSED(event)){
+  glPane->undo();
   frame->Show();
 }
 void MyApp::getslider(wxCommandEvent& WXUNUSED(event)){
