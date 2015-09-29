@@ -6,10 +6,9 @@
 #include <math.h>
 #include <sstream>
 #include <stack>
-#include <array>
+#include <tuple>
 #include "OpenGL/glu.h"
 #include "OpenGL/gl.h"
-//#include <vecLib/vecLib.h>
 
 #include <wx/wxprec.h>
 //#ifndef WX_PRECOMP
@@ -31,18 +30,19 @@
 		void calprj();
 		void cal2Mtr() ;
 		int refine(float* _pre, float* _new,int index);
+		void backprj();
 		float getB(int i,int j);
 		float getXMax();
 		float getYMax();
 		float getXMin();
 		float getYMin();
 		void setdelta(float d);
+		typedef std::pair<float,float> prj;
 	private:
 		ReadData* data;
-		std::stack<float**> pjstack; //射影行列のスタック 
+		std::stack<std::vector<prj> > prjstack; //射影行列のスタック 
 		float delta;
-		float** e;   //射影行列
-		//std::array< std::array<>>
+		std::vector<prj> ee; //射影行列(新)
 		float** B; 
 		float xmax ,xmin;  //初期値を適切に定めるのはあとで確認
  		float ymax ,ymin;

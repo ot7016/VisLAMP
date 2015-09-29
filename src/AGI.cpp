@@ -21,7 +21,6 @@ Agi::Agi(ReadData* d){
 
 Agi::~Agi(){
 	delete[] B;
-	delete[] e;
 }
 
 float Agi::getB(int i,int j){
@@ -51,14 +50,10 @@ void Agi::calprj(){
 	distf1 = sqrt(distf1);
 	distf2 = sqrt(distf2);
 	//射影行列確認
-	 e = new float*[m];
 	for (int i =0; i< m; i++) {
-		e[i] = new float[2];
-		e[i][0] = f1[i]/distf1;
-		e[i][1] = f2[i]/distf2;
+		ee.push_back(prj(f1[i]/distf1,f2[i]/distf2));
 	}
-	pjstack.push(e);
-	// std::cerr << e[0][0] << std::endl;
+	prjstack.push(ee);
 }
 //行列の計算   とりあえず実装　最適化とかなし　最終的にはBlasを使う
 void Agi::cal2Mtr() {
@@ -75,8 +70,8 @@ void Agi::cal2Mtr() {
 		float b1 = 0, b2 = 0;
 		for(int j = 0; j < m; j++) {
 			float  A= data-> getA(i,j);
-			b1 += e[j][0] * A;
-			b2 += e[j][1] * A;
+			b1 += ee.at(j).first * A;
+			b2 += ee.at(j).second * A;
 		}
 		B[i][0] = b1;
 		B[i][1] = b2;
@@ -130,7 +125,7 @@ int Agi::refine(float* _pre, float* _new, int index) {
 	float f3[m];
  	float f3norm = 0;
  	for(int i = 0; i<m; i++) {
- 		f3[i] = pi[i] -_pre[0]*e[i][0]-_pre[1]*e[i][1];
+ 		f3[i] = pi[i] -_pre[0]*ee.at(i).first-_pre[1]*ee.at(i).second;
 	}
 	f3norm = sqrt(powpinorm- powprenorm );
 	for(int i = 0; i<m; i++){
@@ -149,17 +144,29 @@ int Agi::refine(float* _pre, float* _new, int index) {
 	float a3 = (_new[0] -_pre[0]*ans[0] -_pre[1]*ans[1])/f3norm;
 	float b3 = (_new[1] -_pre[0]*ans[2] -_pre[1]*ans[3])/f3norm;
 	for(int i = 0; i < m; i++){
-		e1[i] = ans[0] * e[i][0] + ans[1]* e[i][1] + a3 *  f3[i];
-		e2[i] = ans[2] * e[i][0] + ans[3]* e[i][1] + b3 *  f3[i];
+		float ei0 = ee.at(i).first;
+		float ei1 = ee.at(i).second;
+		e1[i] = ans[0] * ei0 + ans[1]* ei1 + a3 *  f3[i];
+		e2[i] = ans[2] * ei0 + ans[3]* ei1 + b3 *  f3[i];
 	}
+	ee.clear();
 	for(int i = 0; i < m; i++){
-		e[i][0] = e1[i];
-		e[i][1] = e2[i];
+		ee.push_back(prj(e1[i],e2[i]));
 	}
-	pjstack.push(e);
+	prjstack.push(ee);
 	cal2Mtr();
 	return 0;
 }
+void Agi::backprj(){
+	if(prjstack.size()>1){
+		prjstack.pop();
+		ee = prjstack.top();
+		cal2Mtr();
+
+	}
+
+}
+
 float Agi::getXMax(){
 	return xmax;
 }
@@ -191,7 +198,6 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
     	_pre[1] = ag->getB(nowindex, 1);
     	isMoved = true;
     	pcp->setIndex(nowindex);
-		//pcp->Refresh();
 		md->setText(nowindex);
 		Refresh();
 	}
@@ -358,7 +364,8 @@ int AGIPane::getindex(float x, float y){
 } 
 
 void AGIPane::undo(){
-	
+	ag->backprj();
+	Refresh();
 }
 
 
@@ -388,7 +395,7 @@ void AGIPane::render(wxPaintEvent& evt)
    
     // 追加部分 点を書く
     glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
-    glPointSize(10.0);
+    glPointSize(5.0);
     glBegin(GL_POINTS);
 
     //ここで点を描画する  倍率をきめる関数をどこかで定義する必要あり  データの最大値を使うべきだろう

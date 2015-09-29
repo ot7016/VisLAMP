@@ -78,11 +78,9 @@ bool MyApp::OnInit()
 void MyApp::buttonclicked(wxCommandEvent& WXUNUSED(event)){
   data-> turnLenVar();
   if(data->isLenVar()){
-   // std::cerr << "軸間距離: 可変" << std::endl;
-      button1->SetLabelText("軸間距離:可変");
+        button1->SetLabelText("軸間距離:可変");
   }
   else {
-   // std::cerr << "軸間距離: 固定" << std::endl;
       button1->SetLabelText("軸間距離:固定");
   }
 
@@ -90,15 +88,11 @@ void MyApp::buttonclicked(wxCommandEvent& WXUNUSED(event)){
 void MyApp::buttonclicked2(wxCommandEvent& WXUNUSED(event)){
   if(data->isTSP()){
     data->setTSP(false);
-    
-     //   std::cerr << "軸間距離:角度" << std::endl;
-        button2->SetLabelText("軸間距離:角度");
+    button2->SetLabelText("軸間距離:角度");
   }
   else{ 
     data->setTSP(true);
     button2->SetLabelText("軸間距離:巡回路");
-  // std::cerr << "軸間距離: 巡回路 " << std::endl;
-
   }
   frame->Show();
 }
