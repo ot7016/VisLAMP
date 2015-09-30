@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <fstream>
 #include <math.h>
+#include <tuple>
 #include "TSP.hpp"
 
 #ifndef rdata 
@@ -14,11 +15,13 @@ class ReadData{
 	public:
 		ReadData();
 		~ReadData();
+		//typedef std::pair<int,int> npair;
 
 	std::vector<std::string> split(const std::string &str,char delim);
 	void read();
 	void readevalue();
 	void readoriginal();
+	void readadjency();
 	float getA();
 	int getnum();
 	int getdim();
@@ -41,6 +44,9 @@ class ReadData{
 	void setTSP(bool b);
 	bool isLenVar();
 	void turnLenVar();
+	std::vector<std::pair<int,int> > getEdge();
+	
+
 
 	private:
 		std::string dir;
@@ -58,9 +64,6 @@ class ReadData{
 		int num,dim,atr;
 		bool ists ;
 		bool lengthvariable;
-
-
-
-
+		std::vector<std::pair<int,int> > edge;
 };
 #endif

@@ -162,7 +162,6 @@ void Agi::backprj(){
 		prjstack.pop();
 		ee = prjstack.top();
 		cal2Mtr();
-
 	}
 
 }
@@ -366,6 +365,15 @@ int AGIPane::getindex(float x, float y){
 void AGIPane::undo(){
 	ag->backprj();
 	Refresh();
+	int atr = data->getatr();
+     int n = data->getnum();
+     float** v = new float*[atr];
+     for(int i = 0 ; i< atr; i++){
+     	v[i] = new float[2];
+   		v[i][0] = ag->getB(n + i, 0);
+    	v[i][1] = ag->getB(n + i, 1);
+     }
+     pcp->refine(v); 
 }
 
 
@@ -423,6 +431,16 @@ void AGIPane::render(wxPaintEvent& evt)
 		glVertex3f(ag->getB(i+num,0)*xrate + getWidth()/2, ag->getB(i+num,1)*yrate + getHeight()/2,0);
 	}
 	glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
+	glEnd();
+	glBegin(GL_LINES);
+	glLineWidth(1);
+	std::vector<std::pair<int,int> > edge = data->getEdge();
+	for(int i = 0;i< edge.size();i++){
+		int n1 = edge.at(i).first;
+		int n2 = edge.at(i).second;
+		glVertex3f(ag->getB(n1,0)*xrate + getWidth()/2, ag->getB(n1,1)*yrate + getHeight()/2,0);
+		glVertex3f(ag->getB(n2,0)*xrate + getWidth()/2, ag->getB(n2,1)*yrate + getHeight()/2,0);
+	}
     glEnd();
     glFlush();
     SwapBuffers();

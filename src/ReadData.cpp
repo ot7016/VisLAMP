@@ -18,6 +18,7 @@ ReadData::ReadData(){
   lengthvariable = true;
 	read();	
   readevalue();
+  readadjency();
   readoriginal();
   order = new int[atr];
   for(int i = 0;i<atr;i++){
@@ -186,6 +187,27 @@ void ReadData::readoriginal(){
         Dmax[j] = d; 
     }
   }
+}
+void ReadData::readadjency(){
+  float thr = 0.05;
+
+  ifstream ifs(dir+"-adjency.csv");
+  string str;
+  if(ifs.fail()){
+    cerr << "original失敗" << endl;
+        exit(1);
+  }
+  getline(ifs,str);
+  int k = 0;
+  while(getline(ifs,str)){
+    vector<string> v = split(str,',');
+    for(int i = k; i< v.size();i++){
+      double ad = stod(v.at(i));
+      if(ad != 0 && ad < thr )
+        edge.push_back(pair<int,int>(k,i)); 
+    }
+    k++;
+  }
 
 }
 
@@ -248,6 +270,9 @@ int ReadData::getOrder(int i){
 }
 bool ReadData::isTSP(){
   return ists;
+}
+vector<std::pair<int, int> > ReadData::getEdge(){
+  return edge;
 }
 void ReadData::setTSP(bool b){
   ists = b;

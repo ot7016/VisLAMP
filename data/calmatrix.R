@@ -32,11 +32,11 @@ readmatrix2<-function(t2,out,thr){
 	tscl <- t2[(n+1):(2*n),]
    
     m <- rbind(data.matrix(tscl),diag(dim))
-	D0 <-dist(m,method ="euclidean",upper =TRUE) #距離オブジェクト作成　categorical dataは同じ値なら 0 違うなら1とか
-    D <-- as.matrix(D0) #距離行列に
+	D0 <-dist(m,upper =TRUE)^2 #距離オブジェクト作成　categorical dataは同じ値なら 0 違うなら1とか
+    D <- as.matrix(D0) #距離行列に
+    write.csv(D,paste(out,"-adjency.csv",sep = ""),quote = FALSE,row.names =FALSE)
 	#cmdscale(D,k?,eig = TRUE)
 	num <- nrow(m)
-	
 	dij <-sum(D^2)/num^2
 	di <- apply(D,1,powsum)/num
 	B1 <-  apply(D^2,1,minus,di)
@@ -49,6 +49,12 @@ readmatrix2<-function(t2,out,thr){
 	dim <- length(lamh)
 	X <- apply(e$vectors[,1:dim],1,mul,sqrt(lamh))
 	write.csv(t(X),paste(out,"-cood.csv",sep = ""),quote=FALSE,row.names=FALSE)
+	#D[lower.tri(D,diag=TRUE)] <- 0
+	#dthr <- 0.5
+	#D[D > thr] <- 0
+	#D[D>0 && D<= dthr] <- 1
+	
+
  }
 powsum <- function(a){
 	sum(a^2)
