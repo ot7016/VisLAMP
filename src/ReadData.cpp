@@ -14,6 +14,9 @@ ReadData::ReadData(){
     }
 	getline(ifs,dir);
     cerr << dir << endl;
+    string ths;
+  getline(ifs,ths);
+  thr = stof(ths);
   ists = false;
   lengthvariable = true;
 	read();	
@@ -189,7 +192,7 @@ void ReadData::readoriginal(){
   }
 }
 void ReadData::readadjency(){
-  float thr = 0.05;
+
 
   ifstream ifs(dir+"-adjency.csv");
   string str;

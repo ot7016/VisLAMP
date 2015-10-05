@@ -325,15 +325,15 @@ void PCPSub::render(wxPaintEvent& evt)
     }
 
     // 追加部分 点を書く
-    glColor4f(0.0f,0.0f,1.0f,1.0f);
-    glPointSize(10.0);
+    glColor4f(0.5f,0.6f,0.9f,1.0f);
+    //glPointSize(10.0);
     glLineWidth(1);
     for(int i = 0; i< data->getnum();i++){   
         if(i != index)
             draw(i);                  
     }
     if(index >=0){
-      glColor4f(1.0f,0.0f,0.0f,1.0f);
+      glColor4f(0.8f,0.3f,0.6f,1.0f);
       glLineWidth(2); 
       draw(index);
   }

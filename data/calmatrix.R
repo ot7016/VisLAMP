@@ -78,7 +78,8 @@ readcars<- function(thr = 0){
 }
 readspid <- function(thr = 0){
     t <- read.csv("spid2015/2015SocialprogressIndexData.csv",header = T)
-    t2 <- t[1:133,3:18]  #全部表示すると潰れてしまうので今はこれで
+    t2 <- t[1:133,3:53]  #全部表示すると潰れてしまうので今はこれで
+   # t3 <- t[1:133,25:50]
     t1 <- t[1:133,1]
     write.csv(data.frame(t2,t1),"spid2015/spid-original.csv",quote = FALSE,row.names =FALSE)
     readmatrix2(t2,"spid2015/spid",thr)

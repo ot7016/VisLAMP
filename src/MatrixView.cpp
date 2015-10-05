@@ -14,23 +14,32 @@ MatrixView::MatrixView(wxFrame* parent,ReadData* d):wxPanel(parent,wxID_ANY){
 	nsizer->Add(name);
 	nPanel->SetSizer(nsizer);
 
-	vPanel = new wxPanel(this,wxID_ANY);
+	//vPanel = new wxPanel(this,wxID_ANY);
 	int atr = data->getatr();
-	vsizer = new wxGridSizer(2,atr,20,20); 
+	wxGridSizer* sizer = new wxGridSizer((atr+10)/10,10,20,20); 
+	sizer->Add(nPanel);
 	for(int i = 0;i< atr;i++){
+		wxPanel* vPanel = new wxPanel(this,wxID_ANY);
+		wxGridSizer* vsizer = new wxGridSizer(2,1,20,100);
 		wxStaticText* label =  new wxStaticText(vPanel,wxID_ANY,data->getAtrName(i));
 		vsizer->Add(label);
+		wxStaticText* value = new wxStaticText(vPanel,wxID_ANY,"");
+		vsizer->Add(value);
+		vPanel->SetSizer(vsizer);
+		sizer->Add(vPanel);
+
+
 	}
 	//wxwidget はobjectのコピーが出来ない 配列も作れない 
 	//sizerのメソッドをうまく使えばobjectの追加削除も可能
-	for(int i = 0;i<atr;i++){
-		wxStaticText* value = new wxStaticText(vPanel,wxID_ANY,"");
-		vsizer->Add(value);
-	}
-	vPanel->SetSizer(vsizer);
-	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-	sizer->Add(nPanel);
-	sizer->Add(vPanel);
+	//for(int i = 0;i<atr;i++){
+	//	wxStaticText* value = new wxStaticText(vPanel,wxID_ANY,"");
+	//	vsizer->Add(value);
+	//}
+	//vPanel->SetSizer(vsizer);
+	//wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+	//sizer->Add(nPanel);
+	//sizer->Add(vPanel);
 	SetSizer(sizer);
 	SetAutoLayout(true);
 
@@ -46,21 +55,22 @@ void MatrixView::setText(int index){
 	//wxWindowList::iterator it = wlist.begin(); 
 	name->SetLabelText(data->getName(index));
 
-	wxWindowList & children = vPanel->GetChildren();
+	wxWindowList & children = GetChildren();
 	int j = 0;
 	for ( wxWindowList::Node *node = children.GetFirst(); node; node = node->GetNext() ){
-		wxStaticText *current = (wxStaticText *)node->GetData();
-		if (j<atr){
-			int o = data->getOrder(j);
-			current->SetLabelText(data->getAtrName(o));
-		}
-		else{
-			int o = data->getOrder(j-atr);
-			current->SetLabelText(std::to_string(data->getD(index,o)));
+		wxPanel *current = (wxPanel *)node->GetData();
+		if(j >1){
+			wxWindowList & children =current->GetChildren();
+			wxWindowList::Node *pnode = children.GetFirst(); 
+			wxStaticText *atrname = (wxStaticText *) pnode->GetData();
+			int o = data->getOrder(j-1);
+		    atrname->SetLabelText(data->getAtrName(o));
+			pnode = pnode->GetNext();
+		    wxStaticText* value = (wxStaticText *)pnode->GetData();	
+			value->SetLabelText(std::to_string(data->getD(index,o)));		
 		}
 		j++;
 	}
-
      // .. do something with current
 	SetAutoLayout(true);
 	Show();

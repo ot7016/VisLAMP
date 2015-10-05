@@ -297,6 +297,7 @@ void AGIPane::prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x,
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Black Background
     glEnable(GL_TEXTURE_2D);   // textures
     glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_LINE_SMOOTH);
     glEnable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -402,7 +403,7 @@ void AGIPane::render(wxPaintEvent& evt)
     glEnd();
    
     // 追加部分 点を書く
-    glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
+    glColor4f(0.2f, 0.4f, 0.7f, 1.0f);
     glPointSize(5.0);
     glBegin(GL_POINTS);
 
@@ -413,9 +414,9 @@ void AGIPane::render(wxPaintEvent& evt)
   		for(int i = 0; i< nowindex; i++){
         	glVertex3f(ag->getB(i,0)*xrate + getWidth()/2, ag->getB(i,1)*yrate + getHeight()/2,0);
     	}
-    	glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+    	glColor4f(0.7f, 0.3f, 0.4f, 1.0f);
     	glVertex3f(ag->getB(nowindex,0)*xrate + getWidth()/2, ag->getB(nowindex,1)*yrate + getHeight()/2,0);
-    	glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
+    	glColor4f(0.2f, 0.4f, 0.7f, 1.0f);
 
     	for(int i = nowindex+1; i< num; i++){
         	glVertex3f(ag->getB(i,0)*xrate + getWidth()/2, ag->getB(i,1)*yrate + getHeight()/2,0);
@@ -430,7 +431,7 @@ void AGIPane::render(wxPaintEvent& evt)
 	for(int i = 0; i<data->getatr() ;i++){
 		glVertex3f(ag->getB(i+num,0)*xrate + getWidth()/2, ag->getB(i+num,1)*yrate + getHeight()/2,0);
 	}
-	glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
+	glColor4f(0.2f, 0.4f, 0.7f, 1.0f);
 	glEnd();
 	glBegin(GL_LINES);
 	glLineWidth(1);

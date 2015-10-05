@@ -15,9 +15,9 @@
 class MatrixView : public wxPanel{
 private:
 	ReadData* data;
-	wxGridSizer* vsizer;
+	//wxGridSizer* vsizer;
 	wxStaticText* name;
-	wxPanel* vPanel;
+	//wxPanel* vPanel;
 public:
 	MatrixView(wxFrame* frame, ReadData* d);
 	~MatrixView();

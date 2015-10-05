@@ -3,7 +3,7 @@ APP = pcoordagi
 SOURCES = ReadData.cpp ConstraintSolver2D.cpp TSP.cpp MatrixView.cpp  AGI.cpp PCP.cpp MyFrame.cpp 
 
 ../bin/$(APP): $(SOURCES)
-	clang++ -g -o $@ $^ `wx-config --libs --cxxflags --gl-libs` -llbfgs -framework GLUT -framework OpenGL
+	clang++ -g -w -o $@ $^ `wx-config --libs --cxxflags --gl-libs` -llbfgs -framework GLUT -framework OpenGL
 
 clean:
 	rm -f *.o ../bin/pcoordagi

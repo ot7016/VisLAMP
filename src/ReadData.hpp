@@ -49,6 +49,7 @@ class ReadData{
 
 
 	private:
+		float thr ;
 		std::string dir;
 		float *evalue;
 		float** evector;
