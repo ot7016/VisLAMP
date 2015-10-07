@@ -57,20 +57,8 @@ void PCPPane::setRate(){
     //    else current->setRate(k,-1,rate[k],-1);
         k++;
         }
- //        std::cerr << xrate << std::endl;
-   //    　std::cerr << yrate << std::endl;
 }
 
-
-void PCPPane::setIndex(int i){
-    index = i;
-    for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
-            PCPSub *current = (PCPSub *)node->GetData();
-            current->setIndex(i);
-            current->Refresh();
-        }
-
-}
 void PCPPane::refine(float** v){
     //TSPを解く
      int atr = data->getatr();
@@ -93,6 +81,10 @@ void PCPPane::refine(float** v){
         }
          SetAutoLayout(true);
          Show();
+}
+void PCPPane::reselect(){
+    auto parent = GetParent();
+    parent->Refresh(); 
 }
 
 void PCPPane::solveTSP(float** v,int atr){
@@ -214,10 +206,68 @@ void PCPPane::solveAngle(float** v,int atr){
 }
 
 // some useful events to use
-void PCPSub::mouseMoved(wxMouseEvent& event) {}
-void PCPSub::mouseDown(wxMouseEvent& event) {}
+void PCPSub::mouseMoved(wxMouseEvent& event) {
+    if(isclicked){
+        isdruged = true;
+    }
+}
+void PCPSub::mouseDown(wxMouseEvent& event) {
+    //あとで整理
+    int x = event.GetX();
+   
+
+    if(x<5) {     //左端がクリックされたとき
+        setRange(event.GetY(),leftatr,lrate);
+        isclicked = true;
+    } 
+    else if( GetSize().x-x < 5) {  //右端がクリックされたとき
+        setRange(event.GetY(),rightatr, rrate);
+        isclicked =true;
+        
+    }
+}
+
+void PCPSub::setRange(int y, int index, float rate){
+    float d = data->getDmax(index) - (y- getHeight()/8)/rate;
+    int s = -1;
+    if(index == leftatr){
+        leftrange.push_back(d);
+        s = leftrange.size();
+        if(s == 2)
+           data->setSIndex(index,leftrange); 
+    }
+    else if(index == rightatr ){
+        rightrange.push_back(d);
+        s = rightrange.size();
+        if(s == 2)
+           data->setSIndex(index,rightrange); 
+    }
+        //std::cerr << data->getAtrName(index) << std::endl;
+        //std::cerr << s << std::endl;
+        if(s == 2){
+            leftrange.clear();
+            rightrange.clear();
+            auto parent = GetGrandParent();
+            parent->Refresh(); 
+        }
+
+}
+
+
 void PCPSub::mouseWheelMoved(wxMouseEvent& event) {}
-void PCPSub::mouseReleased(wxMouseEvent& event) {}
+void PCPSub::mouseReleased(wxMouseEvent& event) {
+    if(isclicked&& isdruged){
+        int x = event.GetX();
+        if(x<5) {     //左端がクリックされたとき
+            setRange(event.GetY(),leftatr,lrate);
+        }    
+        else if( GetSize().x-x < 5) {  //右端がクリックされたとき
+            setRange(event.GetY(),rightatr, rrate); 
+        }
+    isclicked = false;
+    isdruged = false;
+}
+}
 void PCPSub::rightClick(wxMouseEvent& event) {}
 void PCPSub::mouseLeftWindow(wxMouseEvent& event) {}
 void PCPSub::keyPressed(wxKeyEvent& event) {}
@@ -270,10 +320,7 @@ void PCPSub::setSumLength(float l,float w){
     SetSize(size,getHeight());
     SetPosition(wxPoint((prelength/sumlength)*w,0));
 }
-void PCPSub::setIndex(int i){
-    index = i;
-}
- 
+
 int PCPSub::getHeight()
 {
     return GetSize().y;
@@ -323,19 +370,27 @@ void PCPSub::render(wxPaintEvent& evt)
         char ic = str[j];
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ic);
     }
+    vector<int> selected = data->getSIndex();
+    vector<int> notselected;
+    for(int i = 0;i< data->getnum();i++){
+        auto result = find(begin(selected),end(selected),i);
+        if(result == end(selected))
+            notselected.push_back(i);
+    }
 
-    // 追加部分 点を書く
     glColor4f(0.5f,0.6f,0.9f,1.0f);
-    //glPointSize(10.0);
     glLineWidth(1);
-    for(int i = 0; i< data->getnum();i++){   
-        if(i != index)
+    for(int i: notselected ) {   
             draw(i);                  
     }
-    if(index >=0){
+     std::cerr << "PCP Render" << std::endl;
+    if(!selected.empty()){
       glColor4f(0.8f,0.3f,0.6f,1.0f);
-      glLineWidth(2); 
-      draw(index);
+      glLineWidth(2);
+      for(int i: selected) {
+        std::cerr << selected.size() << std::endl;
+        draw(i);
+    }
   }
     glFlush();
     SwapBuffers();

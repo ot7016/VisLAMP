@@ -45,8 +45,10 @@ class ReadData{
 	bool isLenVar();
 	void turnLenVar();
 	std::vector<std::pair<int,int> > getEdge();
-	
-
+	std::vector<int> getFIndex();
+	std::vector<int> getSIndex();
+	void setSIndex(int i);
+	void setSIndex(int j, std::vector<float> v);
 
 	private:
 		float thr ;
@@ -66,5 +68,7 @@ class ReadData{
 		bool ists ;
 		bool lengthvariable;
 		std::vector<std::pair<int,int> > edge;
+		std::vector<int> filterindex;
+		std::vector<int> selectedindex;
 };
 #endif

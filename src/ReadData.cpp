@@ -286,3 +286,30 @@ bool ReadData::isLenVar(){
 void ReadData::turnLenVar(){
   lengthvariable = !lengthvariable;
 }
+
+vector<int>ReadData::getFIndex(){
+  return filterindex;
+}
+//void ReadData::addFIndex(int i){
+//  filterindex.push_back(i);
+//}
+vector<int> ReadData::getSIndex(){
+  return selectedindex;
+}
+//今は前の選択を保持しない形とする
+void ReadData::setSIndex(int i){
+  selectedindex.clear();
+  selectedindex.push_back(i);
+}
+
+void ReadData::setSIndex(int j, vector<float> v){
+  selectedindex.clear();
+  sort(v.begin(),v.end());
+  for(int i = 0;i < num;i++){
+    if( D[i][j] > v.at(0) && D[i][j] < v.at(1) )
+      selectedindex.push_back(i);
+  }
+
+}
+
+

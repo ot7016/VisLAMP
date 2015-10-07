@@ -196,9 +196,11 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
 	    _pre[0] = ag->getB(nowindex, 0);
     	_pre[1] = ag->getB(nowindex, 1);
     	isMoved = true;
-    	pcp->setIndex(nowindex);
+    	data->setSIndex(nowindex);
+    	//pcp->setIndex(nowindex);
 		md->setText(nowindex);
 		Refresh();
+		pcp->Refresh();
 	}
 }
 
@@ -232,8 +234,9 @@ void AGIPane::rightClick(wxMouseEvent& event) {
 	//ドラッグ中に右クリックされると間違いなくバグるのであとで対処
 	nowindex = getindex(x,y);
 	if(nowindex !=  -1){
-		pcp->setIndex(nowindex);
-		//pcp->Refresh();
+		data->setSIndex(nowindex);
+		//pcp->setIndex(nowindex);
+		pcp->Refresh();
 		md->setText(nowindex);
 		Refresh();
 	}
@@ -408,30 +411,34 @@ void AGIPane::render(wxPaintEvent& evt)
     glBegin(GL_POINTS);
 
     //ここで点を描画する  倍率をきめる関数をどこかで定義する必要あり  データの最大値を使うべきだろう
-
+	std::vector<int> selected = data->getSIndex();
+    std::vector<int> notselected;
+    for(int i = 0;i< data->getnum();i++){
+        auto result = find(begin(selected),end(selected),i);
+        if(result == end(selected))
+            notselected.push_back(i);
+    }
     int num = data->getnum();
-    if(nowindex != -1&& nowindex<num){
-  		for(int i = 0; i< nowindex; i++){
-        	glVertex3f(ag->getB(i,0)*xrate + getWidth()/2, ag->getB(i,1)*yrate + getHeight()/2,0);
-    	}
-    	glColor4f(0.7f, 0.3f, 0.4f, 1.0f);
-    	glVertex3f(ag->getB(nowindex,0)*xrate + getWidth()/2, ag->getB(nowindex,1)*yrate + getHeight()/2,0);
-    	glColor4f(0.2f, 0.4f, 0.7f, 1.0f);
+    
+  	for(int i: notselected){
+       	glVertex3f(ag->getB(i,0)*xrate + getWidth()/2, ag->getB(i,1)*yrate + getHeight()/2,0);
+    }
+    glEnd();
+    glPointSize(8.0);
+    glBegin(GL_POINTS);
+    glColor4f(0.7f, 0.3f, 0.4f, 1.0f);
 
-    	for(int i = nowindex+1; i< num; i++){
-        	glVertex3f(ag->getB(i,0)*xrate + getWidth()/2, ag->getB(i,1)*yrate + getHeight()/2,0);
-    	}
-	}
-	else{
-		for(int i = 0; i< num; i++){
-        	glVertex3f(ag->getB(i,0)*xrate + getWidth()/2, ag->getB(i,1)*yrate + getHeight()/2,0);
-    	}
-	}
+    for(int i : selected){
+       	glVertex3f(ag->getB(i,0)*xrate + getWidth()/2, ag->getB(i,1)*yrate + getHeight()/2,0);
+    }
+	glEnd();
 	glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+	glPointSize(5.0);
+	glBegin(GL_POINTS);
 	for(int i = 0; i<data->getatr() ;i++){
 		glVertex3f(ag->getB(i+num,0)*xrate + getWidth()/2, ag->getB(i+num,1)*yrate + getHeight()/2,0);
 	}
-	glColor4f(0.2f, 0.4f, 0.7f, 1.0f);
+	glColor4f(0.2f, 0.4f, 0.7f, 0.3f);
 	glEnd();
 	glBegin(GL_LINES);
 	glLineWidth(1);

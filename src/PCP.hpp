@@ -29,10 +29,10 @@ public:
 	int getWidth();   
 	int getHeight();  
 	void solveTSP(float** v, int atr);   
-	void solveAngle(float** v, int atr); 
-	void setIndex(int i);  
+	void solveAngle(float** v, int atr);  
 	void setRate();        
 	void refine(float** v);
+	void reselect();
 	typedef std::pair<int,float*> ipair;
 	// events
 	private:
@@ -51,8 +51,8 @@ public:
 	int getHeight();  
 	void setRate(int l, int r, float left, float right);
 	void setLength(float p,float l);
+	void setRange(int y, int index, float rate);
 	void setSumLength(float l, float w);
-	void setIndex(int i);
 	void render(wxPaintEvent& evt);  
 	void draw(int i);   
 	void prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y);  
@@ -78,6 +78,10 @@ private:
 	float lrate;
 	int index;
 	int layer;
+	std::vector<float> leftrange;
+	std::vector<float> rightrange;
+	bool isclicked;
+	bool isdruged;
 };
 
 /*
