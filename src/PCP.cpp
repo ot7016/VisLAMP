@@ -209,64 +209,68 @@ void PCPPane::solveAngle(float** v,int atr){
 void PCPSub::mouseMoved(wxMouseEvent& event) {
     if(isclicked){
         isdruged = true;
+        if(!iscalc){
+            iscalc =true;
+            int y = event.GetY();
+            int atr;
+            float rate;
+            if(isleft){
+                atr = leftatr;
+                rate =lrate;
+            }
+            else{
+                atr = rightatr;
+                rate =rrate;
+            }
+            float to =  data->getDmax(atr) - (y- getHeight()/8)/rate;
+            vector<float> v;
+            v.push_back(from);
+            v.push_back(to);
+            data->setSIndex(atr,v);
+            auto parent = GetGrandParent();
+            parent->Refresh(); 
+            iscalc =false;
+        }
     }
 }
 void PCPSub::mouseDown(wxMouseEvent& event) {
     //あとで整理
+    data->clearSIndex();
+    auto parent = GetGrandParent();
+    parent->Refresh();
     int x = event.GetX();
-   
-
-    if(x<5) {     //左端がクリックされたとき
-        setRange(event.GetY(),leftatr,lrate);
-        isclicked = true;
+    if(x<getWidth()/2) {     //左端がクリックされたとき
+        setFrom(event.GetY(),true);
     } 
-    else if( GetSize().x-x < 5) {  //右端がクリックされたとき
-        setRange(event.GetY(),rightatr, rrate);
-        isclicked =true;
-        
+    else {  //右端がクリックされたとき
+        setFrom(event.GetY(),false);
     }
 }
 
-void PCPSub::setRange(int y, int index, float rate){
-    float d = data->getDmax(index) - (y- getHeight()/8)/rate;
-    int s = -1;
-    if(index == leftatr){
-        leftrange.push_back(d);
-        s = leftrange.size();
-        if(s == 2)
-           data->setSIndex(index,leftrange); 
+void PCPSub::setFrom(int y,bool l){
+    int atr;
+    float rate;
+    isleft = l;
+    if(l){
+        atr = leftatr;
+        rate = lrate;
     }
-    else if(index == rightatr ){
-        rightrange.push_back(d);
-        s = rightrange.size();
-        if(s == 2)
-           data->setSIndex(index,rightrange); 
+    else{
+        atr = rightatr;
+        rate = rrate;
     }
-        //std::cerr << data->getAtrName(index) << std::endl;
-        //std::cerr << s << std::endl;
-        if(s == 2){
-            leftrange.clear();
-            rightrange.clear();
-            auto parent = GetGrandParent();
-            parent->Refresh(); 
-        }
-
+    from =  data->getDmax(atr) - (y- getHeight()/8)/rate;
+    isclicked = true;
 }
+
 
 
 void PCPSub::mouseWheelMoved(wxMouseEvent& event) {}
 void PCPSub::mouseReleased(wxMouseEvent& event) {
-    if(isclicked&& isdruged){
-        int x = event.GetX();
-        if(x<5) {     //左端がクリックされたとき
-            setRange(event.GetY(),leftatr,lrate);
-        }    
-        else if( GetSize().x-x < 5) {  //右端がクリックされたとき
-            setRange(event.GetY(),rightatr, rrate); 
-        }
     isclicked = false;
     isdruged = false;
-}
+    //from = -999;
+
 }
 void PCPSub::rightClick(wxMouseEvent& event) {}
 void PCPSub::mouseLeftWindow(wxMouseEvent& event) {}
@@ -282,6 +286,10 @@ PCPSub::PCPSub(wxWindow* parent,int l, ReadData* d, int size) :
     length = 1; 
     prelength = l;
     layer = l; 
+    iscalc =false;
+    isclicked = false;
+    isdruged = false;
+    from = -999;
     // To avoid flashing on MSW
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
 }
@@ -371,12 +379,8 @@ void PCPSub::render(wxPaintEvent& evt)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ic);
     }
     vector<int> selected = data->getSIndex();
-    vector<int> notselected;
-    for(int i = 0;i< data->getnum();i++){
-        auto result = find(begin(selected),end(selected),i);
-        if(result == end(selected))
-            notselected.push_back(i);
-    }
+    vector<int> notselected = data->getNSIndex();
+    
 
     glColor4f(0.5f,0.6f,0.9f,1.0f);
     glLineWidth(1);

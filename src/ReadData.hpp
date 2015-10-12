@@ -47,8 +47,10 @@ class ReadData{
 	std::vector<std::pair<int,int> > getEdge();
 	std::vector<int> getFIndex();
 	std::vector<int> getSIndex();
+	std::vector<int> getNSIndex();
 	void setSIndex(int i);
 	void setSIndex(int j, std::vector<float> v);
+	void clearSIndex();
 
 	private:
 		float thr ;
@@ -70,5 +72,6 @@ class ReadData{
 		std::vector<std::pair<int,int> > edge;
 		std::vector<int> filterindex;
 		std::vector<int> selectedindex;
+		std::vector<int> notselectedindex;
 };
 #endif

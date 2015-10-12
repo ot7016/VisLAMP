@@ -192,12 +192,11 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
     //もちろんある程度の誤差は許容しなければならない
     nowindex = getindex(x,y);
 //    std::cerr << nowindex  << std::endl;
-    if(nowindex != -1){
+    if(nowindex != -1 && nowindex < data->getnumatr()){
 	    _pre[0] = ag->getB(nowindex, 0);
     	_pre[1] = ag->getB(nowindex, 1);
     	isMoved = true;
     	data->setSIndex(nowindex);
-    	//pcp->setIndex(nowindex);
 		md->setText(nowindex);
 		Refresh();
 		pcp->Refresh();
@@ -205,10 +204,15 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
 }
 
 void AGIPane::mouseMoved(wxMouseEvent& event) {
-	 if(nowindex != -1 && isMoved){
+	 if(nowindex != -1 && isMoved && !iscalc){
+	 	iscalc = true;
 	 	std::cerr << "mouseMoved " << std::endl;
 	 	isDrug = true;
-	 	
+	 	calcagain(event.GetX(),event.GetY());
+	 	iscalc = false;
+	 	_pre[0] = ag->getB(nowindex, 0);
+    	_pre[1] = ag->getB(nowindex, 1);
+
   }
 
 }
@@ -233,13 +237,18 @@ void AGIPane::rightClick(wxMouseEvent& event) {
 	float y = event.GetY();
 	//ドラッグ中に右クリックされると間違いなくバグるのであとで対処
 	nowindex = getindex(x,y);
-	if(nowindex !=  -1){
+	if(nowindex !=  -1 && nowindex < data->getnum()){
 		data->setSIndex(nowindex);
 		//pcp->setIndex(nowindex);
 		pcp->Refresh();
 		md->setText(nowindex);
 		Refresh();
 	}
+	else if(nowindex !=-1  && nowindex < data->getnumatr()){
+		 int index = nowindex - data->getnum();
+		 nowindex = -1;
+		 std::cerr << data->getAtrName( index )<< std::endl;
+	} 
 }
 void AGIPane::mouseLeftWindow(wxMouseEvent& event) {}
 void AGIPane::keyPressed(wxKeyEvent& event) {}
@@ -279,6 +288,7 @@ AGIPane::AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p, MatrixView
     nowindex = -1;
     isMoved = false;
     isDrug = false;
+    iscalc = false;
     setRate();
 
     // To avoid flashing on MSW
@@ -412,12 +422,7 @@ void AGIPane::render(wxPaintEvent& evt)
 
     //ここで点を描画する  倍率をきめる関数をどこかで定義する必要あり  データの最大値を使うべきだろう
 	std::vector<int> selected = data->getSIndex();
-    std::vector<int> notselected;
-    for(int i = 0;i< data->getnum();i++){
-        auto result = find(begin(selected),end(selected),i);
-        if(result == end(selected))
-            notselected.push_back(i);
-    }
+    std::vector<int> notselected = data->getNSIndex();
     int num = data->getnum();
     
   	for(int i: notselected){

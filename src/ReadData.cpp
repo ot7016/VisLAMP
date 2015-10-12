@@ -190,6 +190,9 @@ void ReadData::readoriginal(){
         Dmax[j] = d; 
     }
   }
+   for(int i = 0;i<num;i++){
+      notselectedindex.push_back(i);
+  }
 }
 void ReadData::readadjency(){
 
@@ -296,20 +299,40 @@ vector<int>ReadData::getFIndex(){
 vector<int> ReadData::getSIndex(){
   return selectedindex;
 }
+vector<int> ReadData::getNSIndex(){
+  return notselectedindex;
+}
 //今は前の選択を保持しない形とする
 void ReadData::setSIndex(int i){
-  selectedindex.clear();
+  clearSIndex();
   selectedindex.push_back(i);
+  for(int j = 0;j< i;j++){
+    notselectedindex.push_back(j);
+  }
+  for(int j = i+1;j<num;j++){
+    notselectedindex.push_back(j);
+  }
 }
 
 void ReadData::setSIndex(int j, vector<float> v){
-  selectedindex.clear();
+  clearSIndex();
   sort(v.begin(),v.end());
   for(int i = 0;i < num;i++){
     if( D[i][j] > v.at(0) && D[i][j] < v.at(1) )
       selectedindex.push_back(i);
   }
-
+  for(int i = 0;i< num;i++){
+        auto result = find(begin(selectedindex),end(selectedindex),i);
+        if(result == end(selectedindex))
+            notselectedindex.push_back(i);
+        }
+}
+void ReadData::clearSIndex(){
+  selectedindex.clear();
+  notselectedindex.clear();
+  for(int i = 0; i<num;i++){
+    notselectedindex.push_back(i);
+  }
 }
 
 

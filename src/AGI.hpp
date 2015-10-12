@@ -89,5 +89,6 @@ private:
 	float* _new;
 	bool isMoved;
 	bool isDrug;
+	bool iscalc;
 };
 #endif

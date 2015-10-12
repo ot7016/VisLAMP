@@ -51,7 +51,7 @@ public:
 	int getHeight();  
 	void setRate(int l, int r, float left, float right);
 	void setLength(float p,float l);
-	void setRange(int y, int index, float rate);
+	void setFrom(int y, bool l);
 	void setSumLength(float l, float w);
 	void render(wxPaintEvent& evt);  
 	void draw(int i);   
@@ -78,10 +78,13 @@ private:
 	float lrate;
 	int index;
 	int layer;
-	std::vector<float> leftrange;
-	std::vector<float> rightrange;
+	//std::vector<float> leftrange;
+	//std::vector<float> rightrange;
 	bool isclicked;
 	bool isdruged;
+	bool iscalc;
+	float from;
+	bool isleft;
 };
 
 /*
