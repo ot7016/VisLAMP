@@ -192,7 +192,7 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
     //もちろんある程度の誤差は許容しなければならない
     nowindex = getindex(x,y);
 //    std::cerr << nowindex  << std::endl;
-    if(nowindex != -1 && nowindex < data->getnumatr()){
+    if(nowindex != -1 && nowindex < data->getnum()){
 	    _pre[0] = ag->getB(nowindex, 0);
     	_pre[1] = ag->getB(nowindex, 1);
     	isMoved = true;
@@ -200,6 +200,18 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
 		md->setText(nowindex);
 		Refresh();
 		pcp->Refresh();
+	}
+	else if(nowindex != -1 && nowindex<data->getnumatr()){
+		int index = nowindex - data->getnum();
+		nowindex = -1;
+		std::cerr << data->getAtrName( index )<< std::endl;
+	}
+	//どのノードも近くないときは複数選択
+	else {
+		xfrom = x;
+		yfrom = y;
+		rangeselect = true;
+		std::cerr << "select"<< std::endl;
 	}
 }
 
@@ -212,9 +224,38 @@ void AGIPane::mouseMoved(wxMouseEvent& event) {
 	 	iscalc = false;
 	 	_pre[0] = ag->getB(nowindex, 0);
     	_pre[1] = ag->getB(nowindex, 1);
+ 	}
+ 	else if(rangeselect && !iscalc){
+ 		iscalc =true;
+ 		calRange(event.GetX(),event.GetY());
+ 		iscalc = false;
+ 	}
 
-  }
-
+}
+void AGIPane::calRange(int x2, int y2){
+	xto = x2;
+	yto = y2;
+	std::vector<float> x;
+    std::vector<float> y;
+	x.push_back( (xfrom - getWidth()/2) /xrate);
+    y.push_back( (yfrom - getHeight()/2) /yrate);
+ 	x.push_back( (x2 - getWidth()/2) /xrate);
+    y.push_back( (y2 - getHeight()/2) /yrate);
+    sort(x.begin(),x.end());
+    sort(y.begin(),y.end());
+    std::vector<int> selected;
+ 	for(int i = 0;i< data->getnum();i++){
+ 		float a = ag->getB(i,0);
+ 		float b = ag->getB(i,1);
+ 		if(a > x.at(0) && a < x.at(1)){
+ 			if(b >y.at(0) && b < y.at(1)){
+ 				selected.push_back(i);
+ 			}
+ 		}
+ 	}
+ 	data->setSIndex(selected);
+ 	auto parent = GetParent();
+    parent->Refresh(); 
 }
 
 void AGIPane::mouseWheelMoved(wxMouseEvent& event) {
@@ -226,8 +267,10 @@ void AGIPane::mouseReleased(wxMouseEvent& event){
   	calcagain(event.GetX(),event.GetY());
     //このxとyが点の2次元配列に含まれるならOK
     //もちろんある程度の誤差は許容しなければならない
-   
       isMoved = false;
+  }
+  else if(rangeselect){
+  	rangeselect = false;
   }
    isDrug = false;
 }
@@ -239,7 +282,6 @@ void AGIPane::rightClick(wxMouseEvent& event) {
 	nowindex = getindex(x,y);
 	if(nowindex !=  -1 && nowindex < data->getnum()){
 		data->setSIndex(nowindex);
-		//pcp->setIndex(nowindex);
 		pcp->Refresh();
 		md->setText(nowindex);
 		Refresh();
@@ -289,6 +331,11 @@ AGIPane::AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p, MatrixView
     isMoved = false;
     isDrug = false;
     iscalc = false;
+    rangeselect =false;
+    xfrom = -1;
+    xto = -1;
+    yfrom = -1;
+    yto = -1;
     setRate();
 
     // To avoid flashing on MSW
@@ -359,7 +406,7 @@ void AGIPane::setRate(){
 
 int AGIPane::getindex(float x, float y){
     int index = -1;
-    const float min = 5;
+    const float min = 0.05;
     float minnow = min; 
     float d; 
     float x2 = (x - getWidth()/2) /xrate;
@@ -455,6 +502,16 @@ void AGIPane::render(wxPaintEvent& evt)
 		glVertex3f(ag->getB(n2,0)*xrate + getWidth()/2, ag->getB(n2,1)*yrate + getHeight()/2,0);
 	}
     glEnd();
+    if(rangeselect){
+    	glColor4f(0.0f,0.0f,0.0f,1.0f);
+    	glBegin(GL_LINE_STRIP);
+    	glVertex3f(xfrom,yfrom,0);
+    	glVertex3f(xfrom,yto,0);
+    	glVertex3f(xto,yto,0);
+    	glVertex3f(xto,yfrom,0);
+    	glVertex3f(xfrom,yfrom,0);
+    	glEnd();
+    }
     glFlush();
     SwapBuffers();
 }

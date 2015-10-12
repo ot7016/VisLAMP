@@ -327,6 +327,15 @@ void ReadData::setSIndex(int j, vector<float> v){
             notselectedindex.push_back(i);
         }
 }
+void ReadData::setSIndex(vector<int> v){
+  clearSIndex();
+  selectedindex = v;
+  for(int i: v){
+     auto result = find(begin(selectedindex),end(selectedindex),i);
+        if(result == end(selectedindex))
+            notselectedindex.push_back(i);
+  }
+}
 void ReadData::clearSIndex(){
   selectedindex.clear();
   notselectedindex.clear();

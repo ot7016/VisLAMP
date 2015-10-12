@@ -77,6 +77,7 @@
 	void setRate();
 	void setdelta(float d);
 	void calcagain(float x, float y);
+	void calRange(int x2, int y2);
 	void undo();
  
 
@@ -90,5 +91,10 @@ private:
 	bool isMoved;
 	bool isDrug;
 	bool iscalc;
+	bool rangeselect;
+	int xfrom;
+	int yfrom;
+	int xto;
+	int yto;
 };
 #endif

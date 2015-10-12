@@ -50,6 +50,7 @@ class ReadData{
 	std::vector<int> getNSIndex();
 	void setSIndex(int i);
 	void setSIndex(int j, std::vector<float> v);
+	void setSIndex(std::vector<int> v);
 	void clearSIndex();
 
 	private:
