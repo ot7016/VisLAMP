@@ -364,7 +364,7 @@ void PCPSub::render(wxPaintEvent& evt)
     glVertex3f(getWidth(),getHeight(),0);
     glVertex3f(0,getHeight(),0);
     glEnd();
-
+    
     glColor4f(0.0f,0.0f,0.0f,1.0f);
     glBegin(GL_LINES);
     int xright = getWidth()*3/4;
