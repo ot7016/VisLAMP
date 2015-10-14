@@ -36,8 +36,6 @@ private:
 };
 */
 
-
-
 class MyApp: public wxApp{
     virtual bool OnInit();
  

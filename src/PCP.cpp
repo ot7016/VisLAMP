@@ -7,30 +7,31 @@
 using namespace std;
  
  
-PCPPane::PCPPane(wxWindow* parent, int* args,ReadData* d ) :
-    wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(600,600), wxFULL_REPAINT_ON_RESIZE)
+PCPPane::PCPPane(wxWindow* parent, int* args,ReadData* d,PCPBorder* l) :
+    wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(600,550), wxFULL_REPAINT_ON_RESIZE)
 {
     data = d;
+    last = l;
     int atr = data->getatr();
-    index = -1;
-    wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
     sumlength = atr-1;
-    int len = getWidth()/(atr-1);
+    int len = getHeight()/(atr-1);
+    
     for(int i = 0 ;i< atr-1;i++){
         PCPSub* sub =  new PCPSub(this,i,d,len);
-        sub->setSumLength(sumlength,getWidth()-sumlength);
+        sub->setSumLength(sumlength,getHeight()-sumlength);
         sizer->Add(sub);
     }
-
     setRate(); 
+    last->setLastIndex(atr-1);
     SetSizer(sizer);
     SetAutoLayout(true);
     // To avoid flashing on MSW
 }
  
 PCPPane::~PCPPane(){
+    delete[] rate;
 }
-
 
 int PCPPane::getWidth()
 {
@@ -47,14 +48,13 @@ void PCPPane::setRate(){
     int dim = data->getatr();
     rate = new float[dim];
     for(int i = 0;i< dim;i++ ){
-        rate[i] = (getHeight()*3)/(4*(data->getDmax(i)-data->getDmin(i)));
+        rate[i] = (getWidth()*3)/(4*(data->getDmax(i)-data->getDmin(i)));
     }
     int k = 0;
     for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
-        PCPSub *current = (PCPSub *)node->GetData();
-    //    if(k < atr-1)
+            PCPSub *current = (PCPSub *)node->GetData();
             current->setRate(k,k+1,rate[k],rate[k+1]);
-    //    else current->setRate(k,-1,rate[k],-1);
+        
         k++;
         }
 }
@@ -71,19 +71,17 @@ void PCPPane::refine(float** v){
     int k = 0;
     for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
         PCPSub *current = (PCPSub *)node->GetData(); 
-        current->setSumLength(sumlength,getWidth());
+        current->setSumLength(sumlength,getHeight());
         current->Refresh();
-        len[k] = current->getWidth(); 
+        len[k] = current->getHeight(); 
+        
         k++;
-        }
-        for(int i = 0;i < atr-1;i++){
-            std::cerr << len[i] << std::endl;
         }
          SetAutoLayout(true);
          Show();
 }
 void PCPPane::reselect(){
-    auto parent = GetParent();
+    auto parent = GetGrandParent();
     parent->Refresh(); 
 }
 
@@ -95,15 +93,18 @@ void PCPPane::solveTSP(float** v,int atr){
     int k = 0;
     if(data->isLenVar()){ 
         for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
-            PCPSub *current = (PCPSub *)node->GetData();
-            float l = ts->getlength(k+1);
-            current->setLength(sumlength,l);
-            sumlength = sumlength + l;
-            int lindex = data->getOrder(k);
-            int rindex = data->getOrder(k+1);
-            current->setRate(lindex,rindex,rate[lindex],rate[rindex]);
+
+                PCPSub *current = (PCPSub *)node->GetData();
+                float l = ts->getlength(k+1);
+                current->setLength(sumlength,l);
+                sumlength = sumlength + l;
+                int lindex = data->getOrder(k);
+                int rindex = data->getOrder(k+1);
+                current->setRate(lindex,rindex,rate[lindex],rate[rindex]);
+            
             k++;
         }
+          last->setLastIndex(data->getOrder(atr-1));
     }
     else{
          for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
@@ -114,7 +115,9 @@ void PCPPane::solveTSP(float** v,int atr){
             current->setRate(lindex,rindex,rate[lindex],rate[rindex]);
             k++;
         }
+          last->setLastIndex(data->getOrder(atr-1));
         sumlength = atr-1;
+
     }
 
 }
@@ -181,28 +184,30 @@ void PCPPane::solveAngle(float** v,int atr){
     if(data->isLenVar()){
         sumlength = 0;
         for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
-            PCPSub *current = (PCPSub *)node->GetData();
-            float l = acos(c1.at(k).second[0]* c1.at(k+1).second[0] + c1.at(k).second[1]* c1.at(k+1).second[1]);
-            current->setLength(sumlength,l);
-            int lindex = data->getOrder(k);
-            int rindex = data->getOrder(k+1);
-            current->setRate(lindex,rindex,rate[lindex],rate[rindex]);
-            sumlength = sumlength + l;
+                PCPSub *current = (PCPSub *)node->GetData();
+                float l = acos(c1.at(k).second[0]* c1.at(k+1).second[0] + c1.at(k).second[1]* c1.at(k+1).second[1]);
+                current->setLength(sumlength,l);
+                int lindex = data->getOrder(k);
+                int rindex = data->getOrder(k+1);
+                current->setRate(lindex,rindex,rate[lindex],rate[rindex]);
+                sumlength = sumlength + l;
             k++;
         }
+        last->setLastIndex(data->getOrder(atr-1));
     }
     else{
          for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
-            PCPSub *current = (PCPSub *)node->GetData();
-            current->setLength(k,1);
-             int lindex = c1.at(k).first;
-            int rindex = c1.at(k+1).first;
-            current->setRate(lindex,rindex,rate[lindex],rate[rindex]);
-            k++;
+                PCPSub *current = (PCPSub *)node->GetData();
+                current->setLength(k,1);
+                 int lindex = c1.at(k).first;
+                int rindex = c1.at(k+1).first;
+                current->setRate(lindex,rindex,rate[lindex],rate[rindex]);
+                k++;
+            }
+              last->setLastIndex(data->getOrder(atr-1));
         }
         sumlength = atr-1;
-    }
-
+    
 }
 
 // some useful events to use
@@ -211,23 +216,23 @@ void PCPSub::mouseMoved(wxMouseEvent& event) {
         isdruged = true;
         if(!iscalc){
             iscalc =true;
-            int y = event.GetY();
+            int x = event.GetX();
             int atr;
             float rate;
-            if(isleft){
-                atr = leftatr;
-                rate =lrate;
+            if(isUpper){
+                atr = upperatr;
+                rate =urate;
             }
             else{
-                atr = rightatr;
-                rate =rrate;
+                atr = loweratr;
+                rate =lrate;
             }
-            float to =  data->getDmax(atr) - (y- getHeight()/8)/rate;
+            float to =  data->getDmax(atr) - x/rate;
             vector<float> v;
             v.push_back(from);
             v.push_back(to);
             data->setSIndex(atr,v);
-            auto parent = GetGrandParent();
+            auto parent = GetGrandParent()->GetParent();
             parent->Refresh(); 
             iscalc =false;
         }
@@ -238,28 +243,28 @@ void PCPSub::mouseDown(wxMouseEvent& event) {
     data->clearSIndex();
     auto parent = GetGrandParent();
     parent->Refresh();
-    int x = event.GetX();
-    if(x<getWidth()/2) {     //左端がクリックされたとき
-        setFrom(event.GetY(),true);
+    int y = event.GetY();
+    if(y<getHeight()/2) {     //左端がクリックされたとき
+        setFrom(event.GetX(),true);
     } 
     else {  //右端がクリックされたとき
-        setFrom(event.GetY(),false);
+        setFrom(event.GetX(),false);
     }
 }
 
-void PCPSub::setFrom(int y,bool l){
+void PCPSub::setFrom(int x,bool u){
     int atr;
     float rate;
-    isleft = l;
-    if(l){
-        atr = leftatr;
-        rate = lrate;
+    isUpper = u;
+    if(u){
+        atr = upperatr;
+        rate = urate;
     }
     else{
-        atr = rightatr;
-        rate = rrate;
+        atr = loweratr;
+        rate = lrate;
     }
-    from =  data->getDmax(atr) - (y- getHeight()/8)/rate;
+    from =  data->getDmax(atr) - x/rate;
     isclicked = true;
 }
 
@@ -269,8 +274,6 @@ void PCPSub::mouseWheelMoved(wxMouseEvent& event) {}
 void PCPSub::mouseReleased(wxMouseEvent& event) {
     isclicked = false;
     isdruged = false;
-    //from = -999;
-
 }
 void PCPSub::rightClick(wxMouseEvent& event) {}
 void PCPSub::mouseLeftWindow(wxMouseEvent& event) {}
@@ -278,11 +281,10 @@ void PCPSub::keyPressed(wxKeyEvent& event) {}
 void PCPSub::keyReleased(wxKeyEvent& event) {}
 
 PCPSub::PCPSub(wxWindow* parent,int l, ReadData* d, int size) :
-    wxGLCanvas(parent, wxID_ANY, NULL, wxPoint(l*size,0), wxSize(size,600), wxFULL_REPAINT_ON_RESIZE) //wxsize あとで変更
+    wxGLCanvas(parent, wxID_ANY, NULL, wxPoint(0,l*size), wxSize(590,size), wxFULL_REPAINT_ON_RESIZE) //wxsize あとで変更
 {
     m_context = new wxGLContext(this);
     data = d;
-    index = -1;
     length = 1; 
     prelength = l;
     layer = l; 
@@ -325,19 +327,19 @@ void PCPSub::setLength(float p,float l){
 void PCPSub::setSumLength(float l,float w){
     sumlength = l;
     int size = (length/sumlength) *w;
-    SetSize(size,getHeight());
-    SetPosition(wxPoint((prelength/sumlength)*w,0));
+    SetSize(getWidth(),size);
+    SetPosition(wxPoint(0,(prelength/sumlength)*w+25));
 }
 
 int PCPSub::getHeight()
 {
     return GetSize().y;
 }
-void PCPSub::setRate(int l, int r,float left,float right){
-    leftatr = l;
-    rightatr = r; 
-    lrate = left;
-    rrate = right;
+void PCPSub::setRate(int u, int l,float upper,float lower){
+    upperatr = u;
+    loweratr = l; 
+    urate = upper;
+    lrate = lower;
 }
  
  //本当は再描画のことも考えた関数設計にする
@@ -365,14 +367,13 @@ void PCPSub::render(wxPaintEvent& evt)
 
     glColor4f(0.0f,0.0f,0.0f,1.0f);
     glBegin(GL_LINES);
-    int ydown = getHeight()*7/8;
-    int yup = getHeight()/8 ;
-    glVertex3f(getWidth(),ydown,0);
-    glVertex3f(getWidth(),yup,0); 
+    int xright = getWidth()*3/4;
+    int xleft = 0 ;
+    glVertex3f(xleft, getHeight(),0);
+    glVertex3f(xright, getHeight(),0); 
     glEnd();
-    glRasterPos2d(0,ydown+40);
-    //int s = data->getOrder(leftatr);
-    string str = data->getAtrName(leftatr);
+    glRasterPos2d(xright,12);
+    string str = data->getAtrName(upperatr);
     int size = (int)str.size();
     for(int j = 0;j< size;j++){
         char ic = str[j];
@@ -392,7 +393,6 @@ void PCPSub::render(wxPaintEvent& evt)
       glColor4f(0.8f,0.3f,0.6f,1.0f);
       glLineWidth(2);
       for(int i: selected) {
-        std::cerr << selected.size() << std::endl;
         draw(i);
     }
   }
@@ -402,8 +402,102 @@ void PCPSub::render(wxPaintEvent& evt)
 
 void PCPSub::draw(int i){
     glBegin(GL_LINE_STRIP);
-    glVertex3f(0, (data->getDmax(leftatr) - data->getD(i,leftatr) ) *lrate + getHeight()/8 ,0); 
-    glVertex3f(getWidth(), (data->getDmax(rightatr) - data->getD(i,rightatr) ) *rrate + getHeight()/8 ,0);      
+    glVertex3f( (data->getDmax(upperatr) - data->getD(i,upperatr) ) *urate,0 ,0); 
+    glVertex3f( (data->getDmax(loweratr) - data->getD(i,loweratr) ) *lrate,getHeight(),0);      
      glEnd();
 }
 
+PCPBorder::PCPBorder(wxWindow* parent,bool b,ReadData* d, int size) :
+wxGLCanvas(parent, wxID_ANY, NULL, wxPoint(0,0), wxSize(590,24), wxFULL_REPAINT_ON_RESIZE)
+{
+    m_context = new wxGLContext(this);
+    data = d;
+    b = islast;
+    if(b)
+        SetPosition(wxPoint(0,size*data->getatr()));
+    SetBackgroundStyle(wxBG_STYLE_CUSTOM);
+}
+void PCPBorder::setLastIndex(int i){
+    atr  = i;
+}
+int PCPBorder::getWidth(){
+    return GetSize().x;
+}
+ 
+int PCPBorder::getHeight(){
+    return GetSize().y;
+}
+void PCPBorder::mouseMoved(wxMouseEvent& event) {}
+void PCPBorder::mouseDown(wxMouseEvent& event){}
+void PCPBorder::mouseWheelMoved(wxMouseEvent& event) {}
+void PCPBorder::mouseReleased(wxMouseEvent& event) {}
+void PCPBorder::rightClick(wxMouseEvent& event) {}
+void PCPBorder::mouseLeftWindow(wxMouseEvent& event) {}
+void PCPBorder::keyPressed(wxKeyEvent& event) {}
+void PCPBorder::keyReleased(wxKeyEvent& event) {}
+
+void PCPBorder::prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y)
+{
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Black Background
+    glEnable(GL_TEXTURE_2D);   // textures
+    glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_BLEND);
+    glEnable(GL_LINE_SMOOTH);
+    glDisable(GL_DEPTH_TEST);
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+ 
+    glViewport(topleft_x, topleft_y, bottomrigth_x-topleft_x, bottomrigth_y-topleft_y);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    gluOrtho2D(topleft_x, bottomrigth_x, bottomrigth_y, topleft_y);
+    glMatrixMode(GL_MODELVIEW);
+
+    glLoadIdentity();
+}
+
+void PCPBorder::render(wxPaintEvent& evt)
+{
+    if(!IsShown()) {
+        std::cerr << "Border does not render" << std::endl;
+        return;
+    }
+    std::cerr << "Border render" << std::endl;
+    wxGLCanvas::SetCurrent(*m_context);
+ 
+    wxPaintDC(this); // only to be used in paint events. use wxClientDC to paint outside the paint event
+ 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+ 
+    // ------------- draw some 2D ----------------
+    prepare2DViewport(0,0,getWidth(), getHeight());
+    glLoadIdentity();
+ 
+    // white background
+    glColor4f(1, 1, 1, 1);
+    glBegin(GL_QUADS);
+    glVertex3f(0,0,0);
+    glVertex3f(getWidth(),0,0);
+    glVertex3f(getWidth(),getHeight(),0);
+    glVertex3f(0,getHeight(),0);
+    glEnd();
+
+    if(islast){
+        glColor4f(0.0f,0.0f,0.0f,1.0f);
+        glBegin(GL_LINES);
+        int xright = getWidth()*3/4;
+        int xleft = 0 ;
+        glVertex3f(xleft, getHeight(),0);
+        glVertex3f(xright, getHeight(),0); 
+        glEnd();
+        glRasterPos2d(xright,12);
+        string str = data->getAtrName(atr);
+        int size = (int)str.size();
+        for(int j = 0;j< size;j++){
+            char ic = str[j];
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ic);
+        }
+    }
+    glFlush();
+    SwapBuffers();
+}

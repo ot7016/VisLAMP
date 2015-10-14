@@ -139,7 +139,6 @@ int Agi::refine(float* _pre, float* _new, int index) {
      }
 	// 後は制約式を解く
 	float* ans = solver2D( _pre, _new, f3norm, init);
-	//std::cerr << ans[0] << std::endl;
 	float e1[m],e2[m];
 	float a3 = (_new[0] -_pre[0]*ans[0] -_pre[1]*ans[1])/f3norm;
 	float b3 = (_new[1] -_pre[0]*ans[2] -_pre[1]*ans[3])/f3norm;
@@ -191,7 +190,6 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
     //このxとyが点の2次元配列に含まれるならOK
     //もちろんある程度の誤差は許容しなければならない
     nowindex = getindex(x,y);
-//    std::cerr << nowindex  << std::endl;
     if(nowindex != -1 && nowindex < data->getnum()){
 	    _pre[0] = ag->getB(nowindex, 0);
     	_pre[1] = ag->getB(nowindex, 1);
@@ -211,7 +209,7 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
 		xfrom = x;
 		yfrom = y;
 		rangeselect = true;
-		std::cerr << "select"<< std::endl;
+		//std::cerr << "select"<< std::endl;
 	}
 }
 

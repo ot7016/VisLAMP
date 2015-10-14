@@ -17,14 +17,39 @@
 #ifndef pc 
 #define pc
 
+class PCPBorder: public wxGLCanvas
+{
+	wxGLContext* m_context;
+	ReadData* data;
+public:
+	PCPBorder(wxWindow* parent,bool b,ReadData* d, int size);
+	void setLastIndex(int i);
+	int getWidth();   
+	int getHeight(); 
+	void prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y);  
+	void render(wxPaintEvent& evt);
 
+	void mouseMoved(wxMouseEvent& event);   
+	void mouseDown(wxMouseEvent& event);
+	void mouseWheelMoved(wxMouseEvent& event);
+	void mouseReleased(wxMouseEvent& event);
+	void rightClick(wxMouseEvent& event);
+	void mouseLeftWindow(wxMouseEvent& event);
+	void keyPressed(wxKeyEvent& event);
+	void keyReleased(wxKeyEvent& event);
 
+	DECLARE_EVENT_TABLE()
+private:
+	bool islast;
+	int atr;
+
+};
 
 class PCPPane: public wxPanel{
 	
 	ReadData* data;
 public:
-	PCPPane(wxWindow* parent, int* args, ReadData* d);
+	PCPPane(wxWindow* parent, int* args, ReadData* d,PCPBorder* l);
 	virtual ~PCPPane();
 	int getWidth();   
 	int getHeight();  
@@ -34,11 +59,10 @@ public:
 	void refine(float** v);
 	void reselect();
 	typedef std::pair<int,float*> ipair;
-	// events
 	private:
-	int index;
 	float* rate; 
 	float sumlength;
+	PCPBorder* last;
 };
 
 class PCPSub: public wxGLCanvas 
@@ -49,9 +73,9 @@ public:
 	 PCPSub(wxWindow* parent, int l, ReadData* d, int size);
 	int getWidth();   
 	int getHeight();  
-	void setRate(int l, int r, float left, float right);
+	void setRate(int u, int l, float upper, float lower);
 	void setLength(float p,float l);
-	void setFrom(int y, bool l);
+	void setFrom(int x, bool l);
 	void setSumLength(float l, float w);
 	void render(wxPaintEvent& evt);  
 	void draw(int i);   
@@ -69,34 +93,19 @@ public:
 	DECLARE_EVENT_TABLE()
 	/* data */
 private:
-	int leftatr;
-	int rightatr;
+	int upperatr;
+	int loweratr;
 	float length;
 	float prelength;
 	float sumlength;
-	float rrate;
+	float urate;
 	float lrate;
-	int index;
 	int layer;
-	//std::vector<float> leftrange;
-	//std::vector<float> rightrange;
 	bool isclicked;
 	bool isdruged;
 	bool iscalc;
 	float from;
-	bool isleft;
+	bool isUpper;
 };
-
-/*
-class PCPLast: public wxGLCanvas{
-	wxGLContext* m_context;
-	ReadData* data;
-public:
-	PCPLast(wxWindow* parent,int anum,ReadData d, int size);
-	void render(wxPaintEvent& evt); 
-};
-*/
-
-// 最後のだけ処理が変わるので　継承クラスを作ったほうがよさそう 継承元の関数に virtual をつけることで　元のキャストでも継承先の関数が利用可能
 
 #endif

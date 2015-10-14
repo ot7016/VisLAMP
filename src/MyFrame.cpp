@@ -20,12 +20,18 @@ bool MyApp::OnInit()
     wxBoxSizer* mainsizer = new wxBoxSizer(wxVERTICAL);
     data = new ReadData();
     md  = new MatrixView((wxFrame*) frame,data);
-    pcPane = new PCPPane( (wxWindow*)mainPanel, args,data);
-    glPane = new AGIPane( (wxWindow*)mainPanel, args,data,pcPane,md); 
+    wxWindow* pcPanel = new wxWindow((wxWindow*)mainPanel,wxID_ANY);
+    PCPBorder* upper = new PCPBorder((wxWindow*) pcPanel,false,data,25);
+    PCPBorder* lower = new PCPBorder((wxWindow*) pcPanel,true,data,25);
+    pcPane = new PCPPane( (wxWindow*) pcPanel, args,data,lower);
+    wxBoxSizer* pcsizer = new wxBoxSizer(wxVERTICAL);
+    pcsizer->Add(upper);
+    pcsizer->Add(pcPane);
+    pcsizer->Add(lower);
+    pcPanel->SetSizer(pcsizer);
     
-            
+    glPane = new AGIPane( (wxWindow*)mainPanel, args,data,pcPane,md); 
     wxGridSizer* sizer2 = new wxGridSizer(10,1,30,100);
-
     //パネルを生成、場合によっては拡張
     wxPanel* ctlPanel;
     wxButton* undobutton;
@@ -60,7 +66,7 @@ bool MyApp::OnInit()
     ctlPanel->SetAutoLayout(true);
 
    sizer->Add(glPane, 1, wxEXPAND);
-   sizer->Add(pcPane,1,wxEXPAND);
+   sizer->Add(pcPanel,1,wxEXPAND);
    sizer->Add(ctlPanel,1,wxEXPAND);
    mainPanel->SetSizer(sizer);
    mainPanel->SetAutoLayout(true);
@@ -132,4 +138,18 @@ EVT_MOUSEWHEEL(PCPSub::mouseWheelMoved)
 EVT_PAINT(PCPSub::render)
 END_EVENT_TABLE()
  
+
+BEGIN_EVENT_TABLE(PCPBorder, wxGLCanvas)
+EVT_MOTION(PCPBorder::mouseMoved)
+EVT_LEFT_DOWN(PCPBorder::mouseDown)
+EVT_LEFT_UP(PCPBorder::mouseReleased)
+EVT_RIGHT_DOWN(PCPBorder::rightClick)
+EVT_LEAVE_WINDOW(PCPBorder::mouseLeftWindow)
+//EVT_SIZE(PCPPane::resized)
+EVT_KEY_DOWN(PCPBorder::keyPressed)
+EVT_KEY_UP(PCPBorder::keyReleased)
+EVT_MOUSEWHEEL(PCPBorder::mouseWheelMoved)
+EVT_PAINT(PCPBorder::render)
+END_EVENT_TABLE()
+
 // some useful events to use 
