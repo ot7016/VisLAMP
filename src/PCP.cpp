@@ -19,7 +19,7 @@ PCPPane::PCPPane(wxWindow* parent, int* args,ReadData* d,PCPBorder* l) :
     
     for(int i = 0 ;i< atr-1;i++){
         PCPSub* sub =  new PCPSub(this,i,d,len);
-        sub->setSumLength(sumlength,getHeight()-sumlength);
+        sub->setSumLength(sumlength,getHeight());
         sizer->Add(sub);
     }
     setRate(); 
@@ -205,9 +205,9 @@ void PCPPane::solveAngle(float** v,int atr){
                 k++;
             }
               last->setLastIndex(data->getOrder(atr-1));
-        }
+        
         sumlength = atr-1;
-    
+    }
 }
 
 // some useful events to use
@@ -328,7 +328,7 @@ void PCPSub::setSumLength(float l,float w){
     sumlength = l;
     int size = (length/sumlength) *w;
     SetSize(getWidth(),size);
-    SetPosition(wxPoint(0,(prelength/sumlength)*w+25));
+    SetPosition(wxPoint(0,(prelength/sumlength)*w));
 }
 
 int PCPSub::getHeight()
@@ -369,10 +369,10 @@ void PCPSub::render(wxPaintEvent& evt)
     glBegin(GL_LINES);
     int xright = getWidth()*3/4;
     int xleft = 0 ;
-    glVertex3f(xleft, getHeight(),0);
-    glVertex3f(xright, getHeight(),0); 
+    glVertex3f(xleft, 0,0);
+    glVertex3f(xright,0,0); 
     glEnd();
-    glRasterPos2d(xright,12);
+    glRasterPos2d(xright+10,12);
     string str = data->getAtrName(upperatr);
     int size = (int)str.size();
     for(int j = 0;j< size;j++){
@@ -412,9 +412,8 @@ wxGLCanvas(parent, wxID_ANY, NULL, wxPoint(0,0), wxSize(590,24), wxFULL_REPAINT_
 {
     m_context = new wxGLContext(this);
     data = d;
-    b = islast;
-    if(b)
-        SetPosition(wxPoint(0,size*data->getatr()));
+    islast = b;
+    atr = d->getatr()-1;
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
 }
 void PCPBorder::setLastIndex(int i){
@@ -459,7 +458,6 @@ void PCPBorder::prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_
 void PCPBorder::render(wxPaintEvent& evt)
 {
     if(!IsShown()) {
-        std::cerr << "Border does not render" << std::endl;
         return;
     }
     std::cerr << "Border render" << std::endl;
@@ -487,11 +485,12 @@ void PCPBorder::render(wxPaintEvent& evt)
         glBegin(GL_LINES);
         int xright = getWidth()*3/4;
         int xleft = 0 ;
-        glVertex3f(xleft, getHeight(),0);
-        glVertex3f(xright, getHeight(),0); 
+        glVertex3f(xleft,0,0);
+        glVertex3f(xright,0,0); 
         glEnd();
-        glRasterPos2d(xright,12);
+        glRasterPos2d(xright+10,12);
         string str = data->getAtrName(atr);
+            std::cerr << str<< std::endl;
         int size = (int)str.size();
         for(int j = 0;j< size;j++){
             char ic = str[j];
