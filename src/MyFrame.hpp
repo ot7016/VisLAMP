@@ -23,18 +23,6 @@
 #include "PCP.hpp"
 #include "MatrixView.hpp"
 
-/* //エラーが出るので一旦停止
-class MyFrame: public wxFrame{
-public:
-    MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
-private:
- //   void OnHello(wxCommandEvent& event);
-    void OnExit(wxCommandEvent& event);
-  //  void OnAbout(wxCommandEvent& event);
-    wxDECLARE_EVENT_TABLE();
-
-};
-*/
 
 class MyApp: public wxApp{
     virtual bool OnInit();

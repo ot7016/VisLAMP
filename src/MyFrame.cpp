@@ -33,13 +33,10 @@ bool MyApp::OnInit()
     glPane = new AGIPane( (wxWindow*)mainPanel, args,data,pcPane,md); 
     wxGridSizer* sizer2 = new wxGridSizer(10,1,30,100);
     //パネルを生成、場合によっては拡張
-    wxPanel* ctlPanel;
-    wxButton* undobutton;
-
-    ctlPanel = new wxPanel((wxPanel*) mainPanel,wxID_ANY);
+    wxPanel* ctlPanel = new wxPanel((wxPanel*) mainPanel,wxID_ANY);
     button1 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"軸間の距離:可変");
     button2 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"軸間距離:角度");
-    undobutton = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"Undo");
+    wxButton* undobutton = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"Undo");
     wxStaticText* pftext;
     pftext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"Projection Factor");
     slider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,50,0,400);
@@ -131,24 +128,12 @@ EVT_LEFT_DOWN(PCPSub::mouseDown)
 EVT_LEFT_UP(PCPSub::mouseReleased)
 EVT_RIGHT_DOWN(PCPSub::rightClick)
 EVT_LEAVE_WINDOW(PCPSub::mouseLeftWindow)
-//EVT_SIZE(PCPPane::resized)
-EVT_KEY_DOWN(PCPSub::keyPressed)
-EVT_KEY_UP(PCPSub::keyReleased)
 EVT_MOUSEWHEEL(PCPSub::mouseWheelMoved)
 EVT_PAINT(PCPSub::render)
 END_EVENT_TABLE()
  
 
 BEGIN_EVENT_TABLE(PCPBorder, wxGLCanvas)
-EVT_MOTION(PCPBorder::mouseMoved)
-EVT_LEFT_DOWN(PCPBorder::mouseDown)
-EVT_LEFT_UP(PCPBorder::mouseReleased)
-EVT_RIGHT_DOWN(PCPBorder::rightClick)
-EVT_LEAVE_WINDOW(PCPBorder::mouseLeftWindow)
-//EVT_SIZE(PCPPane::resized)
-EVT_KEY_DOWN(PCPBorder::keyPressed)
-EVT_KEY_UP(PCPBorder::keyReleased)
-EVT_MOUSEWHEEL(PCPBorder::mouseWheelMoved)
 EVT_PAINT(PCPBorder::render)
 END_EVENT_TABLE()
 

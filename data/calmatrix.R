@@ -21,7 +21,6 @@ readmatrix2<-function(t2,out,thr){
 	tmin <- apply(t2,2,min)
 	tmax <- apply(t2,2,max)
 	trate <- tmax -tmin
-	#trate <- tmax -tmin
 	n <- nrow(t2)
 	 dim <-ncol(t2)
 	for(i in 1:n){
@@ -43,17 +42,14 @@ readmatrix2<-function(t2,out,thr){
 	B2 <-  apply(B1,2,minus,di)
 	B <- -( B2 + dij/num^2)/2  #Bij終了 young-holderで実装したほうがよかったかも..
 	e <- eigen(B,TRUE)
-	write.csv(t(e$values),paste(out,"-evalue.csv",sep = ""),quote=FALSE,row.names=FALSE)
-	write.csv(t(e$vectors),paste(out,"-evector.csv",sep = ""),quote=FALSE,row.names=FALSE)
 	lamh <- e$values[e$values>thr]
 	dim <- length(lamh)
-	X <- apply(e$vectors[,1:dim],1,mul,sqrt(lamh))
-	write.csv(t(X),paste(out,"-cood.csv",sep = ""),quote=FALSE,row.names=FALSE)
-	#D[lower.tri(D,diag=TRUE)] <- 0
-	#dthr <- 0.5
-	#D[D > thr] <- 0
-	#D[D>0 && D<= dthr] <- 1
+	veclam <- e$vectors[,1:dim]
+	write.csv(t(lamh),paste(out,"-evalue.csv",sep = ""),quote=FALSE,row.names=FALSE)
+	write.csv(t(veclam),paste(out,"-evector.csv",sep = ""),quote=FALSE,row.names=FALSE)
 	
+	X <- apply(veclam,1,mul,sqrt(lamh))
+	write.csv(t(X),paste(out,"-cood.csv",sep = ""),quote=FALSE,row.names=FALSE)
 
  }
 powsum <- function(a){
@@ -83,4 +79,11 @@ readspid <- function(thr = 0){
     t1 <- t[1:133,1]
     write.csv(data.frame(t2,t1),"spid2015/spid-original.csv",quote = FALSE,row.names =FALSE)
     readmatrix2(t2,"spid2015/spid",thr)
+}
+readturkiye <- function(thr = 0){
+	t <- read.csv("turkiye-student/turkiye-student-evaluation_R_Specific.csv",header = T)
+	t2 <- t[,2:33]
+	t3 <- t[,1]
+	write.csv(data.frame(t2,t3),"turkiye-student/turkiye-original.csv",quote = FALSE,row.names = FALSE)
+	readmatrix2(t2,"turkiye-student/turkiye",thr)
 }

@@ -244,10 +244,10 @@ void PCPSub::mouseDown(wxMouseEvent& event) {
     auto parent = GetGrandParent();
     parent->Refresh();
     int y = event.GetY();
-    if(y<getHeight()/2) {     //左端がクリックされたとき
+    if(y<getHeight()/2) {     //上がクリックされたとき
         setFrom(event.GetX(),true);
     } 
-    else {  //右端がクリックされたとき
+    else {  //下がクリックされたとき
         setFrom(event.GetX(),false);
     }
 }
@@ -277,8 +277,6 @@ void PCPSub::mouseReleased(wxMouseEvent& event) {
 }
 void PCPSub::rightClick(wxMouseEvent& event) {}
 void PCPSub::mouseLeftWindow(wxMouseEvent& event) {}
-void PCPSub::keyPressed(wxKeyEvent& event) {}
-void PCPSub::keyReleased(wxKeyEvent& event) {}
 
 PCPSub::PCPSub(wxWindow* parent,int l, ReadData* d, int size) :
     wxGLCanvas(parent, wxID_ANY, NULL, wxPoint(0,l*size), wxSize(590,size), wxFULL_REPAINT_ON_RESIZE) //wxsize あとで変更
@@ -364,7 +362,7 @@ void PCPSub::render(wxPaintEvent& evt)
     glVertex3f(getWidth(),getHeight(),0);
     glVertex3f(0,getHeight(),0);
     glEnd();
-    
+
     glColor4f(0.0f,0.0f,0.0f,1.0f);
     glBegin(GL_LINES);
     int xright = getWidth()*3/4;
@@ -372,12 +370,12 @@ void PCPSub::render(wxPaintEvent& evt)
     glVertex3f(xleft, 0,0);
     glVertex3f(xright,0,0); 
     glEnd();
-    glRasterPos2d(xright+10,12);
+    glRasterPos2d(xright+10,10);
     string str = data->getAtrName(upperatr);
     int size = (int)str.size();
     for(int j = 0;j< size;j++){
         char ic = str[j];
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ic);
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10,ic);
     }
     vector<int> selected = data->getSIndex();
     vector<int> notselected = data->getNSIndex();
@@ -388,7 +386,6 @@ void PCPSub::render(wxPaintEvent& evt)
     for(int i: notselected ) {   
             draw(i);                  
     }
-     std::cerr << "PCP Render" << std::endl;
     if(!selected.empty()){
       glColor4f(0.8f,0.3f,0.6f,1.0f);
       glLineWidth(2);
@@ -426,14 +423,6 @@ int PCPBorder::getWidth(){
 int PCPBorder::getHeight(){
     return GetSize().y;
 }
-void PCPBorder::mouseMoved(wxMouseEvent& event) {}
-void PCPBorder::mouseDown(wxMouseEvent& event){}
-void PCPBorder::mouseWheelMoved(wxMouseEvent& event) {}
-void PCPBorder::mouseReleased(wxMouseEvent& event) {}
-void PCPBorder::rightClick(wxMouseEvent& event) {}
-void PCPBorder::mouseLeftWindow(wxMouseEvent& event) {}
-void PCPBorder::keyPressed(wxKeyEvent& event) {}
-void PCPBorder::keyReleased(wxKeyEvent& event) {}
 
 void PCPBorder::prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y)
 {
@@ -460,7 +449,6 @@ void PCPBorder::render(wxPaintEvent& evt)
     if(!IsShown()) {
         return;
     }
-    std::cerr << "Border render" << std::endl;
     wxGLCanvas::SetCurrent(*m_context);
  
     wxPaintDC(this); // only to be used in paint events. use wxClientDC to paint outside the paint event
