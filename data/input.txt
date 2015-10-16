@@ -1,2 +1,2 @@
-../data/turkiye-student/turkiye
-0.01
+../data/cars-8/kcars
+0.1

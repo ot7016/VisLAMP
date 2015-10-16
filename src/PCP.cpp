@@ -383,27 +383,30 @@ void PCPSub::render(wxPaintEvent& evt)
 
     glColor4f(0.5f,0.6f,0.9f,1.0f);
     glLineWidth(1);
+     glBegin(GL_LINES);
     for(int i: notselected ) {   
-            draw(i);                  
+        draw(i);                  
     }
+    glEnd();
     if(!selected.empty()){
       glColor4f(0.8f,0.3f,0.6f,1.0f);
       glLineWidth(2);
+      glBegin(GL_LINES);
       for(int i: selected) {
         draw(i);
     }
+     glEnd();
+
   }
     glFlush();
     SwapBuffers();
 }
 
 void PCPSub::draw(int i){
-    glBegin(GL_LINE_STRIP);
+    
     glVertex3f( (data->getDmax(upperatr) - data->getD(i,upperatr) ) *urate,0 ,0); 
     glVertex3f( (data->getDmax(loweratr) - data->getD(i,loweratr) ) *lrate,getHeight(),0);      
-     glEnd();
-}
-
+    }
 PCPBorder::PCPBorder(wxWindow* parent,bool b,ReadData* d, int size) :
 wxGLCanvas(parent, wxID_ANY, NULL, wxPoint(0,0), wxSize(590,24), wxFULL_REPAINT_ON_RESIZE)
 {

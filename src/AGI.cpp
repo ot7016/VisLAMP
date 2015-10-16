@@ -460,16 +460,26 @@ void AGIPane::render(wxPaintEvent& evt)
     glVertex3f(0, getHeight(), 0);
     glEnd();
    
-    // 追加部分 点を書く
-    glColor4f(0.2f, 0.4f, 0.7f, 1.0f);
-    glPointSize(5.0);
-    glBegin(GL_POINTS);
+    
 
     //ここで点を描画する  倍率をきめる関数をどこかで定義する必要あり  データの最大値を使うべきだろう
 	std::vector<int> selected = data->getSIndex();
     std::vector<int> notselected = data->getNSIndex();
     int num = data->getnum();
-    
+    glColor4f(0.2f, 0.4f, 0.7f, 0.3f);
+	glBegin(GL_LINES);
+	glLineWidth(1);
+	std::vector<std::pair<int,int> > edge = data->getEdge();
+	for(int i = 0;i< edge.size();i++){
+		int n1 = edge.at(i).first;
+		int n2 = edge.at(i).second;
+		glVertex3f(ag->getB(n1,0)*xrate + getWidth()/2, ag->getB(n1,1)*yrate + getHeight()/2,0);
+		glVertex3f(ag->getB(n2,0)*xrate + getWidth()/2, ag->getB(n2,1)*yrate + getHeight()/2,0);
+	}
+    glEnd();
+     glColor4f(0.2f, 0.4f, 0.7f, 1.0f);
+    glPointSize(5.0);
+    glBegin(GL_POINTS);
   	for(int i: notselected){
        	glVertex3f(ag->getB(i,0)*xrate + getWidth()/2, ag->getB(i,1)*yrate + getHeight()/2,0);
     }
@@ -488,18 +498,9 @@ void AGIPane::render(wxPaintEvent& evt)
 	for(int i = 0; i<data->getatr() ;i++){
 		glVertex3f(ag->getB(i+num,0)*xrate + getWidth()/2, ag->getB(i+num,1)*yrate + getHeight()/2,0);
 	}
-	glColor4f(0.2f, 0.4f, 0.7f, 0.3f);
+	
 	glEnd();
-	glBegin(GL_LINES);
-	glLineWidth(1);
-	std::vector<std::pair<int,int> > edge = data->getEdge();
-	for(int i = 0;i< edge.size();i++){
-		int n1 = edge.at(i).first;
-		int n2 = edge.at(i).second;
-		glVertex3f(ag->getB(n1,0)*xrate + getWidth()/2, ag->getB(n1,1)*yrate + getHeight()/2,0);
-		glVertex3f(ag->getB(n2,0)*xrate + getWidth()/2, ag->getB(n2,1)*yrate + getHeight()/2,0);
-	}
-    glEnd();
+	
     if(rangeselect){
     	glColor4f(0.0f,0.0f,0.0f,1.0f);
     	glBegin(GL_LINE_STRIP);
