@@ -29,23 +29,23 @@
 		virtual ~Agi();
 		void calprj();
 		void cal2Mtr() ;
-		int refine(float* _pre, float* _new,int index);
+		int refine(double* _pre, double* _new,int index);
 		void backprj();
-		float getB(int i,int j);
-		float getXMax();
-		float getYMax();
-		float getXMin();
-		float getYMin();
-		void setdelta(float d);
-		typedef std::pair<float,float> prj;
+		double getB(int i,int j);
+		double getXMax();
+		double getYMax();
+		double getXMin();
+		double getYMin();
+		void setdelta(double d);
+		typedef std::pair<double,double> prj;
 	private:
 		ReadData* data;
 		std::stack<std::vector<prj> > prjstack; //射影行列のスタック 
-		float delta;
+		double delta;
 		std::vector<prj> ee; //射影行列(新)
-		float** B; 
-		float xmax ,xmin;  //初期値を適切に定めるのはあとで確認
- 		float ymax ,ymin;
+		double** B; 
+		double xmax ,xmin;  //初期値を適切に定めるのはあとで確認
+ 		double ymax ,ymin;
 
 	};
 
@@ -73,21 +73,21 @@
 	void mouseLeftWindow(wxMouseEvent& event);
 	void keyPressed(wxKeyEvent& event);
 	void keyReleased(wxKeyEvent& event);
-	int getindex(float x, float y);
+	int getindex(double x, double y);
 	void setRate();
-	void setdelta(float d);
-	void calcagain(float x, float y);
+	void setdelta(double d);
+	void calcagain(double x, double y);
 	void calRange(int x2, int y2);
 	void undo();
  
 
 	DECLARE_EVENT_TABLE()
 private:
-	float xrate ;
-	float yrate ;
+	double xrate ;
+	double yrate ;
 	int nowindex;
-	float* _pre;
-	float* _new;
+	double* _pre;
+	double* _new;
 	bool isMoved;
 	bool isDrug;
 	bool iscalc;

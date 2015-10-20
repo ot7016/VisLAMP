@@ -46,7 +46,7 @@ int PCPPane::getHeight()
 void PCPPane::setRate(){
    //各属性ごとに倍率があるので
     int dim = data->getatr();
-    rate = new float[dim];
+    rate = new double[dim];
     for(int i = 0;i< dim;i++ ){
         rate[i] = (getWidth()*3)/(4*(data->getDmax(i)-data->getDmin(i)));
     }
@@ -59,7 +59,7 @@ void PCPPane::setRate(){
         }
 }
 
-void PCPPane::refine(float** v){
+void PCPPane::refine(double** v){
     //TSPを解く
      int atr = data->getatr();
      bool isTSP = data->isTSP();
@@ -85,7 +85,7 @@ void PCPPane::reselect(){
     parent->Refresh(); 
 }
 
-void PCPPane::solveTSP(float** v,int atr){
+void PCPPane::solveTSP(double** v,int atr){
     TSPsolver* ts = new TSPsolver(v,atr);
     ts->solve();
     data->setOrder(ts);
@@ -95,7 +95,7 @@ void PCPPane::solveTSP(float** v,int atr){
         for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
 
                 PCPSub *current = (PCPSub *)node->GetData();
-                float l = ts->getlength(k+1);
+                double l = ts->getlength(k+1);
                 current->setLength(sumlength,l);
                 sumlength = sumlength + l;
                 int lindex = data->getOrder(k);
@@ -121,11 +121,11 @@ void PCPPane::solveTSP(float** v,int atr){
     }
 
 }
-void PCPPane::solveAngle(float** v,int atr){
-    float** v2 =new float*[atr] ;
+void PCPPane::solveAngle(double** v,int atr){
+    double** v2 =new double*[atr] ;
     for(int i = 0;i<atr;i++){
-        v2[i] = new float[2];
-        float d = sqrt(pow(v[i][0],2)+pow(v[i][1],2));
+        v2[i] = new double[2];
+        double d = sqrt(pow(v[i][0],2)+pow(v[i][1],2));
         v2[i][0] = v[i][0]/d;
         v2[i][1] = v[i][1]/d;
     }
@@ -185,7 +185,7 @@ void PCPPane::solveAngle(float** v,int atr){
         sumlength = 0;
         for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
                 PCPSub *current = (PCPSub *)node->GetData();
-                float l = acos(c1.at(k).second[0]* c1.at(k+1).second[0] + c1.at(k).second[1]* c1.at(k+1).second[1]);
+                double l = acos(c1.at(k).second[0]* c1.at(k+1).second[0] + c1.at(k).second[1]* c1.at(k+1).second[1]);
                 current->setLength(sumlength,l);
                 int lindex = data->getOrder(k);
                 int rindex = data->getOrder(k+1);
@@ -218,7 +218,7 @@ void PCPSub::mouseMoved(wxMouseEvent& event) {
             iscalc =true;
             int x = event.GetX();
             int atr;
-            float rate;
+            double rate;
             if(isUpper){
                 atr = upperatr;
                 rate =urate;
@@ -227,8 +227,8 @@ void PCPSub::mouseMoved(wxMouseEvent& event) {
                 atr = loweratr;
                 rate =lrate;
             }
-            float to =  data->getDmax(atr) - x/rate;
-            vector<float> v;
+            double to =  data->getDmax(atr) - x/rate;
+            vector<double> v;
             v.push_back(from);
             v.push_back(to);
             data->setSIndex(atr,v);
@@ -254,7 +254,7 @@ void PCPSub::mouseDown(wxMouseEvent& event) {
 
 void PCPSub::setFrom(int x,bool u){
     int atr;
-    float rate;
+    double rate;
     isUpper = u;
     if(u){
         atr = upperatr;
@@ -318,11 +318,11 @@ int PCPSub::getWidth()
 {
     return GetSize().x;
 }
-void PCPSub::setLength(float p,float l){
+void PCPSub::setLength(double p,double l){
     prelength = p;
     length = l; 
 }
-void PCPSub::setSumLength(float l,float w){
+void PCPSub::setSumLength(double l,double w){
     sumlength = l;
     int size = (length/sumlength) *w;
     SetSize(getWidth(),size);
@@ -333,7 +333,7 @@ int PCPSub::getHeight()
 {
     return GetSize().y;
 }
-void PCPSub::setRate(int u, int l,float upper,float lower){
+void PCPSub::setRate(int u, int l,double upper,double lower){
     upperatr = u;
     loweratr = l; 
     urate = upper;

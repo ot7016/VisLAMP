@@ -42,15 +42,15 @@ public:
 	virtual ~PCPPane();
 	int getWidth();   
 	int getHeight();  
-	void solveTSP(float** v, int atr);   
-	void solveAngle(float** v, int atr);  
+	void solveTSP(double** v, int atr);   
+	void solveAngle(double** v, int atr);  
 	void setRate();        
-	void refine(float** v);
+	void refine(double** v);
 	void reselect();
-	typedef std::pair<int,float*> ipair;
+	typedef std::pair<int,double*> ipair;
 	private:
-	float* rate; 
-	float sumlength;
+	double* rate; 
+	double sumlength;
 	PCPBorder* last;
 };
 
@@ -62,10 +62,10 @@ public:
 	 PCPSub(wxWindow* parent, int l, ReadData* d, int size);
 	int getWidth();   
 	int getHeight();  
-	void setRate(int u, int l, float upper, float lower);
-	void setLength(float p,float l);
+	void setRate(int u, int l, double upper, double lower);
+	void setLength(double p,double l);
 	void setFrom(int x, bool l);
-	void setSumLength(float l, float w);
+	void setSumLength(double l, double w);
 	void render(wxPaintEvent& evt);  
 	void draw(int i);   
 	void prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y);  
@@ -81,16 +81,16 @@ public:
 private:
 	int upperatr;
 	int loweratr;
-	float length;
-	float prelength;
-	float sumlength;
-	float urate;
-	float lrate;
+	double length;
+	double prelength;
+	double sumlength;
+	double urate;
+	double lrate;
 	int layer;
 	bool isclicked;
 	bool isdruged;
 	bool iscalc;
-	float from;
+	double from;
 	bool isUpper;
 };
 

@@ -23,15 +23,15 @@ Agi::~Agi(){
 	delete[] B;
 }
 
-float Agi::getB(int i,int j){
+double Agi::getB(int i,int j){
 	return B[i][j];
 }
 
 //in  固有値 evalue 高次元配置ベクトル Aij  out 初期射影行列     
 void Agi::calprj(){
     int m = data->getdim();
-	float  f1[m], f2[m];
-	float distf1 = 0, distf2 = 0;
+	double  f1[m], f2[m];
+	double distf1 = 0, distf2 = 0;
 
 	//二次元平面上への射影の場合
 	
@@ -57,19 +57,19 @@ void Agi::calprj(){
 }
 //行列の計算   とりあえず実装　最適化とかなし　最終的にはBlasを使う
 void Agi::cal2Mtr() {
-	float prexmax = -100;
-	float preymax = -100;
-	float prexmin = 100;
-	float preymin = 100; 
+	double prexmax = -100;
+	double preymax = -100;
+	double prexmin = 100;
+	double preymin = 100; 
 
 	int n = data->getnumatr();
 	int m = data->getdim();
-	B = new float*[n];      
+	B = new double*[n];      
 	for (int i = 0; i < n; i++) {
-		B[i] = new float[2];
-		float b1 = 0, b2 = 0;
+		B[i] = new double[2];
+		double b1 = 0, b2 = 0;
 		for(int j = 0; j < m; j++) {
-			float  A= data-> getA(i,j);
+			double  A= data-> getA(i,j);
 			b1 += ee.at(j).first * A;
 			b2 += ee.at(j).second * A;
 		}
@@ -93,20 +93,20 @@ void Agi::cal2Mtr() {
 //射影の更新
 
 
-int Agi::refine(float* _pre, float* _new, int index) {
+int Agi::refine(double* _pre, double* _new, int index) {
 		//まずはe3を求める
 	int n = data->getnumatr();
 	int m = data->getdim();
-	float pi[m];
-	float powpinorm = 0;
+	double pi[m];
+	double powpinorm = 0;
 	for(int i = 0; i<m; i++){
 		pi[i] = data->getA(index, i);
 		powpinorm = pow(pi[i], 2)+powpinorm;
 	}
-	float pinorm = sqrt(powpinorm);
-	float powprenorm = pow(_pre[0], 2)+pow(_pre[1], 2);
-	float prenorm = sqrt(powprenorm);
-	float newnorm = sqrt(pow(_new[0], 2)+pow(_new[1], 2));
+	double pinorm = sqrt(powpinorm);
+	double powprenorm = pow(_pre[0], 2)+pow(_pre[1], 2);
+	double prenorm = sqrt(powprenorm);
+	double newnorm = sqrt(pow(_new[0], 2)+pow(_new[1], 2));
 	
 	
 
@@ -122,8 +122,8 @@ int Agi::refine(float* _pre, float* _new, int index) {
  		return -2;
  	}
  	
-	float f3[m];
- 	float f3norm = 0;
+	double f3[m];
+ 	double f3norm = 0;
  	for(int i = 0; i<m; i++) {
  		f3[i] = pi[i] -_pre[0]*ee.at(i).first-_pre[1]*ee.at(i).second;
 	}
@@ -133,18 +133,18 @@ int Agi::refine(float* _pre, float* _new, int index) {
 	}	
 	//初期値設定
 	const int _N = 6;
-	float init[_N];
+	double init[_N];
 	for (int i = 0; i < _N; i++) {
       	init[i] = ConstSolve2D::defaultInit[i];
      }
 	// 後は制約式を解く
-	float* ans = solver2D( _pre, _new, f3norm, init);
-	float e1[m],e2[m];
-	float a3 = (_new[0] -_pre[0]*ans[0] -_pre[1]*ans[1])/f3norm;
-	float b3 = (_new[1] -_pre[0]*ans[2] -_pre[1]*ans[3])/f3norm;
+	double* ans = solver2D( _pre, _new, f3norm, init);
+	double e1[m],e2[m];
+	double a3 = (_new[0] -_pre[0]*ans[0] -_pre[1]*ans[1])/f3norm;
+	double b3 = (_new[1] -_pre[0]*ans[2] -_pre[1]*ans[3])/f3norm;
 	for(int i = 0; i < m; i++){
-		float ei0 = ee.at(i).first;
-		float ei1 = ee.at(i).second;
+		double ei0 = ee.at(i).first;
+		double ei1 = ee.at(i).second;
 		e1[i] = ans[0] * ei0 + ans[1]* ei1 + a3 *  f3[i];
 		e2[i] = ans[2] * ei0 + ans[3]* ei1 + b3 *  f3[i];
 	}
@@ -165,19 +165,19 @@ void Agi::backprj(){
 
 }
 
-float Agi::getXMax(){
+double Agi::getXMax(){
 	return xmax;
 }
-float Agi::getYMax(){
+double Agi::getYMax(){
 	return ymax;
 }
-float Agi::getXMin(){
+double Agi::getXMin(){
 	return xmin;
 }
-float Agi::getYMin(){
+double Agi::getYMin(){
 	return ymin;
 }
-void Agi::setdelta(float d){
+void Agi::setdelta(double d){
 	delta = d;
 }
 
@@ -185,8 +185,8 @@ void Agi::setdelta(float d){
 void AGIPane::mouseDown(wxMouseEvent& event) {
 	std::cerr << "MouseDown " << std::endl;
     //マウスがクリックされたときの処理?
-    float x = event.GetX();
-    float y = event.GetY();
+    double x = event.GetX();
+    double y = event.GetY();
     //このxとyが点の2次元配列に含まれるならOK
     //もちろんある程度の誤差は許容しなければならない
     nowindex = getindex(x,y);
@@ -233,8 +233,8 @@ void AGIPane::mouseMoved(wxMouseEvent& event) {
 void AGIPane::calRange(int x2, int y2){
 	xto = x2;
 	yto = y2;
-	std::vector<float> x;
-    std::vector<float> y;
+	std::vector<double> x;
+    std::vector<double> y;
 	x.push_back( (xfrom - getWidth()/2) /xrate);
     y.push_back( (yfrom - getHeight()/2) /yrate);
  	x.push_back( (x2 - getWidth()/2) /xrate);
@@ -243,8 +243,8 @@ void AGIPane::calRange(int x2, int y2){
     sort(y.begin(),y.end());
     std::vector<int> selected;
  	for(int i = 0;i< data->getnum();i++){
- 		float a = ag->getB(i,0);
- 		float b = ag->getB(i,1);
+ 		double a = ag->getB(i,0);
+ 		double b = ag->getB(i,1);
  		if(a > x.at(0) && a < x.at(1)){
  			if(b >y.at(0) && b < y.at(1)){
  				selected.push_back(i);
@@ -274,8 +274,8 @@ void AGIPane::mouseReleased(wxMouseEvent& event){
 }
 void AGIPane::rightClick(wxMouseEvent& event) {
 	std::cerr << "Right click " << std::endl;
-	float x = event.GetX();
-	float y = event.GetY();
+	double x = event.GetX();
+	double y = event.GetY();
 	//ドラッグ中に右クリックされると間違いなくバグるのであとで対処
 	nowindex = getindex(x,y);
 	if(nowindex !=  -1 && nowindex < data->getnum()){
@@ -294,7 +294,7 @@ void AGIPane::mouseLeftWindow(wxMouseEvent& event) {}
 void AGIPane::keyPressed(wxKeyEvent& event) {}
 void AGIPane::keyReleased(wxKeyEvent& event) {}
 
-void AGIPane::calcagain(float x,float y){
+void AGIPane::calcagain(double x,double y){
 	_new[0] = (x - getWidth() /2) /xrate;
      _new[1] = (y - getHeight() /2) /yrate;
   
@@ -302,9 +302,9 @@ void AGIPane::calcagain(float x,float y){
      	Refresh();
      	int atr = data->getatr();
      	int n = data->getnum();
-     	float** v = new float*[atr];
+     	double** v = new double*[atr];
      	for(int i = 0 ; i< atr; i++){
-     		v[i] = new float[2];
+     		v[i] = new double[2];
    			v[i][0] = ag->getB(n + i, 0);
     		v[i][1] = ag->getB(n + i, 1);
      	}
@@ -323,8 +323,8 @@ AGIPane::AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p, MatrixView
     data = d;
     ag = new Agi(d);
     pcp = p;
-    _pre = new float[2];
-    _new = new float[2];
+    _pre = new double[2];
+    _new = new double[2];
     nowindex = -1;
     isMoved = false;
     isDrug = false;
@@ -385,15 +385,15 @@ int AGIPane::getHeight()
 
 void AGIPane::setRate(){
    
-    float xabs = std::max(ag->getXMax(),-(ag->getXMin()));
-    float yabs = std::max(ag->getYMax(),-(ag->getYMin()));
+    double xabs = std::max(ag->getXMax(),-(ag->getXMin()));
+    double yabs = std::max(ag->getYMax(),-(ag->getYMin()));
 
     xrate = getWidth()  / (2 * xabs);
     yrate = getHeight() /(2 * yabs);
     //     std::cerr << xrate << std::endl;       
   }
 
- void AGIPane::setdelta(float d){
+ void AGIPane::setdelta(double d){
  	ag->setdelta(d);
  	//不十分　バグあり　ノード移動による射影の変更が反映されない
  	ag->calprj();
@@ -402,13 +402,13 @@ void AGIPane::setRate(){
  }
 
 
-int AGIPane::getindex(float x, float y){
+int AGIPane::getindex(double x, double y){
     int index = -1;
-    const float min = 0.05;
-    float minnow = min; 
-    float d; 
-    float x2 = (x - getWidth()/2) /xrate;
-    float y2 = (y - getHeight()/2) /yrate;
+    const double min = 0.05;
+    double minnow = min; 
+    double d; 
+    double x2 = (x - getWidth()/2) /xrate;
+    double y2 = (y - getHeight()/2) /yrate;
 
     for(int i = 0;i< data->getnumatr();i++){
         d = sqrt(pow(ag->getB(i, 0)-x2, 2)+pow(ag->getB(i, 1)-y2, 2));
@@ -426,9 +426,9 @@ void AGIPane::undo(){
 	Refresh();
 	int atr = data->getatr();
      int n = data->getnum();
-     float** v = new float*[atr];
+     double** v = new double*[atr];
      for(int i = 0 ; i< atr; i++){
-     	v[i] = new float[2];
+     	v[i] = new double[2];
    		v[i][0] = ag->getB(n + i, 0);
     	v[i][1] = ag->getB(n + i, 1);
      }

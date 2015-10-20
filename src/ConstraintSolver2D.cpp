@@ -6,7 +6,7 @@
 
 using namespace std;
 
-const float ConstSolve2D::defaultInit[] = { 0.9, -0.1, 0.1, 0.9, 0.4, 0.4 };
+const double ConstSolve2D::defaultInit[] = { 0.9, -0.1, 0.1, 0.9, 0.4, 0.4 };
 
 struct coefficients {
   lbfgsfloatval_t * _new_pos;    //あたらしい位置
@@ -108,7 +108,7 @@ static int progress(
 
 #define _N 6
 
-float * solver2D(float * _pre, float * _new, float _norm_f0, float * init) {
+double * solver2D(double * _pre, double * _new, double _norm_f0, double * init) {
 
   int ret = 0;
    num = 0;
@@ -151,7 +151,7 @@ float * solver2D(float * _pre, float * _new, float _norm_f0, float * init) {
     //printf("L-BFGS optimization terminated with status code = %d\n", ret);
     //printf("  fx = %f\n",fx);
 
-    float * res = new float[_N];
+    double * res = new double[_N];
     for (int i = 0; i < _N; i++) {
       //printf("%f\n",x[i]);
       res[i] = x[i];

@@ -6,6 +6,14 @@
 
 using namespace std;
 
+/****
+最初のinputでnum dim atrの大きさを読み込んで決める
+num 項目の数
+atr 属性数
+dim 高次元配置の次元数 
+
+****/
+
 ReadData::ReadData(){
 	ifstream ifs("../data/input.txt");
 	if (ifs.fail()){
@@ -14,9 +22,15 @@ ReadData::ReadData(){
     }
 	getline(ifs,dir);
     cerr << dir << endl;
-    string ths;
-  getline(ifs,ths);
-  thr = stof(ths);
+    string str;
+  getline(ifs,str);
+  thr = stod(str);
+  getline(ifs,str);
+  num = stoi(str);
+  getline(ifs,str);
+  dim = stoi(str);
+  getline(ifs,str);
+  atr = stoi(str);
   ists = false;
   lengthvariable = true;
 	read();	
@@ -41,141 +55,124 @@ ReadData::~ReadData(){
   }
 
 void ReadData::read(){
-	//仮に入れて置く場所
-	float** T;
-	T = new float*[10000]; 
-	//ファイルを読み込みAとevalueを作成
-	//ここでAとevalueを動的確保
-	//汚いのであとで整理
-	int n2 = 0;
+	
+	
+	//ここでAを動的確保
 	//Aの読み取り
-	ifstream ifs(dir+"-cood.csv");
+	fstream fs(dir+"-cood.dat",ios::in | ios::binary);
 	string str;
-	if (ifs.fail()){
+	if (!fs){
         cerr << "cood失敗" << endl;
         exit(1);
     }
-    int i = 0;
-    getline(ifs,str);
-    bool notread = true;
-    while (getline(ifs, str)){
-      vector<string> v = split(str,',');
-      T[i] = new float[v.size()];
-      int j =0;  
-      for(string s : v){
-      	//分割結果を一旦格納
-      	T[i][j] = stod(s);
-      	j++;
-      }
-      if(notread){
-        dim = v.size(); //一度のみ   この時点で高次元行列を作っているので dim >0
-        notread = false;
-    }
-      i++; 
-    }
-    num = i;
+    // A は (num+atr) * dimの行列 
+    A = new double*[num+atr];
+    double nums[num+atr][dim]; 
+    fs.seekg(0);
+    fs.read((char*) nums, sizeof (double) * (num + atr) * dim);
    
-   Amax = new float[dim];
-   Amin = new float[dim];
-   for(i = 0;i< dim;i++){
+   Amax = new double[dim];
+   Amin = new double[dim];
+   for(int i = 0;i< dim;i++){
     Amax[i] = 0;
     Amin[i] = 0;
    }
 
     //Aに移す
-    A = new float*[num];
-    for(i = 0;i<num;i++){
-    	A[i] = new float[dim];
-    	for(int k = 0;k< dim;k++){
-    		A[i][k] = T[i][k];
-        if(A[i][k] > Amax[k])
-          Amax[k] = A[i][k];
-        if(A[i][k] < Amin[k])
-          Amin[k] = A[i][k];
+    for(int i = 0; i<num+atr; i++){
+    	A[i] = new double[dim];
+    	for(int j = 0; j< dim; j++){
+    		A[i][j] = nums[i][j];
+        if(A[i][j] > Amax[j])
+          Amax[j] = A[i][j];
+        if(A[i][j] < Amin[j])
+          Amin[j] = A[i][j];
       }
     }
-    delete[] T;
 
 }
 void ReadData::readevalue(){
 
-  
-	string str;
-    ifstream ifs2(dir+"-evalue.csv");
-	if (ifs2.fail())
+    fstream fs2(dir+"-evalue.dat",ios::in | ios::binary);
+	if (!fs2)
     {
         cerr << "evalue失敗" << endl;
         exit(1);
-    }
-    getline(ifs2,str);
-    getline(ifs2, str);
-      vector<string> v2 = split(str,',');
-       int i =0;  
-     int m  = v2.size();
-      evalue = new float[m];
-      for(string s : v2){
-      	//分割結果をeに格納
-      	evalue[i] = stod(s);
-      	i++;
+    }  
+    double nums1[dim];
+
+      evalue = new double[dim];
+      fs2.seekg(0);
+      fs2.read((char*) nums1, sizeof (double)* dim);
+      for(int i = 0; i< dim ;i++){
+      	evalue[i] = nums1[i];
       }
-      ifstream ifs3(dir+"-evector.csv");
-      evector = new float*[m];
-      getline(ifs3,str);
-      i = 0;
-      while(getline(ifs3,str)){
-        vector<string> v = split(str,',');
-        evector[i] = new float[num];
+     /*
+      fstream fs3(dir+"-evector.dat",ios::in | ios::binary);
+      if (!fs3) {
+        cerr << "evector file Does not exist" << endl;
+      }
+      evector = new double*[dim];
+      double nums2[dim][num];
+      fs3.seekg(0);
+      fs3.read((char*) nums2, sizeof (double) * dim * num);
+      for(int i = 0;i< dim;i++ ){
+        evector[i] = new double[num];
         for(int j = 0;j < num;j++){
-          evector[i][j] = stod(v.at(j));
+          evector[i][j] = nums2[i][j];
         }
-        i++;
       }
+      */
 }
 
- vector<string> ReadData::split(const std::string &str,char delim){
-    vector<string> v;
-    stringstream ss(str);
-    string buffer;
-    while( getline(ss, buffer, delim) ){
-        v.push_back(buffer);
-    }
-    return v;
-}
 
 void ReadData::readoriginal(){
-  ifstream ifs(dir+"-original.csv");
+
+//string str1[atr];
+  atrname = new string[atr];
   string str;
-  if(ifs.fail()){
+  ifstream ifs1 (dir+ "-atrname.csv");
+  if (ifs1.fail()) {
+        cerr << "File Does not exist" << endl;
+        exit(1);
+    }
+    int k = 0;
+    getline(ifs1,str);
+  while(getline(ifs1,str)){
+    atrname[k] = str;
+    k++;
+}
+    ifstream ifs2 (dir+ "-name.csv");
+  if (ifs2.fail()) {
+        cerr << "File Does not exist" << endl;
+        exit(1);
+    }
+    getline(ifs2,str);
+   name = new string[num];
+   k = 0;
+   while(getline(ifs2,str)){
+    name[k] = str;
+    k++; 
+   }
+   
+
+  fstream fs(dir+"-original.dat");
+  if(!fs){
     cerr << "original失敗" << endl;
         exit(1);
   }
-  //これ以前にAを読み込んでいるので numはもう決まっている がこれは 本来のnum + 属性分になる
-
-  //最初に1行目(ラベル)を読み込んで　属性数を決定 
-  getline(ifs,str);
-  vector<string> v = split(str,',');
-  atr = v.size()-1;
-  atrname = new string[atr];
-  for(int i = 0 ;i< atr; i++){
-    atrname[i] =  v.at(i);
-  }
-
-  num = num -atr;
-  D = new float*[num];
-  name = new string[num];
-  int k = 0;
-  while(getline(ifs,str)){
-    vector<string> v = split(str,',');
-     D[k] = new float[atr];
-    //carsが最後に名前がきているので暫定的にこうする
+  double nums[num][atr];
+  fs.seekg(0);
+  fs.read((char*) nums, sizeof (double) * num * atr);
+  D = new double*[num];
+  for(int i = 0; i< num;i++){
+     D[i] = new double[atr];
     for(int j = 0;j<atr;j++){
-      D[k][j] = stod(v.at(j));
+      D[i][j] = nums[i][j];
     }
-    name[k] = v.at(atr);
-    k++;
   }
-  Dmin = new float[atr];
-  Dmax = new float[atr];
+  Dmin = new double[atr];
+  Dmax = new double[atr];
   for(int i = 0; i< atr; i++){
     Dmin[i] = D[0][i];
     Dmax[i] = D[0][i];   
@@ -183,7 +180,7 @@ void ReadData::readoriginal(){
 
   for(int i = 0; i< num; i++){
     for(int j = 0; j<atr; j++){
-      float d = D[i][j];
+      double d = D[i][j];
       if(Dmin[j] >d)
         Dmin[j] = d;
       if(Dmax[j] < d)
@@ -197,22 +194,21 @@ void ReadData::readoriginal(){
 void ReadData::readadjency(){
 
 
-  ifstream ifs(dir+"-adjency.csv");
+  fstream fs(dir+"-adjency.dat",ios::in | ios::binary);
   string str;
-  if(ifs.fail()){
+  if(!fs){
     cerr << "original失敗" << endl;
         exit(1);
   }
-  getline(ifs,str);
-  int k = 0;
-  while(getline(ifs,str)){
-    vector<string> v = split(str,',');
-    for(int i = k; i< v.size();i++){
-      double ad = stod(v.at(i));
+  double nums[num][num]; 
+  fs.seekg(0);
+    fs.read((char*) nums, sizeof (double) * num * num);
+  for(int i = 0; i< num;i++){
+    for(int j = i+1; j< num;j++){
+      double ad = nums[i][j];
       if(ad != 0 && ad < thr )
-        edge.push_back(pair<int,int>(k,i)); 
+        edge.push_back(pair<int,int>(j,i)); 
     }
-    k++;
   }
 
 }
@@ -229,16 +225,18 @@ int ReadData::getatr(){
 int ReadData::getnumatr(){
   return num+atr;
 }
-float ReadData::getevalue(int i){
+double ReadData::getevalue(int i){
 	return evalue[i];
 }
-float ReadData::getevector(int i, int j){
+/*
+double ReadData::getevector(int i, int j){
   return evector[i][j];
 }
-float ReadData::getA(int i, int j){
+*/
+double ReadData::getA(int i, int j){
 	return A[i][j];
 }
-float ReadData::getD(int i,int j){
+double ReadData::getD(int i,int j){
   return D[i][j];
 }
 string ReadData::getName(int i){
@@ -247,16 +245,16 @@ string ReadData::getName(int i){
 string ReadData::getAtrName(int i){
   return atrname[i];
 }
-float ReadData::getAmin(int i){
+double ReadData::getAmin(int i){
   return Amin[i];
 }
-float ReadData::getAmax(int i){
+double ReadData::getAmax(int i){
   return Amax[i];
 }
-float ReadData::getDmax(int i){
+double ReadData::getDmax(int i){
   return Dmax[i];
 }
-float ReadData::getDmin(int i){
+double ReadData::getDmin(int i){
   return Dmin[i];
 }
 void ReadData::setOrder(TSPsolver* ts){
@@ -293,9 +291,6 @@ void ReadData::turnLenVar(){
 vector<int>ReadData::getFIndex(){
   return filterindex;
 }
-//void ReadData::addFIndex(int i){
-//  filterindex.push_back(i);
-//}
 vector<int> ReadData::getSIndex(){
   return selectedindex;
 }
@@ -314,7 +309,7 @@ void ReadData::setSIndex(int i){
   }
 }
 
-void ReadData::setSIndex(int j, vector<float> v){
+void ReadData::setSIndex(int j, vector<double> v){
   clearSIndex();
   sort(v.begin(),v.end());
   for(int i = 0;i < num;i++){

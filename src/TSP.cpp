@@ -8,12 +8,12 @@
 using namespace std;
 
 
-TSPsolver::TSPsolver(float** v,int a){
+TSPsolver::TSPsolver(double** v,int a){
 	atr = a;
 	//距離行列をつくる
-	dist = new float*[atr];
+	dist = new double*[atr];
 	for(int i = 0; i< atr; i++){
-		dist[i] = new float[atr];
+		dist[i] = new double[atr];
 		for(int j = 0; j < atr; j++){ 
 			dist[i][j] = sqrt(pow(v[i][0] - v[j][0],2) + pow(v[i][1] - v[j][1],2));
 		}
@@ -45,11 +45,11 @@ void TSPsolver::solveTSP1(int index){
 				j++;
 			}
 		}
-		float min = dist[last][notcontain[0]];
+		double min = dist[last][notcontain[0]];
 		int minindex = notcontain[0];
 	    for(int i = 0; i< num; i++){
 	    	int nc = notcontain[i];
-	    	float d = dist[last][nc];
+	    	double d = dist[last][nc];
 	    	if(min >= d ){
 	    		min = d;
 				minindex = nc;
@@ -75,7 +75,7 @@ TSPsolver::~TSPsolver(){
 	
  }
 //一つ前との距離を返す
-float TSPsolver::getlength(int index){
+double TSPsolver::getlength(int index){
 	if(index >0){
 		int pre = 0;
 		for(int i = 0; i< atr;i++){
@@ -86,7 +86,7 @@ float TSPsolver::getlength(int index){
 	}
 	else return -1;
 }
-float TSPsolver::getsumlength(){
+double TSPsolver::getsumlength(){
 	return mints ;	
 }
 int TSPsolver::getorder(int i){

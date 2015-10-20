@@ -2,9 +2,9 @@
 #define agi3d_constraintsolver2d_h
 
 struct ConstSolve2D {
-  static const float defaultInit[];
+  static const double defaultInit[];
 };
 
-float * solver2D(float *, float *, float, float *);
+double * solver2D(double *, double *, double, double *);
 
 #endif

@@ -1,21 +1,4 @@
-readmatrix <-function(infile,out){
-	x <- read.table(infile,header = T)
-	x2 <- x[,1:8]
-	xscl <- scale(x2)[,] 
-	m <- data.matrix(xscl)
-	#本当はcategorical data は除くべきかもしれない
-	k <- kmeans(t(m),2)
-	
-	write.csv(k$cluster,paste(out,"-cluster.csv",sep=""),quote =FALSE,row.names =FALSE)
-	x3 <-data.frame(x2[,names(k$cluster[k$cluster== 1])],x2[,names(k$cluster[k$cluster== 2])])
-	write.csv(x3,paste(out,".csv",sep=""),quote =FALSE,row.names = FALSE)
-	kxscl <-data.frame(xscl[,names(k$cluster[k$cluster== 1])],xscl[,names(k$cluster[k$cluster== 2])])
-	write.csv(kxscl,paste(out,"-scl.csv",sep = ""),quote =FALSE,row.names = FALSE)
-	e <- eigen(crossprod(data.matrix(kxscl)),TRUE)
-	write.csv(t(e$values),paste(out,"-eigen.csv",sep = ""),quote=FALSE,row.names=FALSE)
-	
-	
-}
+
 readmatrix2<-function(t2,out,thr){
 	#tscl <- scale(t2)[,]
 	tmin <- apply(t2,2,min)
@@ -33,8 +16,11 @@ readmatrix2<-function(t2,out,thr){
     m <- rbind(data.matrix(tscl),diag(dim))
 	D0 <-dist(m,upper =TRUE)^2 #距離オブジェクト作成　categorical dataは同じ値なら 0 違うなら1とか
     D <- as.matrix(D0) #距離行列に
-    write.csv(D,paste(out,"-adjency.csv",sep = ""),quote = FALSE,row.names =FALSE)
-	#cmdscale(D,k?,eig = TRUE)
+    D1 <- as.double(D)
+    #write.csv(D,paste(out,"-adjency.csv",sep = ""),quote = FALSE,row.names =FALSE)
+    wt = file(paste(out,"-adjency.dat",sep = ""),"wb")
+	writeBin(D1,wt)
+	close(wt)
 	num <- nrow(m)
 	dij <-sum(D^2)/num^2
 	di <- apply(D,1,powsum)/num
@@ -42,14 +28,25 @@ readmatrix2<-function(t2,out,thr){
 	B2 <-  apply(B1,2,minus,di)
 	B <- -( B2 + dij/num^2)/2  #Bij終了 young-holderで実装したほうがよかったかも..
 	e <- eigen(B,TRUE)
-	lamh <- e$values[e$values>thr]
+	lamh <- as.double(e$values[e$values>thr])
 	dim <- length(lamh)
 	veclam <- e$vectors[,1:dim]
-	write.csv(t(lamh),paste(out,"-evalue.csv",sep = ""),quote=FALSE,row.names=FALSE)
-	write.csv(t(veclam),paste(out,"-evector.csv",sep = ""),quote=FALSE,row.names=FALSE)
-	
+	#write.csv(t(lamh),paste(out,"-evalue.csv",sep = ""),quote=FALSE,row.names=FALSE)
+	#write.csv(t(veclam),paste(out,"-evector.csv",sep = ""),quote=FALSE,row.names=FALSE)
+	wt = file(paste(out,"-evalue.dat",sep = ""),"wb")
+	writeBin(lamh,wt)
+	close(wt)
+	#wt = file(paste(out,"-evector.dat",sep = ""),"wb")
+	#veclam2 <- as.double(as.matrix(veclam))
+	#writeBin(veclam2,wt)
+	#close(wt)
+
 	X <- apply(veclam,1,mul,sqrt(lamh))
-	write.csv(t(X),paste(out,"-cood.csv",sep = ""),quote=FALSE,row.names=FALSE)
+	X2 <- as.double(X)
+	#write.csv(t(X),paste(out,"-cood.csv",sep = ""),quote=FALSE,row.names=FALSE)
+	wt = file(paste(out,"-cood.dat",sep = ""),"wb")
+	writeBin(X2,wt)
+	close(wt)
 
  }
 powsum <- function(a){
@@ -69,21 +66,40 @@ dee <- function(a,b){
 #thrは 閾値
 readcars<- function(thr = 0){
     t <- read.table("cars-8/auto-mpg_withname.data",header = T)
-    t2 <- t[,1:8]
-    readmatrix2(t2,"cars-8/kcars",thr)
+    t1 <- t[,1:8]
+	wt = file("cars-8/kcars-original.dat","wb")
+	t2 <- t(as.matrix(t1))
+	t3 <- as.double(t2)
+	writeBin(t3,wt)
+	close(wt)
+	write.csv(colnames(t)[1:8],"cars-8/kcars-atrname.csv",quote = FALSE,row.names = FALSE)
+	
+	write.csv(t[,9],"cars-8/kcars-name.csv",quote = FALSE,row.names = FALSE)
+	
+
+    readmatrix2(t1,"cars-8/kcars",thr)
 }
 readspid <- function(thr = 0){
     t <- read.csv("spid2015/2015SocialprogressIndexData.csv",header = T)
     t2 <- t[1:133,3:53]  #全部表示すると潰れてしまうので今はこれで
-   # t3 <- t[1:133,25:50]
     t1 <- t[1:133,1]
-    write.csv(data.frame(t2,t1),"spid2015/spid-original.csv",quote = FALSE,row.names =FALSE)
+    t3 <- as.double(t(as.matrix(t2)))
+    write.csv(colnames(t)[3:53],"spid2015/spid-atrname.csv",quote = FALSE,row.names = FALSE)
+    write.csv(t1,"spid2015/spid-name.csv",quote = FALSE,row.names = FALSE)
+    wt = file("spid2015/spid-original.dat","wb")
+    writeBin(t3,wt)
+    close(wt)
     readmatrix2(t2,"spid2015/spid",thr)
 }
 readturkiye <- function(thr = 0){
 	t <- read.csv("turkiye-student/turkiye-student-evaluation_R_Specific.csv",header = T)
 	t2 <- t[,2:33]
 	t3 <- t[,1]
-	write.csv(data.frame(t2,t3),"turkiye-student/turkiye-original.csv",quote = FALSE,row.names = FALSE)
+	write.csv(colnames(t)[2:33],"turkiye-student/turkiye-atrname.csv",quote = FALSE,row.names = FALSE)
+    write.csv(t3,"turkiye-student/turkiye-name.csv",quote = FALSE,row.names = FALSE)
+	wt = file("turkiye-student/turkiye-original.dat","wb")
+	t4 <- as.double(t(as.matrix(t2)))
+	writeBin(t4,wt)
+	close(wt)
 	readmatrix2(t2,"turkiye-student/turkiye",thr)
 }

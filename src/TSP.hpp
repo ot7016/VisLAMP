@@ -9,10 +9,10 @@
 #define tsp
 //typedef struct {
 //std::vector<int> order;
-//float** dis;
-//float length;
+//double** dis;
+//double length;
 /*
-  item(float** d, int a){
+  item(double** d, int a){
   	for(int i = 0;i < a; i++){
   		dis[i][0] = d[i][0];
   		dis[i][1] = d[i][1];
@@ -25,19 +25,19 @@
 
 class TSPsolver{
 public:
-	TSPsolver(float** v, int a);
+	TSPsolver(double** v, int a);
 	~TSPsolver();
 	void solve();
 	void solveTSP1(int index);
 	bool iscontain(std::vector<int> v, int n);
-	float getlength(int i);
-	float getsumlength();
+	double getlength(int i);
+	double getsumlength();
 	int getorder(int i);
 private: 
-	float** dist;  
+	double** dist;  
 	int atr;
-	float length;
-	float mints;
+	double length;
+	double mints;
 	std::vector<int> order;
 };
 #endif
