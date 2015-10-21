@@ -344,7 +344,7 @@ void PCPSub::setRate(int u, int l,double upper,double lower){
 void PCPSub::render(wxPaintEvent& evt)
 {
     if(!IsShown()) return;
-
+   
     wxGLCanvas::SetCurrent(*m_context);
     wxPaintDC(this); // only to be used in paint events. use wxClientDC to paint outside the paint event
  
@@ -400,6 +400,7 @@ void PCPSub::render(wxPaintEvent& evt)
   }
     glFlush();
     SwapBuffers();
+
 }
 
 void PCPSub::draw(int i){

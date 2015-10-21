@@ -24,7 +24,7 @@ Agi::~Agi(){
 }
 
 double Agi::getB(int i,int j){
-	return B[i][j];
+	return B[2*  i +j];
 }
 
 //in  固有値 evalue 高次元配置ベクトル Aij  out 初期射影行列     
@@ -49,7 +49,8 @@ void Agi::calprj(){
 	
 	distf1 = sqrt(distf1);
 	distf2 = sqrt(distf2);
-	//射影行列確認
+	//射影行列確認 
+	//stackのことを考えると vectorがいいが　 blas使うなら配列　
 	for (int i =0; i< m; i++) {
 		ee.push_back(prj(f1[i]/distf1,f2[i]/distf2));
 	}
@@ -62,28 +63,38 @@ void Agi::cal2Mtr() {
 	double prexmin = 100;
 	double preymin = 100; 
 
-	int n = data->getnumatr();
-	int m = data->getdim();
-	B = new double*[n];      
-	for (int i = 0; i < n; i++) {
-		B[i] = new double[2];
-		double b1 = 0, b2 = 0;
-		for(int j = 0; j < m; j++) {
-			double  A= data-> getA(i,j);
-			b1 += ee.at(j).first * A;
-			b2 += ee.at(j).second * A;
+	const int n = data->getnumatr();
+	const int m = data->getdim();
+	const int d = 2;
+	/*
+	double a[n*m];
+	for(int i = 0; i < n; i++){
+		for(int j = 0; j < m; j++){
+			a[i*m + j] = data->getA(i,j);
 		}
-		B[i][0] = b1;
-		B[i][1] = b2;
+	}
+	*/
+	double e[m*d];
+	for(int i = 0; i < m; i++){
+		e [d* i] = ee.at(i).first;
+		e[d * i +1] = ee.at(i).second;
+	}
+	 delete[] B;
+	 B = new double[n*d];
+
+	// BLAS で計算　B[n,2] = A[n,m] * e[m,2]  　コピーはしたくないがここでは1次元配列にしなければならないのでどうしようもない
+	cblas_dgemm(CblasRowMajor, CblasNoTrans ,CblasNoTrans, n, 2, m, 1, data->A, m, e, d, 0 , B, d);
+
+	for (int i = 0; i < n; i++) {
 		// 最大値を求める
-		if(B[i][0]>prexmax)
-			prexmax = B[i][0];
-		if(B[i][0]< prexmin)
-			prexmin = B[i][0];
-		if(B[i][1]> preymax)
-			preymax = B[i][1];
-		if(B[i][1]<preymin)
-			preymin = B[i][1];
+		if (B[d * i] > prexmax)
+			prexmax = B[i];
+		if (B[d* i] < prexmin)
+			prexmin = B[i];
+		if (B[d* i + 1] > preymax)
+			preymax = B[i +n];
+		if (B[d* i+ 1] < preymin)
+			preymin = B[i+ n];
 	}
 	xmin = prexmin;
 	ymin = preymin;

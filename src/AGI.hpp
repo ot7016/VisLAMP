@@ -9,6 +9,7 @@
 #include <tuple>
 #include "OpenGL/glu.h"
 #include "OpenGL/gl.h"
+ #include <Accelerate/Accelerate.h>
 
 #include <wx/wxprec.h>
 //#ifndef WX_PRECOMP
@@ -43,8 +44,8 @@
 		std::stack<std::vector<prj> > prjstack; //射影行列のスタック 
 		double delta;
 		std::vector<prj> ee; //射影行列(新)
-		double** B; 
-		double xmax ,xmin;  //初期値を適切に定めるのはあとで確認
+		double* B; 
+		double xmax ,xmin;  
  		double ymax ,ymin;
 
 	};

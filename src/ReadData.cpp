@@ -66,10 +66,9 @@ void ReadData::read(){
         exit(1);
     }
     // A は (num+atr) * dimの行列 
-    A = new double*[num+atr];
-    double nums[num+atr][dim]; 
+    A = new double[(num+atr) * dim]; 
     fs.seekg(0);
-    fs.read((char*) nums, sizeof (double) * (num + atr) * dim);
+    fs.read((char*) A, sizeof (double) * (num + atr) * dim);
    
    Amax = new double[dim];
    Amin = new double[dim];
@@ -80,13 +79,11 @@ void ReadData::read(){
 
     //Aに移す
     for(int i = 0; i<num+atr; i++){
-    	A[i] = new double[dim];
     	for(int j = 0; j< dim; j++){
-    		A[i][j] = nums[i][j];
-        if(A[i][j] > Amax[j])
-          Amax[j] = A[i][j];
-        if(A[i][j] < Amin[j])
-          Amin[j] = A[i][j];
+        if(A[i* dim + j] > Amax[j])
+          Amax[j] = A[i* dim + j];
+        if(A[i* dim + j] < Amin[j])
+          Amin[j] = A[i* dim +j];
       }
     }
 
@@ -107,22 +104,6 @@ void ReadData::readevalue(){
       for(int i = 0; i< dim ;i++){
       	evalue[i] = nums1[i];
       }
-     /*
-      fstream fs3(dir+"-evector.dat",ios::in | ios::binary);
-      if (!fs3) {
-        cerr << "evector file Does not exist" << endl;
-      }
-      evector = new double*[dim];
-      double nums2[dim][num];
-      fs3.seekg(0);
-      fs3.read((char*) nums2, sizeof (double) * dim * num);
-      for(int i = 0;i< dim;i++ ){
-        evector[i] = new double[num];
-        for(int j = 0;j < num;j++){
-          evector[i][j] = nums2[i][j];
-        }
-      }
-      */
 }
 
 
@@ -228,13 +209,9 @@ int ReadData::getnumatr(){
 double ReadData::getevalue(int i){
 	return evalue[i];
 }
-/*
-double ReadData::getevector(int i, int j){
-  return evector[i][j];
-}
-*/
+// 今は Aだけ1次元配列で実装している
 double ReadData::getA(int i, int j){
-	return A[i][j];
+	return A[i* dim +j];
 }
 double ReadData::getD(int i,int j){
   return D[i][j];
@@ -338,5 +315,3 @@ void ReadData::clearSIndex(){
     notselectedindex.push_back(i);
   }
 }
-
-

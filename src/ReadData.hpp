@@ -25,7 +25,6 @@ class ReadData{
 	int getatr();
 	int getnumatr();
 	double getevalue(int i);
-	//double getevector(int i,int j);
 	double getA(int i, int j);
 	double getD(int i,int j);
 	std::string getName(int i);
@@ -49,13 +48,13 @@ class ReadData{
 	void setSIndex(int j, std::vector<double> v);
 	void setSIndex(std::vector<int> v);
 	void clearSIndex();
+	double* A;
 
 	private:
 		double thr ;
 		std::string dir;
 		double *evalue;
-		//double** evector;
-		double** A;
+		//double** A;
 		double** D;
 		std::string* name;
 		std::string* atrname;
