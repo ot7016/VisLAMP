@@ -25,6 +25,7 @@ class ReadData{
 	int getatr();
 	int getnumatr();
 	double getevalue(int i);
+	double getevector(int i, int j);
 	double getA(int i, int j);
 	double getD(int i,int j);
 	std::string getName(int i);
@@ -38,6 +39,7 @@ class ReadData{
 	void setOrder(int* o);
 	bool isTSP();
 	void setTSP(bool b);
+	bool isPCA();
 	bool isLenVar();
 	void turnLenVar();
 	std::vector<std::pair<int,int> > getEdge();
@@ -49,12 +51,11 @@ class ReadData{
 	void setSIndex(std::vector<int> v);
 	void clearSIndex();
 	double* A;
-
+	double* evector;
 	private:
 		double thr ;
 		std::string dir;
 		double *evalue;
-		//double** A;
 		double** D;
 		std::string* name;
 		std::string* atrname;
@@ -66,6 +67,7 @@ class ReadData{
 		int num,dim,atr;
 		bool ists ;
 		bool lengthvariable;
+		bool iPCA;
 		std::vector<std::pair<int,int> > edge;
 		std::vector<int> filterindex;
 		std::vector<int> selectedindex;

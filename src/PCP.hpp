@@ -67,7 +67,7 @@ public:
 	void setFrom(int x, bool l);
 	void setSumLength(double l, double w);
 	void render(wxPaintEvent& evt);  
-	void draw(int i);   
+	void draw(int i,int height);   
 	void prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y);  
 	// events
 	void mouseMoved(wxMouseEvent& event);   

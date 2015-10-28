@@ -1,5 +1,6 @@
-../data/spid2015/spid
-1.2
-133
-50
-85
+../data/cars-pca/kcars
+PCA
+0.5
+398
+8
+8

@@ -24,6 +24,16 @@ ReadData::ReadData(){
     cerr << dir << endl;
     string str;
   getline(ifs,str);
+  
+  if(str == "PCA"){
+    iPCA =true;
+  }
+  else if(str == "MDS"){
+    iPCA =false;
+  } 
+  
+  //iPCA = false; 
+  getline(ifs,str);
   thr = stod(str);
   getline(ifs,str);
   num = stoi(str);
@@ -89,21 +99,32 @@ void ReadData::read(){
 
 }
 void ReadData::readevalue(){
+  fstream fs2(dir+"-evalue.dat",ios::in | ios::binary);
+	if (!fs2){
+    cerr << "evalue失敗" << endl;
+     exit(1);
+  }  
+  double nums1[dim];
 
-    fstream fs2(dir+"-evalue.dat",ios::in | ios::binary);
-	if (!fs2)
-    {
-        cerr << "evalue失敗" << endl;
-        exit(1);
-    }  
-    double nums1[dim];
+  evalue = new double[dim];
+  fs2.seekg(0);
+  fs2.read((char*) nums1, sizeof (double)* dim);
+  for(int i = 0; i< dim ;i++){
+  	evalue[i] = nums1[i];
+  }
+  if(iPCA){
+    fstream fs3(dir+"-evector.dat",ios::in | ios::binary);
+    if (!fs2){
+      cerr << "evector失敗" << endl;
+      exit(1);
+    }
+    //evectorも dim (=atr) * dimの1次元配列 
+    evector = new double[dim * dim];
+    fs3.seekg(0);
+    fs3.read((char*) evector, sizeof (double)* dim *dim);
+  }
 
-      evalue = new double[dim];
-      fs2.seekg(0);
-      fs2.read((char*) nums1, sizeof (double)* dim);
-      for(int i = 0; i< dim ;i++){
-      	evalue[i] = nums1[i];
-      }
+
 }
 
 
@@ -209,6 +230,9 @@ int ReadData::getnumatr(){
 double ReadData::getevalue(int i){
 	return evalue[i];
 }
+double ReadData::getevector(int i, int j){
+  return evector[dim*i + j];
+}
 // 今は Aだけ1次元配列で実装している
 double ReadData::getA(int i, int j){
 	return A[i* dim +j];
@@ -251,6 +275,9 @@ int ReadData::getOrder(int i){
 }
 bool ReadData::isTSP(){
   return ists;
+}
+bool ReadData::isPCA(){
+  return iPCA;
 }
 vector<std::pair<int, int> > ReadData::getEdge(){
   return edge;

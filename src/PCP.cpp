@@ -67,15 +67,9 @@ void PCPPane::refine(double** v){
         solveTSP(v,atr);
      else
         solveAngle(v,atr);
-    int len[atr-1];
-    int k = 0;
     for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
         PCPSub *current = (PCPSub *)node->GetData(); 
         current->setSumLength(sumlength,getHeight());
-        current->Refresh();
-        len[k] = current->getHeight(); 
-        
-        k++;
         }
          SetAutoLayout(true);
          Show();
@@ -343,29 +337,30 @@ void PCPSub::setRate(int u, int l,double upper,double lower){
  //本当は再描画のことも考えた関数設計にする
 void PCPSub::render(wxPaintEvent& evt)
 {
-    if(!IsShown()) return;
+    if(!IsShown() || getHeight()<2 ) return;
    
     wxGLCanvas::SetCurrent(*m_context);
     wxPaintDC(this); // only to be used in paint events. use wxClientDC to paint outside the paint event
  
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
- 
+    int width = getWidth();
+    int height = getHeight();
     // ------------- draw some 2D ----------------
-    prepare2DViewport(0,0,getWidth(), getHeight());
+    prepare2DViewport(0,0,width, height);
     glLoadIdentity();
  
     // white background
     glColor4f(1, 1, 1, 1);
     glBegin(GL_QUADS);
     glVertex3f(0,0,0);
-    glVertex3f(getWidth(),0,0);
-    glVertex3f(getWidth(),getHeight(),0);
-    glVertex3f(0,getHeight(),0);
+    glVertex3f(width,0,0);
+    glVertex3f(width,height,0);
+    glVertex3f(0,height,0);
     glEnd();
 
     glColor4f(0.0f,0.0f,0.0f,1.0f);
     glBegin(GL_LINES);
-    int xright = getWidth()*3/4;
+    int xright = width*3/4;
     int xleft = 0 ;
     glVertex3f(xleft, 0,0);
     glVertex3f(xright,0,0); 
@@ -385,7 +380,7 @@ void PCPSub::render(wxPaintEvent& evt)
     glLineWidth(1);
      glBegin(GL_LINES);
     for(int i: notselected ) {   
-        draw(i);                  
+        draw(i,height);                  
     }
     glEnd();
     if(!selected.empty()){
@@ -393,7 +388,7 @@ void PCPSub::render(wxPaintEvent& evt)
       glLineWidth(2);
       glBegin(GL_LINES);
       for(int i: selected) {
-        draw(i);
+        draw(i,height);
     }
      glEnd();
 
@@ -403,10 +398,10 @@ void PCPSub::render(wxPaintEvent& evt)
 
 }
 
-void PCPSub::draw(int i){
+void PCPSub::draw(int i,int height){
     
     glVertex3f( (data->getDmax(upperatr) - data->getD(i,upperatr) ) *urate,0 ,0); 
-    glVertex3f( (data->getDmax(loweratr) - data->getD(i,loweratr) ) *lrate,getHeight(),0);      
+    glVertex3f( (data->getDmax(loweratr) - data->getD(i,loweratr) ) *lrate,height,0);      
     }
 PCPBorder::PCPBorder(wxWindow* parent,bool b,ReadData* d, int size) :
 wxGLCanvas(parent, wxID_ANY, NULL, wxPoint(0,0), wxSize(590,24), wxFULL_REPAINT_ON_RESIZE)
@@ -460,22 +455,24 @@ void PCPBorder::render(wxPaintEvent& evt)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
  
     // ------------- draw some 2D ----------------
-    prepare2DViewport(0,0,getWidth(), getHeight());
+    int width = getWidth();
+    int height = getHeight();
+    prepare2DViewport(0,0,width, height);
     glLoadIdentity();
  
     // white background
     glColor4f(1, 1, 1, 1);
     glBegin(GL_QUADS);
     glVertex3f(0,0,0);
-    glVertex3f(getWidth(),0,0);
-    glVertex3f(getWidth(),getHeight(),0);
-    glVertex3f(0,getHeight(),0);
+    glVertex3f(width,0,0);
+    glVertex3f(width,height,0);
+    glVertex3f(0,height,0);
     glEnd();
 
     if(islast){
         glColor4f(0.0f,0.0f,0.0f,1.0f);
         glBegin(GL_LINES);
-        int xright = getWidth()*3/4;
+        int xright = width*3/4;
         int xleft = 0 ;
         glVertex3f(xleft,0,0);
         glVertex3f(xright,0,0); 

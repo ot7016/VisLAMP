@@ -1,3 +1,48 @@
+calpca<- function(t2,out,thr){
+tmin <- apply(t2,2,min)
+	tmax <- apply(t2,2,max)
+	trate <- tmax -tmin
+	n <- nrow(t2)
+	 dim <-ncol(t2)
+	for(i in 1:n){
+		ta <- t2[i,] - tmin
+		ta2 <- ta/trate
+	    t2 <- rbind(t2,ta2)
+	} 
+	tscl <- t2[(n+1):(2*n),]
+   
+    m <- rbind(data.matrix(tscl),diag(dim))
+	#このあとMDSのかわりにPCA　これで高次元配置をきめる
+	 pca <-prcomp(m,scale = TRUE)
+	 # sdevは固有値の平方根
+	 sevalue <- pca$sdev
+	 evalue <- as.double(sevalue^2)
+	 wt = file(paste(out,"-evalue.dat",sep = ""),"wb")
+	 writeBin(evalue,wt)
+	 close(wt)
+	 sevector<- pca$rotation
+	 evector<-as.double(t(as.matrix(sevector)))
+	 wt = file(paste(out,"-evector.dat",sep = ""),"wb")
+	 writeBin(evector,wt)
+	 close(wt)
+	 #これが高次元座標
+	 cood<- pca$x
+	 cood2<- as.double(as.matrix(cood))
+	 wt = file(paste(out,"-cood.dat",sep = ""),"wb")
+	 writeBin(cood2,wt)
+	 close(wt)
+
+	 #隣接行列を出力
+	 D0 <- dist(cood,upper =TRUE)
+	 D <- as.matrix(D0) #距離行列に
+    D1 <- as.double(D)
+    write.csv(D1,paste(out,"-adjency.csv",sep = ""),quote = FALSE,row.names =FALSE)
+    wt = file(paste(out,"-adjency.dat",sep = ""),"wb")
+    writeBin(D1,wt)
+	close(wt)
+	#write.csv(D1,paste(out,"-adjency.csv",sep = ""),quote = FALSE,row.names =FALSE)
+}
+
 
 readmatrix2<-function(t2,out,thr){
 	#tscl <- scale(t2)[,]
@@ -17,7 +62,6 @@ readmatrix2<-function(t2,out,thr){
 	D0 <-dist(m,upper =TRUE)^2 #距離オブジェクト作成　categorical dataは同じ値なら 0 違うなら1とか
     D <- as.matrix(D0) #距離行列に
     D1 <- as.double(D)
-    #write.csv(D,paste(out,"-adjency.csv",sep = ""),quote = FALSE,row.names =FALSE)
     wt = file(paste(out,"-adjency.dat",sep = ""),"wb")
 	writeBin(D1,wt)
 	close(wt)
@@ -31,8 +75,7 @@ readmatrix2<-function(t2,out,thr){
 	lamh <- as.double(e$values[e$values>thr])
 	dim <- length(lamh)
 	veclam <- e$vectors[,1:dim]
-	#write.csv(t(lamh),paste(out,"-evalue.csv",sep = ""),quote=FALSE,row.names=FALSE)
-	#write.csv(t(veclam),paste(out,"-evector.csv",sep = ""),quote=FALSE,row.names=FALSE)
+	
 	wt = file(paste(out,"-evalue.dat",sep = ""),"wb")
 	writeBin(lamh,wt)
 	close(wt)
@@ -43,7 +86,6 @@ readmatrix2<-function(t2,out,thr){
 
 	X <- apply(veclam,1,mul,sqrt(lamh))
 	X2 <- as.double(X)
-	#write.csv(t(X),paste(out,"-cood.csv",sep = ""),quote=FALSE,row.names=FALSE)
 	wt = file(paste(out,"-cood.dat",sep = ""),"wb")
 	writeBin(X2,wt)
 	close(wt)
@@ -61,6 +103,33 @@ mul <- function(a,b){
 dee <- function(a,b){
 	a/b
 }
+
+readcarpca<-function(thr = 0){
+	t <- read.table("cars-pca/auto-mpg_withname.data",header = T)
+    t1 <- t[,1:8]
+	wt = file("cars-pca/kcars-original.dat","wb")
+	t2 <- t(as.matrix(t1))
+	t3 <- as.double(t2)
+	writeBin(t3,wt)
+	close(wt)
+	write.csv(colnames(t)[1:8],"cars-pca/kcars-atrname.csv",quote = FALSE,row.names = FALSE)
+	
+	write.csv(t[,9],"cars-pca/kcars-name.csv",quote = FALSE,row.names = FALSE)
+	 calpca(t1,"cars-pca/kcars",thr)
+}
+readturkiyepca <- function(thr = 0){
+	t <- read.csv("turkiye-pca/turkiye-student-evaluation_R_Specific.csv",header = T)
+	t2 <- t[,2:33]
+	t3 <- t[,1]
+	write.csv(colnames(t)[2:33],"turkiye-pca/turkiye-atrname.csv",quote = FALSE,row.names = FALSE)
+    write.csv(t3,"turkiye-pca/turkiye-name.csv",quote = FALSE,row.names = FALSE)
+	wt = file("turkiye-pca/turkiye-original.dat","wb")
+	t4 <- as.double(t(as.matrix(t2)))
+	writeBin(t4,wt)
+	close(wt)
+	calpca(t2,"turkiye-pca/turkiye",thr)
+}
+
 
 
 #thrは 閾値

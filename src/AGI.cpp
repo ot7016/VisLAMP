@@ -314,10 +314,29 @@ void AGIPane::calcagain(double x,double y){
      	int atr = data->getatr();
      	int n = data->getnum();
      	double** v = new double*[atr];
-     	for(int i = 0 ; i< atr; i++){
-     		v[i] = new double[2];
-   			v[i][0] = ag->getB(n + i, 0);
-    		v[i][1] = ag->getB(n + i, 1);
+     	if(data->isPCA()){
+     		//PCAのときはePをvに入れる
+     		// cblas 使用したほうがよさそう
+     		double v2[atr*2];
+     		double e[atr * 2];
+     		for(int i = 0; i< atr;i++){
+     			e[i] = ag->ee.at(i).first;
+     			e[atr+i] = ag->ee.at(i).second;
+     		}
+     		// v[atr* 2 ] = P[atr *atr] * e[atr *2]
+     		cblas_dgemm(CblasRowMajor, CblasNoTrans ,CblasNoTrans, atr, 2 , atr, 1, data->evector, atr, e, 2, 0 , v2, 2);
+     		for(int i = 0;i < atr;i++){
+     			v[i] = new double[2];
+     			v[i][0] = v2[i];
+     			v[i][1] = v2[i+atr];
+     		}
+     	}
+     	else{
+     		for(int i = 0 ; i< atr; i++){
+     			v[i] = new double[i];
+   				v[i][0] = ag->getB(n + i, 0);
+    			v[i][1] = ag->getB(n + i, 1);
+     		}
      	}
      	pcp->refine(v); 
      	md->setText(nowindex);
@@ -503,14 +522,15 @@ void AGIPane::render(wxPaintEvent& evt)
        	glVertex3f(ag->getB(i,0)*xrate + getWidth()/2, ag->getB(i,1)*yrate + getHeight()/2,0);
     }
 	glEnd();
-	glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
-	glPointSize(5.0);
-	glBegin(GL_POINTS);
-	for(int i = 0; i<data->getatr() ;i++){
-		glVertex3f(ag->getB(i+num,0)*xrate + getWidth()/2, ag->getB(i+num,1)*yrate + getHeight()/2,0);
+	if(!data->isPCA()){
+		glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+		glPointSize(5.0);
+		glBegin(GL_POINTS);
+		for(int i = 0; i<data->getatr() ;i++){
+			glVertex3f(ag->getB(i+num,0)*xrate + getWidth()/2, ag->getB(i+num,1)*yrate + getHeight()/2,0);
+		}
+		glEnd();
 	}
-	
-	glEnd();
 	
     if(rangeselect){
     	glColor4f(0.0f,0.0f,0.0f,1.0f);
