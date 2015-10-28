@@ -6,6 +6,7 @@
 #include "Agi.hpp"
 #include "wx/wx.h"
 #include "ConstraintSolver2D.hpp"
+#include <GLUT/glut.h>
 
 //高次元ベクトルをMDSでもとめる→　その必要はとりあえずない
 //与えられた高次元配置を表す行列から計算
@@ -77,7 +78,7 @@ void Agi::cal2Mtr() {
 	double e[m*d];
 	for(int i = 0; i < m; i++){
 		e [d* i] = ee.at(i).first;
-		e[d * i +1] = ee.at(i).second;
+		e[d* i +1] = ee.at(i).second;
 	}
 	 delete[] B;
 	 B = new double[n*d];
@@ -100,6 +101,14 @@ void Agi::cal2Mtr() {
 	ymin = preymin;
 	xmax = prexmax ;
 	ymax = preymax ;
+	if(data->isPCA()){
+		//BLASで Peも計算 PCAの場合
+		delete[] v;
+    	v = new double[m * d];
+     	// v[m* 2 ] = P[m *m] * e[m *2]
+    	cblas_dgemm(CblasRowMajor, CblasNoTrans ,CblasNoTrans, m, d, m, 1, data->evector, m, e, d, 0 , v, d);
+	}
+
 }
 //射影の更新
 
@@ -191,7 +200,9 @@ double Agi::getYMin(){
 void Agi::setdelta(double d){
 	delta = d;
 }
-
+double Agi::getV(int i, int j){
+	return v[2 *i + j];
+}
 
 void AGIPane::mouseDown(wxMouseEvent& event) {
 	std::cerr << "MouseDown " << std::endl;
@@ -316,24 +327,15 @@ void AGIPane::calcagain(double x,double y){
      	double** v = new double*[atr];
      	if(data->isPCA()){
      		//PCAのときはePをvに入れる
-     		// cblas 使用したほうがよさそう
-     		double v2[atr*2];
-     		double e[atr * 2];
-     		for(int i = 0; i< atr;i++){
-     			e[i] = ag->ee.at(i).first;
-     			e[atr+i] = ag->ee.at(i).second;
-     		}
-     		// v[atr* 2 ] = P[atr *atr] * e[atr *2]
-     		cblas_dgemm(CblasRowMajor, CblasNoTrans ,CblasNoTrans, atr, 2 , atr, 1, data->evector, atr, e, 2, 0 , v2, 2);
-     		for(int i = 0;i < atr;i++){
+     		for(int i = 0;i< atr;i++){
      			v[i] = new double[2];
-     			v[i][0] = v2[i];
-     			v[i][1] = v2[i+atr];
+     			v[i][0] = ag->getV(i,0);
+     			v[i][1] = ag->getV(i,1);
      		}
      	}
      	else{
      		for(int i = 0 ; i< atr; i++){
-     			v[i] = new double[i];
+     			v[i] = new double[2];
    				v[i][0] = ag->getB(n + i, 0);
     			v[i][1] = ag->getB(n + i, 1);
      		}
@@ -476,18 +478,19 @@ void AGIPane::render(wxPaintEvent& evt)
     wxPaintDC(this); // only to be used in paint events. use wxClientDC to paint outside the paint event
  
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
- 
+    int width = getWidth();
+    int height = getHeight();
     // ------------- draw some 2D ----------------
-    prepare2DViewport(0, 0, getWidth(), getHeight());
+    prepare2DViewport(0, 0, width, height);
     glLoadIdentity();
  
     // white background
     glColor4f(1, 1, 1, 1);
     glBegin(GL_QUADS);
     glVertex3f(0, 0, 0);
-    glVertex3f(getWidth(), 0, 0);
-    glVertex3f(getWidth(), getHeight(), 0);
-    glVertex3f(0, getHeight(), 0);
+    glVertex3f(width, 0, 0);
+    glVertex3f(width, height, 0);
+    glVertex3f(0, height, 0);
     glEnd();
    
     
@@ -503,15 +506,15 @@ void AGIPane::render(wxPaintEvent& evt)
 	for(int i = 0;i< edge.size();i++){
 		int n1 = edge.at(i).first;
 		int n2 = edge.at(i).second;
-		glVertex3f(ag->getB(n1,0)*xrate + getWidth()/2, ag->getB(n1,1)*yrate + getHeight()/2,0);
-		glVertex3f(ag->getB(n2,0)*xrate + getWidth()/2, ag->getB(n2,1)*yrate + getHeight()/2,0);
+		glVertex3f(ag->getB(n1,0)*xrate + width/2, ag->getB(n1,1)*yrate + height/2,0);
+		glVertex3f(ag->getB(n2,0)*xrate + width/2, ag->getB(n2,1)*yrate + height/2,0);
 	}
     glEnd();
      glColor4f(0.2f, 0.4f, 0.7f, 1.0f);
     glPointSize(5.0);
     glBegin(GL_POINTS);
   	for(int i: notselected){
-       	glVertex3f(ag->getB(i,0)*xrate + getWidth()/2, ag->getB(i,1)*yrate + getHeight()/2,0);
+       	glVertex3f(ag->getB(i,0)*xrate + width/2, ag->getB(i,1)*yrate + height/2,0);
     }
     glEnd();
     glPointSize(8.0);
@@ -519,15 +522,34 @@ void AGIPane::render(wxPaintEvent& evt)
     glColor4f(0.7f, 0.3f, 0.4f, 1.0f);
 
     for(int i : selected){
-       	glVertex3f(ag->getB(i,0)*xrate + getWidth()/2, ag->getB(i,1)*yrate + getHeight()/2,0);
+       	glVertex3f(ag->getB(i,0)*xrate + width/2, ag->getB(i,1)*yrate + height/2,0);
     }
 	glEnd();
-	if(!data->isPCA()){
+	if(data->isPCA()){
+		//元の軸を描く
+		glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+		glBegin(GL_LINES);
+		for(int i = 0;i< data->getatr();i++){
+			glVertex3f(width/2,height/2,0);
+			glVertex3f(ag->getV(i,0)*xrate + width/2, ag->getV(i,1)*yrate + height/2,0);
+		}
+		glEnd();
+		for(int i = 0;i< data->getatr();i++){
+			glRasterPos2d(ag->getV(i,0)*xrate + width/2, ag->getV(i,1)*yrate + height/2);
+    		std::string str = data->getAtrName(i);
+   			int size = (int)str.size();
+    		for(int j = 0;j< size;j++){
+        		char ic = str[j];
+        		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ic);
+    		}
+    	}
+	}
+	else{
 		glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 		glPointSize(5.0);
 		glBegin(GL_POINTS);
 		for(int i = 0; i<data->getatr() ;i++){
-			glVertex3f(ag->getB(i+num,0)*xrate + getWidth()/2, ag->getB(i+num,1)*yrate + getHeight()/2,0);
+			glVertex3f(ag->getB(i+num,0)*xrate + width/2, ag->getB(i+num,1)*yrate + height/2,0);
 		}
 		glEnd();
 	}

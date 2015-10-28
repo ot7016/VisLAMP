@@ -37,17 +37,19 @@
 		double getYMax();
 		double getXMin();
 		double getYMin();
+		double getV(int i,int j);
 		void setdelta(double d);
 		typedef std::pair<double,double> prj;
 		std::vector<prj> ee; //射影行列(新)
 	private:
+
 		ReadData* data;
 		std::stack<std::vector<prj> > prjstack; //射影行列のスタック 
 		double delta;
-		
 		double* B; 
 		double xmax ,xmin;  
  		double ymax ,ymin;
+ 		double* v;
 
 	};
 
