@@ -64,17 +64,9 @@ void Agi::cal2Mtr() {
 	double prexmin = 100;
 	double preymin = 100; 
 
-	const int n = data->getnumatr();
+	const int n = data->getaginum();
 	const int m = data->getdim();
 	const int d = 2;
-	/*
-	double a[n*m];
-	for(int i = 0; i < n; i++){
-		for(int j = 0; j < m; j++){
-			a[i*m + j] = data->getA(i,j);
-		}
-	}
-	*/
 	double e[m*d];
 	for(int i = 0; i < m; i++){
 		e [d* i] = ee.at(i).first;
@@ -89,13 +81,13 @@ void Agi::cal2Mtr() {
 	for (int i = 0; i < n; i++) {
 		// 最大値を求める
 		if (B[d * i] > prexmax)
-			prexmax = B[i];
+			prexmax = B[d * i];
 		if (B[d* i] < prexmin)
-			prexmin = B[i];
+			prexmin = B[d*i];
 		if (B[d* i + 1] > preymax)
-			preymax = B[i +n];
+			preymax = B[d*i +1];
 		if (B[d* i+ 1] < preymin)
-			preymin = B[i+ n];
+			preymin = B[d* i +1];
 	}
 	xmin = prexmin;
 	ymin = preymin;
@@ -115,7 +107,7 @@ void Agi::cal2Mtr() {
 
 int Agi::refine(double* _pre, double* _new, int index) {
 		//まずはe3を求める
-	int n = data->getnumatr();
+	int n = data->getaginum();
 	int m = data->getdim();
 	double pi[m];
 	double powpinorm = 0;
@@ -221,7 +213,7 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
 		Refresh();
 		pcp->Refresh();
 	}
-	else if(nowindex != -1 && nowindex<data->getnumatr()){
+	else if(nowindex != -1 && nowindex<data->getaginum()){
 		int index = nowindex - data->getnum();
 		nowindex = -1;
 		std::cerr << data->getAtrName( index )<< std::endl;
@@ -231,7 +223,6 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
 		xfrom = x;
 		yfrom = y;
 		rangeselect = true;
-		//std::cerr << "select"<< std::endl;
 	}
 }
 
@@ -306,7 +297,7 @@ void AGIPane::rightClick(wxMouseEvent& event) {
 		md->setText(nowindex);
 		Refresh();
 	}
-	else if(nowindex !=-1  && nowindex < data->getnumatr()){
+	else if(nowindex !=-1  && nowindex < data->getaginum()){
 		 int index = nowindex - data->getnum();
 		 nowindex = -1;
 		 std::cerr << data->getAtrName( index )<< std::endl;
@@ -442,7 +433,7 @@ int AGIPane::getindex(double x, double y){
     double x2 = (x - getWidth()/2) /xrate;
     double y2 = (y - getHeight()/2) /yrate;
 
-    for(int i = 0;i< data->getnumatr();i++){
+    for(int i = 0;i< data->getaginum();i++){
         d = sqrt(pow(ag->getB(i, 0)-x2, 2)+pow(ag->getB(i, 1)-y2, 2));
         if(d < minnow){
             minnow = d;

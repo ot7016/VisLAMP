@@ -72,7 +72,7 @@ void PCPPane::refine(double** v){
         current->setSumLength(sumlength,getHeight());
         }
          SetAutoLayout(true);
-         Show();
+         Refresh();
 }
 void PCPPane::reselect(){
     auto parent = GetGrandParent();
@@ -193,8 +193,8 @@ void PCPPane::solveAngle(double** v,int atr){
          for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
                 PCPSub *current = (PCPSub *)node->GetData();
                 current->setLength(k,1);
-                 int lindex = c1.at(k).first;
-                int rindex = c1.at(k+1).first;
+                 int lindex = data->getOrder(k);
+                int rindex = data->getOrder(k+1);
                 current->setRate(lindex,rindex,rate[lindex],rate[rindex]);
                 k++;
             }
@@ -336,7 +336,7 @@ void PCPSub::setRate(int u, int l,double upper,double lower){
  
  //本当は再描画のことも考えた関数設計にする
 void PCPSub::render(wxPaintEvent& evt)
-{
+{   
     if(!IsShown() || getHeight()<2 ) return;
    
     wxGLCanvas::SetCurrent(*m_context);
@@ -395,7 +395,7 @@ void PCPSub::render(wxPaintEvent& evt)
   }
     glFlush();
     SwapBuffers();
-
+ 
 }
 
 void PCPSub::draw(int i,int height){

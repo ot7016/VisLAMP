@@ -1,46 +1,29 @@
-calpca<- function(t2,out,thr){
-tmin <- apply(t2,2,min)
-	tmax <- apply(t2,2,max)
-	trate <- tmax -tmin
-	n <- nrow(t2)
-	 dim <-ncol(t2)
-	for(i in 1:n){
-		ta <- t2[i,] - tmin
-		ta2 <- ta/trate
-	    t2 <- rbind(t2,ta2)
-	} 
-	tscl <- t2[(n+1):(2*n),]
-   
-    m <- rbind(data.matrix(tscl),diag(dim))
-	#このあとMDSのかわりにPCA　これで高次元配置をきめる
-	 pca <-prcomp(m,scale = TRUE)
+calpca<- function(t,out){
+	t[is.na(t) ] <- 0
+	print("主成分分析")
+	 pca <-prcomp(t,scale = TRUE)
 	 # sdevは固有値の平方根
+	 print("計算終了")
 	 sevalue <- pca$sdev
 	 evalue <- as.double(sevalue^2)
+	 print("evalue出力")
 	 wt = file(paste(out,"-evalue.dat",sep = ""),"wb")
 	 writeBin(evalue,wt)
 	 close(wt)
 	 sevector<- pca$rotation
 	 evector<-as.double(t(as.matrix(sevector)))
+	 print("evector出力")
 	 wt = file(paste(out,"-evector.dat",sep = ""),"wb")
 	 writeBin(evector,wt)
 	 close(wt)
 	 #これが高次元座標
 	 cood<- pca$x
 	 cood2<- as.double(as.matrix(cood))
+	 print("高次元座標出力")
 	 wt = file(paste(out,"-cood.dat",sep = ""),"wb")
 	 writeBin(cood2,wt)
 	 close(wt)
 
-	 #隣接行列を出力
-	 D0 <- dist(cood,upper =TRUE)
-	 D <- as.matrix(D0) #距離行列に
-    D1 <- as.double(D)
-    write.csv(D1,paste(out,"-adjency.csv",sep = ""),quote = FALSE,row.names =FALSE)
-    wt = file(paste(out,"-adjency.dat",sep = ""),"wb")
-    writeBin(D1,wt)
-	close(wt)
-	#write.csv(D1,paste(out,"-adjency.csv",sep = ""),quote = FALSE,row.names =FALSE)
 }
 
 
@@ -61,10 +44,10 @@ readmatrix2<-function(t2,out,thr){
     m <- rbind(data.matrix(tscl),diag(dim))
 	D0 <-dist(m,upper =TRUE)^2 #距離オブジェクト作成　categorical dataは同じ値なら 0 違うなら1とか
     D <- as.matrix(D0) #距離行列に
-    D1 <- as.double(D)
-    wt = file(paste(out,"-adjency.dat",sep = ""),"wb")
-	writeBin(D1,wt)
-	close(wt)
+    #D1 <- as.double(D)
+    #wt = file(paste(out,"-adjency.dat",sep = ""),"wb")
+	#writeBin(D1,wt)
+	#close(wt)
 	num <- nrow(m)
 	dij <-sum(D^2)/num^2
 	di <- apply(D,1,powsum)/num
@@ -104,7 +87,7 @@ dee <- function(a,b){
 	a/b
 }
 
-readcarpca<-function(thr = 0){
+readcarpca<-function(){
 	t <- read.table("cars-pca/auto-mpg_withname.data",header = T)
     t1 <- t[,1:8]
 	wt = file("cars-pca/kcars-original.dat","wb")
@@ -115,9 +98,9 @@ readcarpca<-function(thr = 0){
 	write.csv(colnames(t)[1:8],"cars-pca/kcars-atrname.csv",quote = FALSE,row.names = FALSE)
 	
 	write.csv(t[,9],"cars-pca/kcars-name.csv",quote = FALSE,row.names = FALSE)
-	 calpca(t1,"cars-pca/kcars",thr)
+	 calpca(t1,"cars-pca/kcars")
 }
-readturkiyepca <- function(thr = 0){
+readturkiyepca <- function(){
 	t <- read.csv("turkiye-pca/turkiye-student-evaluation_R_Specific.csv",header = T)
 	t2 <- t[,2:33]
 	t3 <- t[,1]
@@ -127,10 +110,21 @@ readturkiyepca <- function(thr = 0){
 	t4 <- as.double(t(as.matrix(t2)))
 	writeBin(t4,wt)
 	close(wt)
-	calpca(t2,"turkiye-pca/turkiye",thr)
+	calpca(t2,"turkiye-pca/turkiye")
 }
 
-
+readspidpca <- function(){
+    t <- read.csv("spid-pca/2015SocialprogressIndexData.csv",header = T)
+    t2 <- t[1:133,3:53]  #全部表示すると潰れてしまうので今はこれで
+    t1 <- t[1:133,1]
+    t3 <- as.double(t(as.matrix(t2)))
+    write.csv(colnames(t)[3:53],"spid-pca/spid-atrname.csv",quote = FALSE,row.names = FALSE)
+    write.csv(t1,"spid-pca/spid-name.csv",quote = FALSE,row.names = FALSE)
+    wt = file("spid-pca/spid-original.dat","wb")
+    writeBin(t3,wt)
+    close(wt)
+    calpca(t2,"spid-pca/spid")
+}
 
 #thrは 閾値
 readcars<- function(thr = 0){

@@ -23,16 +23,7 @@ ReadData::ReadData(){
 	getline(ifs,dir);
     cerr << dir << endl;
     string str;
-  getline(ifs,str);
   
-  if(str == "PCA"){
-    iPCA =true;
-  }
-  else if(str == "MDS"){
-    iPCA =false;
-  } 
-  
-  //iPCA = false; 
   getline(ifs,str);
   thr = stod(str);
   getline(ifs,str);
@@ -41,11 +32,22 @@ ReadData::ReadData(){
   dim = stoi(str);
   getline(ifs,str);
   atr = stoi(str);
+  getline(ifs,str);
+  
+  if(str == "PCA"){
+    iPCA =true;
+    aginum = num;
+  }
+  else if(str == "MDS"){
+    iPCA =false;
+    aginum = num+atr;
+  } 
+  
   ists = false;
   lengthvariable = true;
 	read();	
   readevalue();
-  readadjency();
+  calEdge();
   readoriginal();
   order = new int[atr];
   for(int i = 0;i<atr;i++){
@@ -76,9 +78,9 @@ void ReadData::read(){
         exit(1);
     }
     // A は (num+atr) * dimの行列 
-    A = new double[(num+atr) * dim]; 
+    A = new double[aginum * dim]; 
     fs.seekg(0);
-    fs.read((char*) A, sizeof (double) * (num + atr) * dim);
+    fs.read((char*) A, sizeof (double) * aginum  * dim);
    
    Amax = new double[dim];
    Amin = new double[dim];
@@ -88,7 +90,7 @@ void ReadData::read(){
    }
 
     //Aに移す
-    for(int i = 0; i<num+atr; i++){
+    for(int i = 0; i<aginum; i++){
     	for(int j = 0; j< dim; j++){
         if(A[i* dim + j] > Amax[j])
           Amax[j] = A[i* dim + j];
@@ -193,27 +195,22 @@ void ReadData::readoriginal(){
       notselectedindex.push_back(i);
   }
 }
-void ReadData::readadjency(){
 
-
-  fstream fs(dir+"-adjency.dat",ios::in | ios::binary);
-  string str;
-  if(!fs){
-    cerr << "original失敗" << endl;
-        exit(1);
-  }
-  double nums[num][num]; 
-  fs.seekg(0);
-    fs.read((char*) nums, sizeof (double) * num * num);
-  for(int i = 0; i< num;i++){
-    for(int j = i+1; j< num;j++){
-      double ad = nums[i][j];
-      if(ad != 0 && ad < thr )
-        edge.push_back(pair<int,int>(j,i)); 
+void ReadData::calEdge(){
+  for(int i = 0; i < aginum;i++){
+    for(int j = i+1; j < aginum; j++){
+      double s = 0;
+      for(int k = 0; k < dim; k++ ){
+        s = s + pow(getA(i,k) - getA(j,k) ,2);
+      }
+      s = sqrt(s);
+      if(s!= 0 && s < thr)
+      edge.push_back(pair<int,int>(i,j));
     }
+    
   }
-
 }
+
 
 int ReadData::getnum(){
 	return num;
@@ -224,8 +221,8 @@ int ReadData::getdim(){
 int ReadData::getatr(){
   return atr;
 }
-int ReadData::getnumatr(){
-  return num+atr;
+int ReadData::getaginum(){
+  return aginum;
 }
 double ReadData::getevalue(int i){
 	return evalue[i];

@@ -18,12 +18,12 @@ class ReadData{
 	void read();
 	void readevalue();
 	void readoriginal();
-	void readadjency();
+	void calEdge();
 	double getA();
 	int getnum();
 	int getdim();
 	int getatr();
-	int getnumatr();
+	int getaginum();
 	double getevalue(int i);
 	double getevector(int i, int j);
 	double getA(int i, int j);
@@ -64,7 +64,7 @@ class ReadData{
 		double* Dmax;
 		double* Dmin;
 		int* order;
-		int num,dim,atr;
+		int num,dim,atr,aginum;
 		bool ists ;
 		bool lengthvariable;
 		bool iPCA;
