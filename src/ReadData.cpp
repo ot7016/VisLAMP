@@ -35,16 +35,16 @@ ReadData::ReadData(){
   getline(ifs,str);
   
   if(str == "PCA"){
-    iPCA =true;
+    isPCA =true;
     aginum = num;
   }
   else if(str == "MDS"){
-    iPCA =false;
+    isPCA =false;
     aginum = num+atr;
   } 
   
-  ists = false;
-  lengthvariable = true;
+  isTSP = false;
+  isLenVar = true;
 	read();	
   readevalue();
   calEdge();
@@ -62,8 +62,6 @@ ReadData::~ReadData(){
   delete[] order;
   delete[] atrname;
   delete[] evalue;
-  delete[] Amin;
-  delete[] Amax;
   }
 
 void ReadData::read(){
@@ -81,23 +79,6 @@ void ReadData::read(){
     A = new double[aginum * dim]; 
     fs.seekg(0);
     fs.read((char*) A, sizeof (double) * aginum  * dim);
-   
-   Amax = new double[dim];
-   Amin = new double[dim];
-   for(int i = 0;i< dim;i++){
-    Amax[i] = 0;
-    Amin[i] = 0;
-   }
-
-    //Aに移す
-    for(int i = 0; i<aginum; i++){
-    	for(int j = 0; j< dim; j++){
-        if(A[i* dim + j] > Amax[j])
-          Amax[j] = A[i* dim + j];
-        if(A[i* dim + j] < Amin[j])
-          Amin[j] = A[i* dim +j];
-      }
-    }
 
 }
 void ReadData::readevalue(){
@@ -114,7 +95,7 @@ void ReadData::readevalue(){
   for(int i = 0; i< dim ;i++){
   	evalue[i] = nums1[i];
   }
-  if(iPCA){
+  if(isPCA){
     fstream fs3(dir+"-evector.dat",ios::in | ios::binary);
     if (!fs2){
       cerr << "evector失敗" << endl;
@@ -211,49 +192,12 @@ void ReadData::calEdge(){
   }
 }
 
-
-int ReadData::getnum(){
-	return num;
-}
-int ReadData::getdim(){
-	return dim;
-}
-int ReadData::getatr(){
-  return atr;
-}
-int ReadData::getaginum(){
-  return aginum;
-}
-double ReadData::getevalue(int i){
-	return evalue[i];
-}
 double ReadData::getevector(int i, int j){
   return evector[dim*i + j];
 }
 // 今は Aだけ1次元配列で実装している
 double ReadData::getA(int i, int j){
 	return A[i* dim +j];
-}
-double ReadData::getD(int i,int j){
-  return D[i][j];
-}
-string ReadData::getName(int i){
-  return name[i];
-}
-string ReadData::getAtrName(int i){
-  return atrname[i];
-}
-double ReadData::getAmin(int i){
-  return Amin[i];
-}
-double ReadData::getAmax(int i){
-  return Amax[i];
-}
-double ReadData::getDmax(int i){
-  return Dmax[i];
-}
-double ReadData::getDmin(int i){
-  return Dmin[i];
 }
 void ReadData::setOrder(TSPsolver* ts){
   order = new int[atr];
@@ -270,23 +214,13 @@ void ReadData::setOrder(int* o){
 int ReadData::getOrder(int i){
   return order[i];
 }
-bool ReadData::isTSP(){
-  return ists;
-}
-bool ReadData::isPCA(){
-  return iPCA;
-}
+
 vector<std::pair<int, int> > ReadData::getEdge(){
   return edge;
 }
-void ReadData::setTSP(bool b){
-  ists = b;
-}
-bool ReadData::isLenVar(){
-  return lengthvariable;
-}
+
 void ReadData::turnLenVar(){
-  lengthvariable = !lengthvariable;
+  isLenVar= !isLenVar;
 }
 
 vector<int>ReadData::getFIndex(){
@@ -338,4 +272,7 @@ void ReadData::clearSIndex(){
   for(int i = 0; i<num;i++){
     notselectedindex.push_back(i);
   }
+}
+void ReadData::setCoodSelected(){
+  isCood = !isCood;
 }

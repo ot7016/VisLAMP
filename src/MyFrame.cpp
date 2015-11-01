@@ -37,6 +37,7 @@ bool MyApp::OnInit()
     button1 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"軸間の距離:可変");
     button2 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"軸間距離:角度");
     wxButton* undobutton = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"Undo");
+    wxButton* coodselectbutton = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"軸選択モード");
     wxStaticText* pftext;
     pftext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"Projection Factor");
     slider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,50,0,400);
@@ -49,6 +50,10 @@ bool MyApp::OnInit()
     undobutton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
         wxCommandEventHandler(MyApp::undobuttonclicked),
         NULL, this);
+    coodselectbutton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
+        wxCommandEventHandler(MyApp::coodselectbuttonclicked),
+        NULL, this);
+    
 
     slider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
       wxCommandEventHandler(MyApp::getslider),
@@ -57,6 +62,7 @@ bool MyApp::OnInit()
     sizer2->Add(button1,1,wxEXPAND);
     sizer2->Add(button2,1,wxEXPAND);
     sizer2->Add(undobutton,1,wxEXPAND);
+    sizer2->Add(coodselectbutton,1,wxEXPAND);
     sizer2->Add(pftext,1,wxEXPAND);
     sizer2->Add(slider,1,wxEXPAND);
     ctlPanel->SetSizer(sizer2);
@@ -79,8 +85,8 @@ bool MyApp::OnInit()
 } 
 
 void MyApp::buttonclicked(wxCommandEvent& WXUNUSED(event)){
-  data-> turnLenVar();
-  if(data->isLenVar()){
+  data->turnLenVar();
+  if(data->isLenVar){
         button1->SetLabelText("軸間距離:可変");
   }
   else {
@@ -89,12 +95,12 @@ void MyApp::buttonclicked(wxCommandEvent& WXUNUSED(event)){
 
 }
 void MyApp::buttonclicked2(wxCommandEvent& WXUNUSED(event)){
-  if(data->isTSP()){
-    data->setTSP(false);
+  if(data->isTSP){
+    data->isTSP =  false;
     button2->SetLabelText("軸間距離:角度");
   }
   else{ 
-    data->setTSP(true);
+    data->isTSP = true;
     button2->SetLabelText("軸間距離:巡回路");
   }
   frame->Show();
@@ -103,6 +109,11 @@ void MyApp::undobuttonclicked(wxCommandEvent& WXUNUSED(event)){
   glPane->undo();
   frame->Show();
 }
+
+void MyApp::coodselectbuttonclicked(wxCommandEvent& WXUNUSED(event)){
+  data->setCoodSelected();
+}
+
 void MyApp::getslider(wxCommandEvent& WXUNUSED(event)){
     float d = slider->GetValue()/100;
     glPane->setdelta(d);

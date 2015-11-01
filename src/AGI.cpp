@@ -30,7 +30,7 @@ double Agi::getB(int i,int j){
 
 //in  固有値 evalue 高次元配置ベクトル Aij  out 初期射影行列     
 void Agi::calprj(){
-    int m = data->getdim();
+    int m = data->dim;
 	double  f1[m], f2[m];
 	double distf1 = 0, distf2 = 0;
 
@@ -38,11 +38,11 @@ void Agi::calprj(){
 	
 	for (int i = 0; i < m; i++) {
 		if (i%2 == 0) {
-			f1[i] = pow(data->getevalue(i),delta) ;// 固有値を代入   現在はとりあえず projection factor 0.5とする
+			f1[i] = pow(data->evalue[i],delta) ;// 固有値を代入   現在はとりあえず projection factor 0.5とする
 			f2[i] = 0;
 			distf1 = distf1 + pow(f1[i], 2);
 		} else {
-			f2[i] = pow(data->getevalue(i),delta);
+			f2[i] = pow(data->evalue[i],delta);
 			f1[i] = 0;
 			distf2 = distf2 + pow(f2[i], 2);
 		}
@@ -64,8 +64,8 @@ void Agi::cal2Mtr() {
 	double prexmin = 100;
 	double preymin = 100; 
 
-	const int n = data->getaginum();
-	const int m = data->getdim();
+	const int n = data->aginum;
+	const int m = data->dim;
 	const int d = 2;
 	double e[m*d];
 	for(int i = 0; i < m; i++){
@@ -93,7 +93,7 @@ void Agi::cal2Mtr() {
 	ymin = preymin;
 	xmax = prexmax ;
 	ymax = preymax ;
-	if(data->isPCA()){
+	if(data->isPCA){
 		//BLASで Peも計算 PCAの場合
 		delete[] v;
     	v = new double[m * d];
@@ -107,8 +107,8 @@ void Agi::cal2Mtr() {
 
 int Agi::refine(double* _pre, double* _new, int index) {
 		//まずはe3を求める
-	int n = data->getaginum();
-	int m = data->getdim();
+	int n = data->aginum;
+	int m = data->dim;
 	double pi[m];
 	double powpinorm = 0;
 	for(int i = 0; i<m; i++){
@@ -120,8 +120,6 @@ int Agi::refine(double* _pre, double* _new, int index) {
 	double prenorm = sqrt(powprenorm);
 	double newnorm = sqrt(pow(_new[0], 2)+pow(_new[1], 2));
 	
-	
-
  	if(pinorm < prenorm) {
  		std::cerr << "X error pinorm " << std::endl;
  		std::cerr << pinorm << std::endl;
@@ -204,7 +202,7 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
     //このxとyが点の2次元配列に含まれるならOK
     //もちろんある程度の誤差は許容しなければならない
     nowindex = getindex(x,y);
-    if(nowindex != -1 && nowindex < data->getnum()){
+    if(nowindex != -1 && nowindex < data->num){
 	    _pre[0] = ag->getB(nowindex, 0);
     	_pre[1] = ag->getB(nowindex, 1);
     	isMoved = true;
@@ -213,10 +211,10 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
 		Refresh();
 		pcp->Refresh();
 	}
-	else if(nowindex != -1 && nowindex<data->getaginum()){
-		int index = nowindex - data->getnum();
+	else if(nowindex != -1 && nowindex<data->aginum){
+		int index = nowindex - data->num;
 		nowindex = -1;
-		std::cerr << data->getAtrName( index )<< std::endl;
+		std::cerr << data->atrname[index]<< std::endl;
 	}
 	//どのノードも近くないときは複数選択
 	else {
@@ -255,7 +253,7 @@ void AGIPane::calRange(int x2, int y2){
     sort(x.begin(),x.end());
     sort(y.begin(),y.end());
     std::vector<int> selected;
- 	for(int i = 0;i< data->getnum();i++){
+ 	for(int i = 0;i< data->num;i++){
  		double a = ag->getB(i,0);
  		double b = ag->getB(i,1);
  		if(a > x.at(0) && a < x.at(1)){
@@ -291,16 +289,16 @@ void AGIPane::rightClick(wxMouseEvent& event) {
 	double y = event.GetY();
 	//ドラッグ中に右クリックされると間違いなくバグるのであとで対処
 	nowindex = getindex(x,y);
-	if(nowindex !=  -1 && nowindex < data->getnum()){
+	if(nowindex !=  -1 && nowindex < data->num){
 		data->setSIndex(nowindex);
 		pcp->Refresh();
 		md->setText(nowindex);
 		Refresh();
 	}
-	else if(nowindex !=-1  && nowindex < data->getaginum()){
-		 int index = nowindex - data->getnum();
+	else if(nowindex !=-1  && nowindex < data->aginum){
+		 int index = nowindex - data->num;
 		 nowindex = -1;
-		 std::cerr << data->getAtrName( index )<< std::endl;
+		 std::cerr << data->atrname[index]<< std::endl;
 	} 
 }
 void AGIPane::mouseLeftWindow(wxMouseEvent& event) {}
@@ -313,10 +311,10 @@ void AGIPane::calcagain(double x,double y){
   
      	ag->refine(_pre, _new, nowindex) ;
      	Refresh();
-     	int atr = data->getatr();
-     	int n = data->getnum();
+     	int atr = data->atr;
+     	int n = data->num;
      	double** v = new double*[atr];
-     	if(data->isPCA()){
+     	if(data->isPCA){
      		//PCAのときはePをvに入れる
      		for(int i = 0;i< atr;i++){
      			v[i] = new double[2];
@@ -433,22 +431,22 @@ int AGIPane::getindex(double x, double y){
     double x2 = (x - getWidth()/2) /xrate;
     double y2 = (y - getHeight()/2) /yrate;
 
-    for(int i = 0;i< data->getaginum();i++){
+    for(int i = 0;i< data->aginum;i++){
         d = sqrt(pow(ag->getB(i, 0)-x2, 2)+pow(ag->getB(i, 1)-y2, 2));
         if(d < minnow){
             minnow = d;
             index = i;
         }
     }
-     std::cerr << data->getName(index) << std::endl;
+     std::cerr << data->name[index] << std::endl;
     return index;
 } 
 
 void AGIPane::undo(){
 	ag->backprj();
 	Refresh();
-	int atr = data->getatr();
-     int n = data->getnum();
+	int atr = data->atr;
+     int n = data->num;
      double** v = new double*[atr];
      for(int i = 0 ; i< atr; i++){
      	v[i] = new double[2];
@@ -489,7 +487,7 @@ void AGIPane::render(wxPaintEvent& evt)
     //ここで点を描画する  倍率をきめる関数をどこかで定義する必要あり  データの最大値を使うべきだろう
 	std::vector<int> selected = data->getSIndex();
     std::vector<int> notselected = data->getNSIndex();
-    int num = data->getnum();
+    int num = data->num;
     glColor4f(0.2f, 0.4f, 0.7f, 0.3f);
 	glBegin(GL_LINES);
 	glLineWidth(1);
@@ -516,18 +514,18 @@ void AGIPane::render(wxPaintEvent& evt)
        	glVertex3f(ag->getB(i,0)*xrate + width/2, ag->getB(i,1)*yrate + height/2,0);
     }
 	glEnd();
-	if(data->isPCA()){
+	if(data->isPCA){
 		//元の軸を描く
 		glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 		glBegin(GL_LINES);
-		for(int i = 0;i< data->getatr();i++){
+		for(int i = 0;i< data->atr;i++){
 			glVertex3f(width/2,height/2,0);
-			glVertex3f(ag->getV(i,0)*xrate + width/2, ag->getV(i,1)*yrate + height/2,0);
+			glVertex3f(ag->getV(i,0)*xrate *3 + width/2, ag->getV(i,1)*yrate *3+ height/2,0);
 		}
 		glEnd();
-		for(int i = 0;i< data->getatr();i++){
-			glRasterPos2d(ag->getV(i,0)*xrate + width/2, ag->getV(i,1)*yrate + height/2);
-    		std::string str = data->getAtrName(i);
+		for(int i = 0;i< data->atr;i++){
+			glRasterPos2d(ag->getV(i,0)*xrate *3 + width/2, ag->getV(i,1)*yrate *3+ height/2);
+    		std::string str = data->atrname[i];
    			int size = (int)str.size();
     		for(int j = 0;j< size;j++){
         		char ic = str[j];
@@ -539,7 +537,7 @@ void AGIPane::render(wxPaintEvent& evt)
 		glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 		glPointSize(5.0);
 		glBegin(GL_POINTS);
-		for(int i = 0; i<data->getatr() ;i++){
+		for(int i = 0; i<data->atr ;i++){
 			glVertex3f(ag->getB(i+num,0)*xrate + width/2, ag->getB(i+num,1)*yrate + height/2,0);
 		}
 		glEnd();

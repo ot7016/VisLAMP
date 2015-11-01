@@ -12,7 +12,7 @@ PCPPane::PCPPane(wxWindow* parent, int* args,ReadData* d,PCPBorder* l) :
 {
     data = d;
     last = l;
-    int atr = data->getatr();
+    int atr = data->atr;
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
     sumlength = atr-1;
     int len = getHeight()/(atr-1);
@@ -45,10 +45,10 @@ int PCPPane::getHeight()
 
 void PCPPane::setRate(){
    //各属性ごとに倍率があるので
-    int dim = data->getatr();
+    int dim = data->atr;
     rate = new double[dim];
     for(int i = 0;i< dim;i++ ){
-        rate[i] = (getWidth()*3)/(4*(data->getDmax(i)-data->getDmin(i)));
+        rate[i] = (getWidth()*3)/(4*(data->Dmax[i]-data->Dmin[i]));
     }
     int k = 0;
     for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
@@ -61,9 +61,8 @@ void PCPPane::setRate(){
 
 void PCPPane::refine(double** v){
     //TSPを解く
-     int atr = data->getatr();
-     bool isTSP = data->isTSP();
-     if(isTSP)
+     int atr = data->atr;
+     if(data->isTSP)
         solveTSP(v,atr);
      else
         solveAngle(v,atr);
@@ -85,7 +84,7 @@ void PCPPane::solveTSP(double** v,int atr){
     data->setOrder(ts);
     sumlength = 0;
     int k = 0;
-    if(data->isLenVar()){ 
+    if(data->isLenVar){ 
         for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
 
                 PCPSub *current = (PCPSub *)node->GetData();
@@ -175,7 +174,7 @@ void PCPPane::solveAngle(double** v,int atr){
     data->setOrder(order);
  //   wxWindowList & children = GetChildren();
     int k = 0;   
-    if(data->isLenVar()){
+    if(data->isLenVar){
         sumlength = 0;
         for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
                 PCPSub *current = (PCPSub *)node->GetData();
@@ -221,7 +220,7 @@ void PCPSub::mouseMoved(wxMouseEvent& event) {
                 atr = loweratr;
                 rate =lrate;
             }
-            double to =  data->getDmax(atr) - x/rate;
+            double to =  data->Dmax[atr] - x/rate;
             vector<double> v;
             v.push_back(from);
             v.push_back(to);
@@ -258,7 +257,7 @@ void PCPSub::setFrom(int x,bool u){
         atr = loweratr;
         rate = lrate;
     }
-    from =  data->getDmax(atr) - x/rate;
+    from =  data->Dmax[atr] - x/rate;
     isclicked = true;
 }
 
@@ -366,7 +365,7 @@ void PCPSub::render(wxPaintEvent& evt)
     glVertex3f(xright,0,0); 
     glEnd();
     glRasterPos2d(xright+10,10);
-    string str = data->getAtrName(upperatr);
+    string str = data->atrname[upperatr];
     int size = (int)str.size();
     for(int j = 0;j< size;j++){
         char ic = str[j];
@@ -400,8 +399,8 @@ void PCPSub::render(wxPaintEvent& evt)
 
 void PCPSub::draw(int i,int height){
     
-    glVertex3f( (data->getDmax(upperatr) - data->getD(i,upperatr) ) *urate,0 ,0); 
-    glVertex3f( (data->getDmax(loweratr) - data->getD(i,loweratr) ) *lrate,height,0);      
+    glVertex3f( (data->Dmax[upperatr] - data->D[i][upperatr] ) *urate,0 ,0); 
+    glVertex3f( (data->Dmax[loweratr] - data->D[i][loweratr] ) *lrate,height,0);      
     }
 PCPBorder::PCPBorder(wxWindow* parent,bool b,ReadData* d, int size) :
 wxGLCanvas(parent, wxID_ANY, NULL, wxPoint(0,0), wxSize(590,24), wxFULL_REPAINT_ON_RESIZE)
@@ -409,7 +408,7 @@ wxGLCanvas(parent, wxID_ANY, NULL, wxPoint(0,0), wxSize(590,24), wxFULL_REPAINT_
     m_context = new wxGLContext(this);
     data = d;
     islast = b;
-    atr = d->getatr()-1;
+    atr = d->atr-1;
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
 }
 void PCPBorder::setLastIndex(int i){
@@ -478,7 +477,7 @@ void PCPBorder::render(wxPaintEvent& evt)
         glVertex3f(xright,0,0); 
         glEnd();
         glRasterPos2d(xright+10,12);
-        string str = data->getAtrName(atr);
+        string str = data->atrname[atr];
             std::cerr << str<< std::endl;
         int size = (int)str.size();
         for(int j = 0;j< size;j++){
