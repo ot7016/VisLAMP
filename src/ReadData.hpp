@@ -21,7 +21,6 @@ class ReadData{
 	void calEdge();
 	double getevector(int i, int j);
 	double getA(int i, int j);
-	int getOrder(int i);
 	void setOrder(TSPsolver* ts);
 	void setOrder(int* o);
 	void turnLenVar();
@@ -34,6 +33,8 @@ class ReadData{
 	void setSIndex(std::vector<int> v);
 	void clearSIndex();
 	void setCoodSelected();
+	void setCood(int l,bool u);
+	bool containSelectedCood(int a);
 	double* A;
 	double *evalue;
 	double* evector;
@@ -44,10 +45,13 @@ class ReadData{
 	double* Dmin;
 	std::string* name;
 	std::string* atrname;	
+	int* order;
+	int selectedorder;
+	//int selectedlayer;
 	private:
 		double thr ;
 		std::string dir;
-		int* order;
+	
 		std::vector<std::pair<int,int> > edge;
 		std::vector<int> filterindex;
 		std::vector<int> selectedindex;

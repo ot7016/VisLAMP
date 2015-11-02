@@ -204,15 +204,14 @@ void ReadData::setOrder(TSPsolver* ts){
   for(int i= 0;i<atr;i++){
     order[i] = ts->getorder(i);
   }
+  isCood = false;
 }
 void ReadData::setOrder(int* o){
   order = new int[atr];
   for(int i = 0;i<atr;i++){
     order[i] = o[i];
   }
-}
-int ReadData::getOrder(int i){
-  return order[i];
+  isCood =false;
 }
 
 vector<std::pair<int, int> > ReadData::getEdge(){
@@ -275,4 +274,19 @@ void ReadData::clearSIndex(){
 }
 void ReadData::setCoodSelected(){
   isCood = !isCood;
+}
+void ReadData::setCood(int l,bool u){
+  //どのように情報をもつのがよいのか? 
+  //属性の番号をもつよりは何番目かを覚えたほうがよさそう
+  if(u)
+    selectedorder = l;
+  else 
+    selectedorder = l+1;
+}
+bool ReadData::containSelectedCood(int a){
+  for(int i = max(selectedorder-1,0); i< min(selectedorder+2,atr);i++){
+    if(order[i] == a)
+      return true;
+  }
+  return false;
 }

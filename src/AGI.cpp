@@ -482,9 +482,7 @@ void AGIPane::render(wxPaintEvent& evt)
     glVertex3f(0, height, 0);
     glEnd();
    
-    
-
-    //ここで点を描画する  倍率をきめる関数をどこかで定義する必要あり  データの最大値を使うべきだろう
+    //ここで点を描画する 
 	std::vector<int> selected = data->getSIndex();
     std::vector<int> notselected = data->getNSIndex();
     int num = data->num;
@@ -523,13 +521,32 @@ void AGIPane::render(wxPaintEvent& evt)
 			glVertex3f(ag->getV(i,0)*xrate *3 + width/2, ag->getV(i,1)*yrate *3+ height/2,0);
 		}
 		glEnd();
-		for(int i = 0;i< data->atr;i++){
-			glRasterPos2d(ag->getV(i,0)*xrate *3 + width/2, ag->getV(i,1)*yrate *3+ height/2);
-    		std::string str = data->atrname[i];
-   			int size = (int)str.size();
-    		for(int j = 0;j< size;j++){
-        		char ic = str[j];
-        		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ic);
+		int atr = data->atr;
+		if(data->isCood){
+			int o = data->selectedorder;
+			int from = std::max(o-1,0);
+			int to = std::min(o+2,atr);
+			for(int i = from;i< to;i++){
+				int k = data->order[i];
+				glRasterPos2d(ag->getV(k,0)*xrate *3 + width/2, ag->getV(k,1)*yrate *3+ height/2);
+    			std::string str = data->atrname[k];
+   				int size = (int)str.size();
+    			for(int j = 0;j< size;j++){
+        			char ic = str[j];
+        			glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ic);
+    			}
+    		}
+		}
+		else{
+		
+			for(int i = 0;i< atr;i++){
+				glRasterPos2d(ag->getV(i,0)*xrate *3 + width/2, ag->getV(i,1)*yrate *3+ height/2);
+    			std::string str = data->atrname[i];
+   				int size = (int)str.size();
+    			for(int j = 0;j< size;j++){
+        			char ic = str[j];
+        			glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ic);
+    			}
     		}
     	}
 	}

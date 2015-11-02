@@ -91,24 +91,24 @@ void PCPPane::solveTSP(double** v,int atr){
                 double l = ts->getlength(k+1);
                 current->setLength(sumlength,l);
                 sumlength = sumlength + l;
-                int lindex = data->getOrder(k);
-                int rindex = data->getOrder(k+1);
+                int lindex = data->order[k];
+                int rindex = data->order[k+1];
                 current->setRate(lindex,rindex,rate[lindex],rate[rindex]);
             
             k++;
         }
-          last->setLastIndex(data->getOrder(atr-1));
+          last->setLastIndex(data->order[atr-1]);
     }
     else{
          for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
             PCPSub *current = (PCPSub *)node->GetData();
             current->setLength(k,1);
-            int lindex = data->getOrder(k);
-            int rindex = data->getOrder(k+1);
+            int lindex = data->order[k];
+            int rindex = data->order[k+1];
             current->setRate(lindex,rindex,rate[lindex],rate[rindex]);
             k++;
         }
-          last->setLastIndex(data->getOrder(atr-1));
+          last->setLastIndex(data->order[atr-1]);
         sumlength = atr-1;
 
     }
@@ -180,24 +180,24 @@ void PCPPane::solveAngle(double** v,int atr){
                 PCPSub *current = (PCPSub *)node->GetData();
                 double l = acos(c1.at(k).second[0]* c1.at(k+1).second[0] + c1.at(k).second[1]* c1.at(k+1).second[1]);
                 current->setLength(sumlength,l);
-                int lindex = data->getOrder(k);
-                int rindex = data->getOrder(k+1);
+                int lindex = data->order[k];
+                int rindex = data->order[k+1];
                 current->setRate(lindex,rindex,rate[lindex],rate[rindex]);
                 sumlength = sumlength + l;
             k++;
         }
-        last->setLastIndex(data->getOrder(atr-1));
+        last->setLastIndex(data->order[atr-1]);
     }
     else{
          for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
                 PCPSub *current = (PCPSub *)node->GetData();
                 current->setLength(k,1);
-                 int lindex = data->getOrder(k);
-                int rindex = data->getOrder(k+1);
+                 int lindex = data->order[k];
+                int rindex = data->order[k+1];
                 current->setRate(lindex,rindex,rate[lindex],rate[rindex]);
                 k++;
             }
-              last->setLastIndex(data->getOrder(atr-1));
+              last->setLastIndex(data->order[atr-1]);
         
         sumlength = atr-1;
     }
@@ -234,15 +234,22 @@ void PCPSub::mouseMoved(wxMouseEvent& event) {
 void PCPSub::mouseDown(wxMouseEvent& event) {
     //あとで整理
     data->clearSIndex();
-    auto parent = GetGrandParent();
-    parent->Refresh();
     int y = event.GetY();
-    if(y<getHeight()/2) {     //上がクリックされたとき
+    int height = getHeight();
+    if(data->isCood) {
+        if( y < height/4 )
+            data->setCood(layer,true);
+        else if(y > height* 3 /4)
+            data->setCood(layer,false);
+    }
+    else{
+    if(y < height/2)     //上がクリックされたとき
         setFrom(event.GetX(),true);
-    } 
-    else {  //下がクリックされたとき
+    else   //下がクリックされたとき
         setFrom(event.GetX(),false);
     }
+    auto parent = GetParent()->GetGrandParent();
+    parent->Refresh();
 }
 
 void PCPSub::setFrom(int x,bool u){
@@ -365,11 +372,15 @@ void PCPSub::render(wxPaintEvent& evt)
     glVertex3f(xright,0,0); 
     glEnd();
     glRasterPos2d(xright+10,10);
-    string str = data->atrname[upperatr];
-    int size = (int)str.size();
-    for(int j = 0;j< size;j++){
-        char ic = str[j];
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10,ic);
+    //選んだ軸だけでなく上下も表示したい
+    if(!data->isCood || data->containSelectedCood(upperatr) ){
+        string str = data->atrname[upperatr];
+        int size = (int)str.size();
+        for(int j = 0;j< size;j++){
+            char ic = str[j];
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10,ic);
+
+        }
     }
     vector<int> selected = data->getSIndex();
     vector<int> notselected = data->getNSIndex();

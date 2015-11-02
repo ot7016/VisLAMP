@@ -63,7 +63,7 @@ void MatrixView::setText(int index){
 			wxWindowList & children =current->GetChildren();
 			wxWindowList::Node *pnode = children.GetFirst(); 
 			wxStaticText *atrname = (wxStaticText *) pnode->GetData();
-			int o = data->getOrder(j-1);
+			int o = data->order[j-1];
 		    atrname->SetLabelText(data->atrname[o]);
 			pnode = pnode->GetNext();
 		    wxStaticText* value = (wxStaticText *)pnode->GetData();	
