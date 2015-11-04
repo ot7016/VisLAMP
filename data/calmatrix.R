@@ -103,9 +103,9 @@ readcarpca<-function(){
 readturkiyepca <- function(){
 	t <- read.csv("turkiye-pca/turkiye-student-evaluation_R_Specific.csv",header = T)
 	t2 <- t[,2:33]
-	t3 <- t[,1]
+	#t3 <- t[,1]
 	write.csv(colnames(t)[2:33],"turkiye-pca/turkiye-atrname.csv",quote = FALSE,row.names = FALSE)
-    write.csv(t3,"turkiye-pca/turkiye-name.csv",quote = FALSE,row.names = FALSE)
+    write.csv(rownames(t),"turkiye-pca/turkiye-name.csv",quote = FALSE,row.names = FALSE)
 	wt = file("turkiye-pca/turkiye-original.dat","wb")
 	t4 <- as.double(t(as.matrix(t2)))
 	writeBin(t4,wt)

@@ -21,7 +21,7 @@ MatrixView::MatrixView(wxFrame* parent,ReadData* d):wxPanel(parent,wxID_ANY){
 	for(int i = 0;i< atr;i++){
 		wxPanel* vPanel = new wxPanel(this,wxID_ANY);
 		wxGridSizer* vsizer = new wxGridSizer(2,1,20,100);
-		wxStaticText* label =  new wxStaticText(vPanel,wxID_ANY,data->atrname[i]);
+		wxStaticText* label =  new wxStaticText(vPanel,wxID_ANY,data->atrname.at(i));
 		vsizer->Add(label);
 		wxStaticText* value = new wxStaticText(vPanel,wxID_ANY,"");
 		vsizer->Add(value);
@@ -53,7 +53,7 @@ void MatrixView::setText(int index){
 	int atr = data->atr;
 	//wxWindowList wlist = GetChildren();
 	//wxWindowList::iterator it = wlist.begin(); 
-	name->SetLabelText(data->name[index]);
+	name->SetLabelText(data->name.at(index));
 
 	wxWindowList & children = GetChildren();
 	int j = 0;
@@ -64,7 +64,7 @@ void MatrixView::setText(int index){
 			wxWindowList::Node *pnode = children.GetFirst(); 
 			wxStaticText *atrname = (wxStaticText *) pnode->GetData();
 			int o = data->order[j-1];
-		    atrname->SetLabelText(data->atrname[o]);
+		    atrname->SetLabelText(data->atrname.at(o));
 			pnode = pnode->GetNext();
 		    wxStaticText* value = (wxStaticText *)pnode->GetData();	
 			value->SetLabelText(std::to_string(data->D[index][o]));		

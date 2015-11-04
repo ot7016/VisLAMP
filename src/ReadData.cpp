@@ -45,6 +45,7 @@ ReadData::ReadData(){
   
   isTSP = false;
   isLenVar = true;
+  isCoord =false;
 	read();	
   readevalue();
   calEdge();
@@ -58,9 +59,8 @@ ReadData::ReadData(){
 ReadData::~ReadData(){
   delete[] A;
   delete[] D;
-  delete[] name;
+  delete[] evector;
   delete[] order;
-  delete[] atrname;
   delete[] evalue;
   }
 
@@ -114,18 +114,16 @@ void ReadData::readevalue(){
 void ReadData::readoriginal(){
 
 //string str1[atr];
-  atrname = new string[atr];
+  //array<string, atr> atrname;  // = new string[atr];
   string str;
   ifstream ifs1 (dir+ "-atrname.csv");
   if (ifs1.fail()) {
         cerr << "File Does not exist" << endl;
         exit(1);
     }
-    int k = 0;
     getline(ifs1,str);
   while(getline(ifs1,str)){
-    atrname[k] = str;
-    k++;
+    atrname.push_back(str);
 }
     ifstream ifs2 (dir+ "-name.csv");
   if (ifs2.fail()) {
@@ -133,11 +131,9 @@ void ReadData::readoriginal(){
         exit(1);
     }
     getline(ifs2,str);
-   name = new string[num];
-   k = 0;
+ 
    while(getline(ifs2,str)){
-    name[k] = str;
-    k++; 
+    name.push_back( str);
    }
    
 
@@ -204,14 +200,14 @@ void ReadData::setOrder(TSPsolver* ts){
   for(int i= 0;i<atr;i++){
     order[i] = ts->getorder(i);
   }
-  isCood = false;
+  isCoord = false;
 }
 void ReadData::setOrder(int* o){
   order = new int[atr];
   for(int i = 0;i<atr;i++){
     order[i] = o[i];
   }
-  isCood =false;
+  isCoord =false;
 }
 
 vector<std::pair<int, int> > ReadData::getEdge(){
@@ -221,59 +217,58 @@ vector<std::pair<int, int> > ReadData::getEdge(){
 void ReadData::turnLenVar(){
   isLenVar= !isLenVar;
 }
+vector<list<int> > ReadData::getCluster(){
+  return cluster;
+}
 
 vector<int>ReadData::getFIndex(){
   return filterindex;
 }
-vector<int> ReadData::getSIndex(){
-  return selectedindex;
-}
-vector<int> ReadData::getNSIndex(){
+
+list<int> ReadData::getNSIndex(){
   return notselectedindex;
 }
 //今は前の選択を保持しない形とする
 void ReadData::setSIndex(int i){
-  clearSIndex();
-  selectedindex.push_back(i);
-  for(int j = 0;j< i;j++){
-    notselectedindex.push_back(j);
-  }
-  for(int j = i+1;j<num;j++){
-    notselectedindex.push_back(j);
-  }
+  list<int> selected;
+  selected.push_back(i);
+  cluster.push_back(selected);
+  notselectedindex.remove(i);
 }
 
 void ReadData::setSIndex(int j, vector<double> v){
-  clearSIndex();
+  list<int> selected;
   sort(v.begin(),v.end());
   for(int i = 0;i < num;i++){
     if( D[i][j] > v.at(0) && D[i][j] < v.at(1) )
-      selectedindex.push_back(i);
+      selected.push_back(i);
   }
-  for(int i = 0;i< num;i++){
-        auto result = find(begin(selectedindex),end(selectedindex),i);
-        if(result == end(selectedindex))
-            notselectedindex.push_back(i);
-        }
-}
-void ReadData::setSIndex(vector<int> v){
-  clearSIndex();
-  selectedindex = v;
-  for(int i: v){
-     auto result = find(begin(selectedindex),end(selectedindex),i);
-        if(result == end(selectedindex))
-            notselectedindex.push_back(i);
+  cluster.push_back(selected);
+  for(int i : selected){
+    notselectedindex.remove(i);     
   }
 }
-void ReadData::clearSIndex(){
-  selectedindex.clear();
+//リストで実装し直すか?
+void ReadData::setSIndex(list<int> v){
+  cluster.push_back(v);
+ // auto ite ;
+    for(int i:v){
+      notselectedindex.remove(i);     
+    }
+  
+}
+
+//複数の選択グループを全部解除  場合によっては既存の関数と統合
+void ReadData::resetselected(){
+  cluster.clear();
   notselectedindex.clear();
-  for(int i = 0; i<num;i++){
+  for(int i = 0; i < num;i++){
     notselectedindex.push_back(i);
   }
 }
+
 void ReadData::setCoodSelected(){
-  isCood = !isCood;
+  isCoord = !isCoord;
 }
 void ReadData::setCood(int l,bool u){
   //どのように情報をもつのがよいのか? 
@@ -290,3 +285,4 @@ bool ReadData::containSelectedCood(int a){
   }
   return false;
 }
+

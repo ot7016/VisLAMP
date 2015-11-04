@@ -83,6 +83,7 @@
 	void calcagain(double x, double y);
 	void calRange(int x2, int y2);
 	void undo();
+	void drawcoodname(int i, int w, int h);
  
 
 	DECLARE_EVENT_TABLE()

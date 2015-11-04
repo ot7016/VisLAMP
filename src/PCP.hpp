@@ -60,6 +60,7 @@ class PCPSub: public wxGLCanvas
 	ReadData* data;
 public:
 	 PCPSub(wxWindow* parent, int l, ReadData* d, int size);
+	 virtual ~PCPSub();
 	int getWidth();   
 	int getHeight();  
 	void setRate(int u, int l, double upper, double lower);

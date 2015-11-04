@@ -39,6 +39,7 @@ public:
     void buttonclicked(wxCommandEvent& event);
     void buttonclicked2(wxCommandEvent& event);
     void undobuttonclicked(wxCommandEvent& event);
+    void resetbuttonclicked(wxCommandEvent& event);
     void coodselectbuttonclicked(wxCommandEvent& event);
     void getslider(wxCommandEvent& event);
 };

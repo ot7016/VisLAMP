@@ -6,6 +6,7 @@
 #include <fstream>
 #include <math.h>
 #include <tuple>
+#include <list>
 #include "TSP.hpp"
 
 #ifndef rdata 
@@ -25,36 +26,37 @@ class ReadData{
 	void setOrder(int* o);
 	void turnLenVar();
 	std::vector<std::pair<int,int> > getEdge();
+	std::vector<std::list<int> > getCluster();
 	std::vector<int> getFIndex();
-	std::vector<int> getSIndex();
-	std::vector<int> getNSIndex();
+	std::list<int> getNSIndex();
 	void setSIndex(int i);
 	void setSIndex(int j, std::vector<double> v);
-	void setSIndex(std::vector<int> v);
-	void clearSIndex();
+	void setSIndex(std::list<int> v);
 	void setCoodSelected();
 	void setCood(int l,bool u);
 	bool containSelectedCood(int a);
+	void resetselected();
 	double* A;
 	double *evalue;
 	double* evector;
-	bool isTSP, isPCA,isLenVar, isCood;
+	bool isTSP, isPCA,isLenVar, isCoord;
 	int num, dim, atr, aginum;
 	double** D;
 	double* Dmax;
 	double* Dmin;
-	std::string* name;
-	std::string* atrname;	
+	std::vector<std::string> name;
+	std::vector<std::string>  atrname;	
 	int* order;
 	int selectedorder;
-	//int selectedlayer;
+	//色をどのように決めるかが最大の問題　色はクラスターごとに一意であるべき
+	std::vector<std::list<int> > cluster;
+
 	private:
 		double thr ;
 		std::string dir;
-	
-		std::vector<std::pair<int,int> > edge;
 		std::vector<int> filterindex;
+		std::vector<std::pair<int,int> > edge;
 		std::vector<int> selectedindex;
-		std::vector<int> notselectedindex;
+		std::list<int> notselectedindex;
 };
 #endif

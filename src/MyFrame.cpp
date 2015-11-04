@@ -37,6 +37,7 @@ bool MyApp::OnInit()
     button1 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"軸間の距離:可変");
     button2 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"軸間距離:角度");
     wxButton* undobutton = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"Undo");
+    wxButton* resetbutton = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"リセット");
     wxButton* coodselectbutton = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"軸選択モード");
     wxStaticText* pftext;
     pftext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"Projection Factor");
@@ -53,6 +54,9 @@ bool MyApp::OnInit()
     coodselectbutton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
         wxCommandEventHandler(MyApp::coodselectbuttonclicked),
         NULL, this);
+    resetbutton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
+        wxCommandEventHandler(MyApp::resetbuttonclicked),
+        NULL, this);
     
 
     slider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
@@ -63,6 +67,7 @@ bool MyApp::OnInit()
     sizer2->Add(button2,1,wxEXPAND);
     sizer2->Add(undobutton,1,wxEXPAND);
     sizer2->Add(coodselectbutton,1,wxEXPAND);
+    sizer2->Add(resetbutton,1,wxEXPAND);
     sizer2->Add(pftext,1,wxEXPAND);
     sizer2->Add(slider,1,wxEXPAND);
     ctlPanel->SetSizer(sizer2);
@@ -112,6 +117,10 @@ void MyApp::undobuttonclicked(wxCommandEvent& WXUNUSED(event)){
 
 void MyApp::coodselectbuttonclicked(wxCommandEvent& WXUNUSED(event)){
   data->setCoodSelected();
+}
+void MyApp::resetbuttonclicked(wxCommandEvent& WXUNUSED(event)){
+  data->resetselected();
+  frame->Refresh();
 }
 
 void MyApp::getslider(wxCommandEvent& WXUNUSED(event)){

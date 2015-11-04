@@ -22,6 +22,7 @@ Agi::Agi(ReadData* d){
 
 Agi::~Agi(){
 	delete[] B;
+	delete[] v;
 }
 
 double Agi::getB(int i,int j){
@@ -194,6 +195,37 @@ double Agi::getV(int i, int j){
 	return v[2 *i + j];
 }
 
+AGIPane::AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p, MatrixView* m) :
+    wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxSize(600,600), wxFULL_REPAINT_ON_RESIZE)
+{
+    m_context = new wxGLContext(this);
+    md = m;
+    data = d;
+    ag = new Agi(d);
+    pcp = p;
+    _pre = new double[2];
+    _new = new double[2];
+    nowindex = -1;
+    isMoved = false;
+    isDrug = false;
+    iscalc = false;
+    rangeselect =false;
+    xfrom = -1;
+    xto = -1;
+    yfrom = -1;
+    yto = -1;
+    setRate();
+
+    // To avoid flashing on MSW
+    SetBackgroundStyle(wxBG_STYLE_CUSTOM);
+}
+ 
+AGIPane::~AGIPane(){
+    delete m_context;
+    delete[] _pre;
+    delete[] _new;
+}
+
 void AGIPane::mouseDown(wxMouseEvent& event) {
 	std::cerr << "MouseDown " << std::endl;
     //マウスがクリックされたときの処理?
@@ -203,6 +235,7 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
     //もちろんある程度の誤差は許容しなければならない
     nowindex = getindex(x,y);
     if(nowindex != -1 && nowindex < data->num){
+    	 std::cerr << data->name.at(nowindex) << std::endl;
 	    _pre[0] = ag->getB(nowindex, 0);
     	_pre[1] = ag->getB(nowindex, 1);
     	isMoved = true;
@@ -211,10 +244,10 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
 		Refresh();
 		pcp->Refresh();
 	}
-	else if(nowindex != -1 && nowindex<data->aginum){
+	else if(!data->isPCA && nowindex != -1 && nowindex < data->aginum){
 		int index = nowindex - data->num;
 		nowindex = -1;
-		std::cerr << data->atrname[index]<< std::endl;
+		std::cerr << data->atrname.at(index)<< std::endl;
 	}
 	//どのノードも近くないときは複数選択
 	else {
@@ -252,7 +285,7 @@ void AGIPane::calRange(int x2, int y2){
     y.push_back( (y2 - getHeight()/2) /yrate);
     sort(x.begin(),x.end());
     sort(y.begin(),y.end());
-    std::vector<int> selected;
+    std::list<int> selected;
  	for(int i = 0;i< data->num;i++){
  		double a = ag->getB(i,0);
  		double b = ag->getB(i,1);
@@ -298,7 +331,7 @@ void AGIPane::rightClick(wxMouseEvent& event) {
 	else if(nowindex !=-1  && nowindex < data->aginum){
 		 int index = nowindex - data->num;
 		 nowindex = -1;
-		 std::cerr << data->atrname[index]<< std::endl;
+		 std::cerr << data->atrname.at(index)<< std::endl;
 	} 
 }
 void AGIPane::mouseLeftWindow(wxMouseEvent& event) {}
@@ -332,39 +365,6 @@ void AGIPane::calcagain(double x,double y){
      	pcp->refine(v); 
      	md->setText(nowindex);
     
-}
-
-
- 
-AGIPane::AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p, MatrixView* m) :
-    wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxSize(600,600), wxFULL_REPAINT_ON_RESIZE)
-{
-    m_context = new wxGLContext(this);
-    md = m;
-    data = d;
-    ag = new Agi(d);
-    pcp = p;
-    _pre = new double[2];
-    _new = new double[2];
-    nowindex = -1;
-    isMoved = false;
-    isDrug = false;
-    iscalc = false;
-    rangeselect =false;
-    xfrom = -1;
-    xto = -1;
-    yfrom = -1;
-    yto = -1;
-    setRate();
-
-    // To avoid flashing on MSW
-    SetBackgroundStyle(wxBG_STYLE_CUSTOM);
-}
- 
-AGIPane::~AGIPane(){
-    delete m_context;
-    delete ag;
-    delete[] _pre;
 }
  
 void AGIPane::resized(wxSizeEvent& evt)
@@ -438,7 +438,6 @@ int AGIPane::getindex(double x, double y){
             index = i;
         }
     }
-     std::cerr << data->name[index] << std::endl;
     return index;
 } 
 
@@ -473,7 +472,7 @@ void AGIPane::render(wxPaintEvent& evt)
     prepare2DViewport(0, 0, width, height);
     glLoadIdentity();
  
-    // white background
+    //white background
     glColor4f(1, 1, 1, 1);
     glBegin(GL_QUADS);
     glVertex3f(0, 0, 0);
@@ -481,11 +480,10 @@ void AGIPane::render(wxPaintEvent& evt)
     glVertex3f(width, height, 0);
     glVertex3f(0, height, 0);
     glEnd();
-   
-    //ここで点を描画する 
-	std::vector<int> selected = data->getSIndex();
-    std::vector<int> notselected = data->getNSIndex();
+	//std::vector<int> selected = data->getSIndex();
+    std::list<int> notselected = data->getNSIndex();
     int num = data->num;
+    //辺を描く
     glColor4f(0.2f, 0.4f, 0.7f, 0.3f);
 	glBegin(GL_LINES);
 	glLineWidth(1);
@@ -500,17 +498,20 @@ void AGIPane::render(wxPaintEvent& evt)
      glColor4f(0.2f, 0.4f, 0.7f, 1.0f);
     glPointSize(5.0);
     glBegin(GL_POINTS);
+    //選択されていない点を書く
   	for(int i: notselected){
        	glVertex3f(ag->getB(i,0)*xrate + width/2, ag->getB(i,1)*yrate + height/2,0);
     }
     glEnd();
     glPointSize(8.0);
     glBegin(GL_POINTS);
-    glColor4f(0.7f, 0.3f, 0.4f, 1.0f);
-
-    for(int i : selected){
-       	glVertex3f(ag->getB(i,0)*xrate + width/2, ag->getB(i,1)*yrate + height/2,0);
-    }
+    //選択されている点を描く
+    for(auto c:data->getCluster()){
+    	glColor4f(0.7f, 0.3f, 0.4f, 1.0f);
+    	for(int i :c ){
+       		glVertex3f(ag->getB(i,0)*xrate + width/2, ag->getB(i,1)*yrate + height/2,0);
+    	}
+	}
 	glEnd();
 	if(data->isPCA){
 		//元の軸を描く
@@ -522,34 +523,21 @@ void AGIPane::render(wxPaintEvent& evt)
 		}
 		glEnd();
 		int atr = data->atr;
-		if(data->isCood){
+		if(data->isCoord){
 			int o = data->selectedorder;
 			int from = std::max(o-1,0);
 			int to = std::min(o+2,atr);
 			for(int i = from;i< to;i++){
 				int k = data->order[i];
-				glRasterPos2d(ag->getV(k,0)*xrate *3 + width/2, ag->getV(k,1)*yrate *3+ height/2);
-    			std::string str = data->atrname[k];
-   				int size = (int)str.size();
-    			for(int j = 0;j< size;j++){
-        			char ic = str[j];
-        			glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ic);
-    			}
-    		}
+				drawcoodname(k,width,height);
+			}		
 		}
 		else{
-		
-			for(int i = 0;i< atr;i++){
-				glRasterPos2d(ag->getV(i,0)*xrate *3 + width/2, ag->getV(i,1)*yrate *3+ height/2);
-    			std::string str = data->atrname[i];
-   				int size = (int)str.size();
-    			for(int j = 0;j< size;j++){
-        			char ic = str[j];
-        			glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ic);
-    			}
-    		}
+			for(int i = 0;i< atr;i++)
+				drawcoodname(i,width,height);
     	}
 	}
+	//pcaを使っていないとき
 	else{
 		glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 		glPointSize(5.0);
@@ -559,7 +547,7 @@ void AGIPane::render(wxPaintEvent& evt)
 		}
 		glEnd();
 	}
-	
+	//範囲選択がされているとき
     if(rangeselect){
     	glColor4f(0.0f,0.0f,0.0f,1.0f);
     	glBegin(GL_LINE_STRIP);
@@ -573,5 +561,14 @@ void AGIPane::render(wxPaintEvent& evt)
     glFlush();
     SwapBuffers();
 }
-
+void AGIPane::drawcoodname(int i, int w, int h){
+	glRasterPos2d(ag->getV(i,0)*xrate *3 + w/2, ag->getV(i,1)*yrate *3+ h/2);
+    std::string str = data->atrname.at(i);
+   	int size = (int)str.size();
+    for(int j = 0;j< size;j++){
+       	char ic = str[j];
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ic);
+    }
+    		
+}
 

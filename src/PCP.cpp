@@ -233,10 +233,9 @@ void PCPSub::mouseMoved(wxMouseEvent& event) {
 }
 void PCPSub::mouseDown(wxMouseEvent& event) {
     //あとで整理
-    data->clearSIndex();
     int y = event.GetY();
     int height = getHeight();
-    if(data->isCood) {
+    if(data->isCoord) {
         if( y < height/4 )
             data->setCood(layer,true);
         else if(y > height* 3 /4)
@@ -292,6 +291,9 @@ PCPSub::PCPSub(wxWindow* parent,int l, ReadData* d, int size) :
     from = -999;
     // To avoid flashing on MSW
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
+}
+PCPSub::~PCPSub(){
+    delete m_context;
 }
 
 void PCPSub::prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y)
@@ -373,8 +375,8 @@ void PCPSub::render(wxPaintEvent& evt)
     glEnd();
     glRasterPos2d(xright+10,10);
     //選んだ軸だけでなく上下も表示したい
-    if(!data->isCood || data->containSelectedCood(upperatr) ){
-        string str = data->atrname[upperatr];
+    if(!data->isCoord || data->containSelectedCood(upperatr) ){
+        string str = data->atrname.at(upperatr);
         int size = (int)str.size();
         for(int j = 0;j< size;j++){
             char ic = str[j];
@@ -382,8 +384,8 @@ void PCPSub::render(wxPaintEvent& evt)
 
         }
     }
-    vector<int> selected = data->getSIndex();
-    vector<int> notselected = data->getNSIndex();
+    vector< list<int> > cluster = data->getCluster();
+    list<int> notselected = data->getNSIndex();
     
 
     glColor4f(0.5f,0.6f,0.9f,1.0f);
@@ -393,16 +395,18 @@ void PCPSub::render(wxPaintEvent& evt)
         draw(i,height);                  
     }
     glEnd();
-    if(!selected.empty()){
-      glColor4f(0.8f,0.3f,0.6f,1.0f);
-      glLineWidth(2);
-      glBegin(GL_LINES);
-      for(int i: selected) {
-        draw(i,height);
+    if(!cluster.empty()){
+        glLineWidth(2);
+        glBegin(GL_LINES);
+        for(auto ls:cluster){
+            //色は後で調整　クラスターごとに変えたい    
+            glColor4f(0.8f,0.3f,0.6f,1.0f);
+            for(int i: ls) {
+                draw(i,height);
+            }
+        }
+        glEnd();
     }
-     glEnd();
-
-  }
     glFlush();
     SwapBuffers();
  
@@ -488,7 +492,7 @@ void PCPBorder::render(wxPaintEvent& evt)
         glVertex3f(xright,0,0); 
         glEnd();
         glRasterPos2d(xright+10,12);
-        string str = data->atrname[atr];
+        string str = data->atrname.at(atr);
             std::cerr << str<< std::endl;
         int size = (int)str.size();
         for(int j = 0;j< size;j++){
