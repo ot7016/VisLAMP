@@ -7,6 +7,7 @@
 #include "wx/wx.h"
 #include "ConstraintSolver2D.hpp"
 #include <GLUT/glut.h>
+//#include <GL/glew.h>
 
 //高次元ベクトルをMDSでもとめる→　その必要はとりあえずない
 //与えられた高次元配置を表す行列から計算

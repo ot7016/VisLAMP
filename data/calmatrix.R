@@ -17,13 +17,20 @@ calpca<- function(t,out){
 	 writeBin(evector,wt)
 	 close(wt)
 	 #これが高次元座標
-	 cood<- pca$x
-	 cood2<- as.double(as.matrix(cood))
+	 cood<- as.matrix(pca$x)
+	 cood2<- as.double(t(cood))
 	 print("高次元座標出力")
 	 wt = file(paste(out,"-cood.dat",sep = ""),"wb")
 	 writeBin(cood2,wt)
 	 close(wt)
-
+	# write.csv(pca$x,paste( out, "-cood.csv"),quote = FALSE,row.names = FALSE)
+	 #距離行列
+	 D0 <-dist(cood,upper =TRUE) #距離オブジェクト作成　categorical dataは同じ値なら 0 違うなら1とか
+    D <- as.matrix(D0) #距離行列に
+    D1 <- as.double(D)
+    wt = file(paste(out,"-dist.dat",sep = ""),"wb")
+	writeBin(D1,wt)
+	close(wt)
 }
 
 

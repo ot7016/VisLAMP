@@ -20,6 +20,7 @@ ReadData::ReadData(){
         cerr << "失敗" << endl;
         exit(1);
     }
+    string dir;
 	getline(ifs,dir);
     cerr << dir << endl;
     string str;
@@ -46,10 +47,10 @@ ReadData::ReadData(){
   isTSP = false;
   isLenVar = true;
   isCoord =false;
-	read();	
-  readevalue();
-  calEdge();
-  readoriginal();
+	read(dir);	
+  readevalue(dir);
+  readDist(dir);
+  readoriginal(dir);
   order = new int[atr];
   for(int i = 0;i<atr;i++){
     order[i] = i;
@@ -64,13 +65,12 @@ ReadData::~ReadData(){
   delete[] evalue;
   }
 
-void ReadData::read(){
+void ReadData::read(string dir){
 	
 	
 	//ここでAを動的確保
 	//Aの読み取り
 	fstream fs(dir+"-cood.dat",ios::in | ios::binary);
-	string str;
 	if (!fs){
         cerr << "cood失敗" << endl;
         exit(1);
@@ -81,7 +81,7 @@ void ReadData::read(){
     fs.read((char*) A, sizeof (double) * aginum  * dim);
 
 }
-void ReadData::readevalue(){
+void ReadData::readevalue(string dir){
   fstream fs2(dir+"-evalue.dat",ios::in | ios::binary);
 	if (!fs2){
     cerr << "evalue失敗" << endl;
@@ -111,7 +111,7 @@ void ReadData::readevalue(){
 }
 
 
-void ReadData::readoriginal(){
+void ReadData::readoriginal(string dir){
 
 //string str1[atr];
   //array<string, atr> atrname;  // = new string[atr];
@@ -172,7 +172,42 @@ void ReadData::readoriginal(){
       notselectedindex.push_back(i);
   }
 }
-
+void ReadData::readDist(string dir){
+  ifstream ifs;
+  int src_size;
+  int status = STATUS_OK;
+  ifs.open(dir+"-dist.dat",ios::binary);
+  src_size = ifs.tellg();
+  string str;
+  if (ifs.fail()){
+        cerr << "dist失敗" << endl;
+        exit(1);
+  }
+    
+  // distを全て読み込まないようにする 
+  double *dist;
+  int len = DIST_SIZE;
+  ifs.seekg(0);
+  //alldist = new double[aginum * aginum];
+  dist = new double[len]; 
+  int r = 0;
+  while( (status == STATUS_OK) && (!ifs.eof())) {
+    ifs.read((char*) dist, sizeof(double) * len);
+    int lim = pow(aginum,2) -len *r;
+    int to = min(len, lim);
+    for(int k = 0; k < to;k++){
+      int i = (k + r*len)/ aginum;
+      int j =( k + r*len) % aginum;
+    //  alldist[k +r * len] = dist[k];
+      if(i < j && dist[k] <  thr)
+        edge.push_back(pair<int, int>(i,j));
+    }
+    r++;
+  }
+  ifs.close();
+  delete[] dist;
+}
+//一応残しておく
 void ReadData::calEdge(){
   for(int i = 0; i < aginum;i++){
     for(int j = i+1; j < aginum; j++){
@@ -180,8 +215,8 @@ void ReadData::calEdge(){
       for(int k = 0; k < dim; k++ ){
         s = s + pow(getA(i,k) - getA(j,k) ,2);
       }
-      s = sqrt(s);
-      if(s!= 0 && s < thr)
+       double e = sqrt(s);
+      if(e < thr)
       edge.push_back(pair<int,int>(i,j));
     }
     

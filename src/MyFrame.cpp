@@ -5,6 +5,7 @@
 //#ifdef __WXMAC__
 #include "OpenGL/glu.h"
 #include "OpenGL/gl.h"
+//#include <GL/glew.h>
 //#else
 //#include <GL/glu.h>
 //#include <GL/gl.h>
@@ -84,7 +85,12 @@ bool MyApp::OnInit()
    frame->SetSizer(mainsizer);
 
     frame->SetAutoLayout(true);
+
     frame->Show();
+    cerr << "VENDOR:   " << glGetString(GL_VENDOR)   << endl;
+    cerr << "RENDERER: " << glGetString(GL_RENDERER) << endl;
+    cerr << "VERSION:  " << glGetString(GL_VERSION)  << endl;
+    cerr << "GLSL:     " << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl << endl;
 
     return true;
 } 
