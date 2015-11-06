@@ -73,6 +73,6 @@ void MatrixView::setText(int index){
 	}
      // .. do something with current
 	SetAutoLayout(true);
-	Show();
+	//Show();
 
 }

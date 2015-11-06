@@ -99,7 +99,6 @@ void Agi::cal2Mtr() {
 		//BLASで Peも計算 PCAの場合
 		delete[] v;
     	v = new double[m * d];
-     	// v[m* 2 ] = P[m *m] * e[m *2]
     	cblas_dgemm(CblasRowMajor, CblasNoTrans ,CblasNoTrans, m, d, m, 1, data->evector, m, e, d, 0 , v, d);
 	}
 
@@ -215,6 +214,7 @@ AGIPane::AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p, MatrixView
     xto = -1;
     yfrom = -1;
     yto = -1;
+    clickid = 0;
     setRate();
 
     // To avoid flashing on MSW
@@ -232,6 +232,7 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
     //マウスがクリックされたときの処理?
     double x = event.GetX();
     double y = event.GetY();
+    if(!isMoved){
     //このxとyが点の2次元配列に含まれるならOK
     //もちろんある程度の誤差は許容しなければならない
     nowindex = getindex(x,y);
@@ -256,6 +257,7 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
 		yfrom = y;
 		rangeselect = true;
 	}
+}
 }
 
 void AGIPane::mouseMoved(wxMouseEvent& event) {
@@ -296,7 +298,7 @@ void AGIPane::calRange(int x2, int y2){
  			}
  		}
  	}
- 	data->setSIndex(selected);
+ 	data->setSIndex(selected,clickid);
  	auto parent = GetParent();
     parent->Refresh(); 
 }
@@ -310,11 +312,12 @@ void AGIPane::mouseReleased(wxMouseEvent& event){
   	calcagain(event.GetX(),event.GetY());
     //このxとyが点の2次元配列に含まれるならOK
     //もちろんある程度の誤差は許容しなければならない
-      isMoved = false;
   }
   else if(rangeselect){
   	rangeselect = false;
-  }
+  } 
+   clickid  = clickid +2;
+   isMoved = false;
    isDrug = false;
 }
 void AGIPane::rightClick(wxMouseEvent& event) {
@@ -344,7 +347,6 @@ void AGIPane::calcagain(double x,double y){
      _new[1] = (y - getHeight() /2) /yrate;
   
      	ag->refine(_pre, _new, nowindex) ;
-     	Refresh();
      	int atr = data->atr;
      	int n = data->num;
      	double** v = new double*[atr];
@@ -365,6 +367,8 @@ void AGIPane::calcagain(double x,double y){
      	}
      	pcp->refine(v); 
      	md->setText(nowindex);
+     	auto parent = GetGrandParent();
+     	parent-> Refresh();
     
 }
  
@@ -508,9 +512,10 @@ void AGIPane::render(wxPaintEvent& evt)
     glBegin(GL_POINTS);
     //選択されている点を描く
     for(auto c:data->getCluster()){
-    	glColor4f(0.7f, 0.3f, 0.4f, 1.0f);
-    	for(int i :c ){
-       		glVertex3f(ag->getB(i,0)*xrate + width/2, ag->getB(i,1)*yrate + height/2,0);
+    	RGB rgb = c.rgb; 
+    	glColor4f(rgb.r, rgb.g, rgb.b, 1.0f);
+    	for(int i :c.index ){ 
+       		glVertex3f(ag->getB(i,0)*xrate + width/2, ag->getB(i,1)*yrate + height/2, 0);
     	}
 	}
 	glEnd();
@@ -520,7 +525,7 @@ void AGIPane::render(wxPaintEvent& evt)
 		glBegin(GL_LINES);
 		for(int i = 0;i< data->atr;i++){
 			glVertex3f(width/2,height/2,0);
-			glVertex3f(ag->getV(i,0)*xrate *3 + width/2, ag->getV(i,1)*yrate *3+ height/2,0);
+			glVertex3f(ag->getV(i,0)*xrate * 2 + width/2, ag->getV(i,1)*yrate * 2+ height/2, 0);
 		}
 		glEnd();
 		int atr = data->atr;
@@ -561,9 +566,10 @@ void AGIPane::render(wxPaintEvent& evt)
     }
     glFlush();
     SwapBuffers();
+
 }
 void AGIPane::drawcoodname(int i, int w, int h){
-	glRasterPos2d(ag->getV(i,0)*xrate *3 + w/2, ag->getV(i,1)*yrate *3+ h/2);
+	glRasterPos2d(ag->getV(i,0)*xrate *2 + w/2, ag->getV(i,1)*yrate *2+ h/2);
     std::string str = data->atrname.at(i);
    	int size = (int)str.size();
     for(int j = 0;j< size;j++){

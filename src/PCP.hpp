@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <wx/wxprec.h>
+#include <array>
 #include "wx/wx.h"
 #include "wx/panel.h"
 #include "wx/event.h"
@@ -43,11 +44,14 @@ public:
 	int getWidth();   
 	int getHeight();  
 	void solveTSP(double** v, int atr);   
-	void solveAngle(double** v, int atr);  
+	void solveAngle(double** v);  
 	void setRate();        
 	void refine(double** v);
 	void reselect();
+	void idplus();
 	typedef std::pair<int,double*> ipair;
+	typedef std::pair<int,double> apair;
+	int clickid;
 	private:
 	double* rate; 
 	double sumlength;

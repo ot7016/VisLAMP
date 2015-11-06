@@ -2,6 +2,7 @@
 #include "OpenGL/glu.h"
 #include "OpenGL/gl.h"
 #include <GLUT/glut.h>
+//#include <GL/glew.h>
 //PCPを実装する場合 agi描画部分も独立させるべき
 //それぞれをパネルに乗っけるのが無難か 大幅な書き換えがいる
 using namespace std;
@@ -12,6 +13,7 @@ PCPPane::PCPPane(wxWindow* parent, int* args,ReadData* d,PCPBorder* l) :
 {
     data = d;
     last = l;
+    clickid = 1;
     int atr = data->atr;
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
     sumlength = atr-1;
@@ -43,6 +45,9 @@ int PCPPane::getHeight()
     return GetSize().y;
 }
 
+void PCPPane::idplus(){
+    clickid = clickid+2;
+}
 void PCPPane::setRate(){
    //各属性ごとに倍率があるので
     int dim = data->atr;
@@ -65,13 +70,13 @@ void PCPPane::refine(double** v){
      if(data->isTSP)
         solveTSP(v,atr);
      else
-        solveAngle(v,atr);
+        solveAngle(v);
     for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
         PCPSub *current = (PCPSub *)node->GetData(); 
         current->setSumLength(sumlength,getHeight());
         }
          SetAutoLayout(true);
-         Refresh();
+       //  Refresh();
 }
 void PCPPane::reselect(){
     auto parent = GetGrandParent();
@@ -114,7 +119,55 @@ void PCPPane::solveTSP(double** v,int atr){
     }
 
 }
-void PCPPane::solveAngle(double** v,int atr){
+void PCPPane::solveAngle(double** v){
+    // 多分全面的に書き換え
+    const int atr = data->atr;
+    vector< apair > angle;
+    for(int i = 0 ; i < atr; i++){
+        double r2 = pow(v[i][0],2)+ pow(v[i][1],2);
+        double a = acos(v[i][0] / sqrt(r2));
+        if(v[i][1] < 0 )
+            angle.push_back ( apair (i, 2* M_PI- a) );
+        else 
+            angle.push_back(apair (i, a ) );
+    }
+    struct 
+        { bool operator()(apair& a, apair& b){
+            return a.second < b.second;
+        }
+    }lesspair;
+    //これで角度でソートする
+    sort(angle.begin(),angle.end(),lesspair);
+
+    double angledif[atr];
+    for(int i = 0; i< atr-1;i++){
+        angledif[i] = angle.at(i+1).second - angle.at(i).second;
+    } 
+    angledif[atr-1] = 2* M_PI - angle.at(atr-1).second + angle.at(0).second  ;
+    int maxindex = 0;
+    double max = angledif[0];
+    for(int i = 0 ;i < atr;i++){
+        if(angledif[i] > max){
+            maxindex = i;
+            max = angledif[i];
+        }    
+    }
+    int order[atr];
+    double angledif2[atr];
+    int j = 0;
+    for(int i = maxindex; i < atr; i++ ){
+        order[j] = angle.at(i).first;
+        angledif2[j] = angledif[i]; 
+        j++;
+    }
+    for(int i = 0;i < maxindex ;i++){
+        order[j] = angle.at(i).first;
+        angledif2[j] = angledif[i];
+        j++;
+    }
+    data->setOrder(order);
+
+    /*
     double** v2 =new double*[atr] ;
     for(int i = 0;i<atr;i++){
         v2[i] = new double[2];
@@ -172,13 +225,14 @@ void PCPPane::solveAngle(double** v,int atr){
         order[i] = c1.at(i).first;
     }
     data->setOrder(order);
- //   wxWindowList & children = GetChildren();
+    */
     int k = 0;   
     if(data->isLenVar){
         sumlength = 0;
         for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
                 PCPSub *current = (PCPSub *)node->GetData();
-                double l = acos(c1.at(k).second[0]* c1.at(k+1).second[0] + c1.at(k).second[1]* c1.at(k+1).second[1]);
+                //double l = acos(c1.at(k).second[0]* c1.at(k+1).second[0] + c1.at(k).second[1]* c1.at(k+1).second[1]);
+                double l =  angledif2[k];
                 current->setLength(sumlength,l);
                 int lindex = data->order[k];
                 int rindex = data->order[k+1];
@@ -224,9 +278,10 @@ void PCPSub::mouseMoved(wxMouseEvent& event) {
             vector<double> v;
             v.push_back(from);
             v.push_back(to);
-            data->setSIndex(atr,v);
-            auto parent = GetGrandParent()->GetParent();
-            parent->Refresh(); 
+            PCPPane* parent = (PCPPane* ) GetParent();  
+            data->setSIndex(atr,v,parent->clickid);
+            auto grandparent = GetGrandParent()->GetParent();
+            grandparent->Refresh(); 
             iscalc =false;
         }
     }
@@ -273,6 +328,8 @@ void PCPSub::mouseWheelMoved(wxMouseEvent& event) {}
 void PCPSub::mouseReleased(wxMouseEvent& event) {
     isclicked = false;
     isdruged = false;
+    PCPPane* parent = (PCPPane* )GetParent();
+    parent->idplus();
 }
 void PCPSub::rightClick(wxMouseEvent& event) {}
 void PCPSub::mouseLeftWindow(wxMouseEvent& event) {}
@@ -281,6 +338,7 @@ PCPSub::PCPSub(wxWindow* parent,int l, ReadData* d, int size) :
     wxGLCanvas(parent, wxID_ANY, NULL, wxPoint(0,l*size), wxSize(590,size), wxFULL_REPAINT_ON_RESIZE) //wxsize あとで変更
 {
     m_context = new wxGLContext(this);
+   //  GLenum err = glewInit();
     data = d;
     length = 1; 
     prelength = l;
@@ -384,7 +442,7 @@ void PCPSub::render(wxPaintEvent& evt)
 
         }
     }
-    vector< list<int> > cluster = data->getCluster();
+    vector< S_Cluster > cluster = data->getCluster();
     list<int> notselected = data->getNSIndex();
     
 
@@ -399,9 +457,10 @@ void PCPSub::render(wxPaintEvent& evt)
         glLineWidth(2);
         glBegin(GL_LINES);
         for(auto ls:cluster){
-            //色は後で調整　クラスターごとに変えたい    
-            glColor4f(0.8f,0.3f,0.6f,1.0f);
-            for(int i: ls) {
+            //色は後で調整　クラスターごとに変えたい  
+            RGB rgb = ls.rgb;  
+            glColor4f(rgb.r,rgb.g,rgb.b,1.0f);
+            for(int i: ls.index) {
                 draw(i,height);
             }
         }

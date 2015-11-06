@@ -101,5 +101,6 @@ private:
 	int yfrom;
 	int xto;
 	int yto;
+	int clickid;
 };
 #endif

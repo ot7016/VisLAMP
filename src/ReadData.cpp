@@ -55,6 +55,7 @@ ReadData::ReadData(){
   for(int i = 0;i<atr;i++){
     order[i] = i;
   }
+  lastclickid = -1;
 
 }
 ReadData::~ReadData(){
@@ -87,14 +88,11 @@ void ReadData::readevalue(string dir){
     cerr << "evalue失敗" << endl;
      exit(1);
   }  
-  double nums1[dim];
 
   evalue = new double[dim];
   fs2.seekg(0);
-  fs2.read((char*) nums1, sizeof (double)* dim);
-  for(int i = 0; i< dim ;i++){
-  	evalue[i] = nums1[i];
-  }
+  fs2.read((char*) evalue, sizeof (double)* dim);
+  
   if(isPCA){
     fstream fs3(dir+"-evector.dat",ios::in | ios::binary);
     if (!fs2){
@@ -252,7 +250,7 @@ vector<std::pair<int, int> > ReadData::getEdge(){
 void ReadData::turnLenVar(){
   isLenVar= !isLenVar;
 }
-vector<list<int> > ReadData::getCluster(){
+vector<S_Cluster > ReadData::getCluster(){
   return cluster;
 }
 
@@ -267,32 +265,63 @@ list<int> ReadData::getNSIndex(){
 void ReadData::setSIndex(int i){
   list<int> selected;
   selected.push_back(i);
-  cluster.push_back(selected);
+  RGB rgb = setColor();
+  cluster.push_back(S_Cluster(selected,rgb));
   notselectedindex.remove(i);
 }
 
-void ReadData::setSIndex(int j, vector<double> v){
+void ReadData::setSIndex(int j, vector<double> v, int clickid){
   list<int> selected;
   sort(v.begin(),v.end());
   for(int i = 0;i < num;i++){
     if( D[i][j] > v.at(0) && D[i][j] < v.at(1) )
       selected.push_back(i);
   }
-  cluster.push_back(selected);
+
+  if(clickid == lastclickid){
+    if(cluster.back().index.size() > selected.size()){
+      cluster.pop_back();
+      repairNIndex();
+    }
+    else  cluster.pop_back();
+  }
+    RGB rgb = setColor();
+  cluster.push_back(S_Cluster(selected, rgb));
   for(int i : selected){
     notselectedindex.remove(i);     
   }
+  lastclickid = clickid;
 }
 //リストで実装し直すか?
-void ReadData::setSIndex(list<int> v){
-  cluster.push_back(v);
+void ReadData::setSIndex(list<int> v,int clickid){
+
+  if(clickid == lastclickid){
+    if(cluster.back().index.size() > v.size()){
+       cluster.pop_back();
+      repairNIndex();
+    }
+    else  cluster.pop_back();
+  }
+    RGB rgb = setColor();
+  cluster.push_back(S_Cluster(v, rgb));
  // auto ite ;
     for(int i:v){
       notselectedindex.remove(i);     
     }
-  
+  lastclickid = clickid;
 }
 
+void ReadData::repairNIndex(){
+  notselectedindex.clear();
+  for(int i = 0;i < num;i++){
+    notselectedindex.push_back(i);
+  }
+  for(auto c: cluster){
+    for(int i: c.index){
+      notselectedindex.remove(i);
+    }
+  }
+}
 //複数の選択グループを全部解除  場合によっては既存の関数と統合
 void ReadData::resetselected(){
   cluster.clear();
@@ -320,4 +349,41 @@ bool ReadData::containSelectedCood(int a){
   }
   return false;
 }
+RGB ReadData::setColor(){
+  //とりあえずこれで40色
+  int size = cluster.size();
+  float hue = size / 20.0;
+  if(size >= 10){
+    hue = hue - 0.975;
+  }
+  HSV hsv =  HSV(hue,0.7,0.7) ;
+  return  HSVtoRGB(hsv);
+} 
+
+RGB ReadData::HSVtoRGB(HSV& hsv ){
+    const float h = hsv.h;
+    const float s = hsv.s;
+    const float v = hsv.v;
+    const float hueF = h * 6.0f;
+    const int hueI = static_cast<int>(hueF);
+    const float fr = hueF - hueI;
+    const float m = v * (1.0f-s);
+    const float n = v * (1.0f-s*fr);
+    const float p = v * (1.0f-s*(1.0f-fr));
+
+    RGB rgb;
+
+    switch(hueI)
+    {
+      case 0: rgb.r = v; rgb.g = p; rgb.b = m; break;
+      case 1: rgb.r = n; rgb.g = v; rgb.b = m; break;
+      case 2: rgb.r = m; rgb.g = v; rgb.b = p; break;
+      case 3: rgb.r = m; rgb.g = n; rgb.b = v; break;
+      case 4: rgb.r = p; rgb.g = m; rgb.b = v; break;
+      default: rgb.r = v; rgb.g = m; rgb.b = n; break;
+    }
+
+    return rgb;
+  }
+
 

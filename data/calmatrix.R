@@ -132,6 +132,19 @@ readspidpca <- function(){
     close(wt)
     calpca(t2,"spid-pca/spid")
 }
+readbikepca <- function(){
+	t <- read.csv("bike-pca/day.csv",header = T)
+    t2 <- t[,3:16]  #全部表示すると潰れてしまうので今はこれで
+    t1 <- t[,2]
+    t3 <- as.double(t(as.matrix(t2)))
+    write.csv(colnames(t)[3:53],"bike-pca/bike-atrname.csv",quote = FALSE,row.names = FALSE)
+    write.csv(t1,"bike-pca/bike-name.csv",quote = FALSE,row.names = FALSE)
+    wt = file("bike-pca/bike-original.dat","wb")
+    writeBin(t3,wt)
+    close(wt)
+    calpca(t2,"bike-pca/bike")
+
+}
 
 #thrは 閾値
 readcars<- function(thr = 0){

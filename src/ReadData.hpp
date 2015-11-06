@@ -8,6 +8,7 @@
 #include <tuple>
 #include <list>
 #include "TSP.hpp"
+//#include "Color.hpp"
 
 #ifndef rdata 
 #define rdata 
@@ -16,6 +17,29 @@ using namespace std;
 #define STATUS_OK 0
 #define STATUS_ERROR 1
 #define STATUS_NO_DISK_SPACE 2
+
+struct RGB{
+    RGB(){}
+    RGB( float r_, float g_, float b_ ) : r(r_),g(g_),b(b_){}
+    float r,g,b;  // [0.0f, 1.0f]
+  };
+
+  struct HSV
+  {
+    HSV(){}
+    HSV( float h_, float s_, float v_ ) : h(h_),s(s_),v(v_){}
+    float h;  // ... 0°==0.0f, 360°==1.0f ...
+    float s,v;  // [0.0f, 1.0f]
+  };
+  struct S_Cluster{
+	S_Cluster(){}
+	S_Cluster(list<int> i,RGB r):rgb(r),index(i){}
+	RGB rgb;
+	list<int> index;
+
+};
+
+
 
 class ReadData{
 	public:
@@ -32,16 +56,19 @@ class ReadData{
 	void setOrder(int* o);
 	void turnLenVar();
 	vector<pair<int,int> > getEdge();
-	vector<list<int> > getCluster();
+	vector<S_Cluster > getCluster();
 	vector<int> getFIndex();
 	list<int> getNSIndex();
 	void setSIndex(int i);
-	void setSIndex(int j, vector<double> v);
-	void setSIndex(list<int> v);
+	void setSIndex(int j, vector<double> v, int clickid);
+	void setSIndex(list<int> v,int clickid);
+	void repairNIndex();
 	void setCoodSelected();
 	void setCood(int l,bool u);
 	bool containSelectedCood(int a);
 	void resetselected();
+	RGB HSVtoRGB(HSV& hsv );
+	RGB setColor();
 	double* A;
 	//double* alldist;
 	double *evalue;
@@ -56,15 +83,15 @@ class ReadData{
 	int* order;
 	int selectedorder;
 	//色をどのように決めるかが最大の問題　色はクラスターごとに一意であるべき
-	vector<list<int> > cluster;
-
+	vector<S_Cluster > cluster;
+	//std::vector<list<int> > cluster;
 	private:
 		const int DIST_SIZE = 2000;
 		double thr ;
-		//std::string dir;
 		vector<int> filterindex;
 		vector<pair<int,int> > edge;
-		vector<int> selectedindex;
 		list<int> notselectedindex;
+		int lastclickid;
+
 };
 #endif
