@@ -5,7 +5,6 @@
 //#ifdef __WXMAC__
 #include "OpenGL/glu.h"
 #include "OpenGL/gl.h"
-//#include <GL/glew.h>
 //#else
 //#include <GL/glu.h>
 //#include <GL/gl.h>
@@ -32,29 +31,53 @@ bool MyApp::OnInit()
     pcPanel->SetSizer(pcsizer);
     
     glPane = new AGIPane( (wxWindow*)mainPanel, args,data,pcPane,md); 
-    wxGridSizer* sizer2 = new wxGridSizer(10,1,30,100);
+    wxGridSizer* sizer2 = new wxGridSizer(15,1,20,100);
     //パネルを生成、場合によっては拡張
     wxPanel* ctlPanel = new wxPanel((wxPanel*) mainPanel,wxID_ANY);
-    button1 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"軸間の距離:可変");
-    button2 = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"軸間距離:角度");
-    wxButton* undobutton = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"Undo");
+
+    wxPanel* P1 = new wxPanel((wxPanel*) ctlPanel,wxID_ANY);
+     wxBoxSizer* P1sizer = new wxBoxSizer(wxHORIZONTAL);
+     wxStaticText* text1 = new wxStaticText((wxPanel*) P1,wxID_ANY,"軸間の距離");
+    wxRadioButton *rb1 = new wxRadioButton((wxPanel*) P1, -1, wxT("可変"),wxDefaultPosition,wxDefaultSize, wxRB_GROUP);
+    rb1->SetValue(true);
+    wxRadioButton *rb2 = new wxRadioButton((wxPanel*) P1, -1, wxT("固定"));
+    rb1->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio1clicked),NULL,this);
+    rb2->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio2clicked),NULL,this);
+    P1sizer->Add(text1);
+    P1sizer->Add(rb1);
+    P1sizer->Add(rb2);
+    P1->SetSizer(P1sizer);
+    P1->SetAutoLayout(true);
+    wxPanel* P2 = new wxPanel((wxPanel*) ctlPanel,wxID_ANY);
+     wxBoxSizer* P2sizer = new wxBoxSizer(wxHORIZONTAL);
+     wxStaticText* text2 = new wxStaticText((wxPanel*) P2,wxID_ANY,"軸間距離");
+    wxRadioButton *rb3 = new wxRadioButton((wxPanel*) P2, -1, wxT("巡回路"),wxDefaultPosition,wxDefaultSize, wxRB_GROUP);
+  
+    wxRadioButton *rb4 = new wxRadioButton((wxPanel*) P2, -1, wxT("角度"));
+    rb4->SetValue(true);
+    rb3->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio3clicked),NULL,this);
+    rb4->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio4clicked),NULL,this);
+    P2sizer->Add(text2);
+    P2sizer->Add(rb3);
+    P2sizer->Add(rb4);
+    P2->SetSizer(P2sizer);
+    P2->SetAutoLayout(true);
+    wxButton* undobutton = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"射影を戻す");
     wxButton* resetbutton = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"リセット");
-    wxButton* coodselectbutton = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"軸選択モード");
+    wxCheckBox* coodselectbox = new wxCheckBox((wxPanel*) ctlPanel,wxID_ANY,"軸選択モード");
+    coodselectbox-> Connect( wxEVT_CHECKBOX, wxCommandEventHandler(MyApp::coodselect),NULL, this);
     wxStaticText* pftext;
     pftext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"Projection Factor");
     slider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,50,0,400);
-    button1->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
-        wxCommandEventHandler(MyApp::buttonclicked),
-        NULL, this);
-    button2->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
-        wxCommandEventHandler(MyApp::buttonclicked2),
-        NULL, this);
+
+    wxStaticText* thrtext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"類似度の閾値");
+    thrslider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,data->thr*100,0,data->thr*200);
+  
+   
     undobutton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
         wxCommandEventHandler(MyApp::undobuttonclicked),
         NULL, this);
-    coodselectbutton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
-        wxCommandEventHandler(MyApp::coodselectbuttonclicked),
-        NULL, this);
+    
     resetbutton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
         wxCommandEventHandler(MyApp::resetbuttonclicked),
         NULL, this);
@@ -63,14 +86,19 @@ bool MyApp::OnInit()
     slider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
       wxCommandEventHandler(MyApp::getslider),
         NULL, this);
+    thrslider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
+      wxCommandEventHandler(MyApp::getthrslider),
+        NULL, this);
 
-    sizer2->Add(button1,1,wxEXPAND);
-    sizer2->Add(button2,1,wxEXPAND);
+    sizer2->Add(P1,1,wxEXPAND);
+    sizer2->Add(P2,1,wxEXPAND);
+    sizer2->Add(coodselectbox,1,wxEXPAND);
     sizer2->Add(undobutton,1,wxEXPAND);
-    sizer2->Add(coodselectbutton,1,wxEXPAND);
     sizer2->Add(resetbutton,1,wxEXPAND);
     sizer2->Add(pftext,1,wxEXPAND);
     sizer2->Add(slider,1,wxEXPAND);
+     sizer2->Add(thrtext,1,wxEXPAND);
+    sizer2->Add(thrslider,1,wxEXPAND);
     ctlPanel->SetSizer(sizer2);
     ctlPanel->SetAutoLayout(true);
 
@@ -87,41 +115,40 @@ bool MyApp::OnInit()
     frame->SetAutoLayout(true);
 
     frame->Show();
+    /*
     cerr << "VENDOR:   " << glGetString(GL_VENDOR)   << endl;
     cerr << "RENDERER: " << glGetString(GL_RENDERER) << endl;
     cerr << "VERSION:  " << glGetString(GL_VERSION)  << endl;
     cerr << "GLSL:     " << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl << endl;
-
+    */
     return true;
 } 
 
-void MyApp::buttonclicked(wxCommandEvent& WXUNUSED(event)){
-  data->turnLenVar();
-  if(data->isLenVar){
-        button1->SetLabelText("軸間距離:可変");
-  }
-  else {
-      button1->SetLabelText("軸間距離:固定");
-  }
+ void MyApp::radio1clicked(wxCommandEvent& event){
+   data->isLenVar = true;
+   //現在は長さの計算を描画のときにやってないので要対処
+   frame->Refresh();
+}
+void MyApp::radio2clicked(wxCommandEvent& event){
+   data->isLenVar = false;
+   frame->Refresh();
+}
+void MyApp::radio3clicked(wxCommandEvent& event){
+   data->isTSP = true;
+   frame->Refresh();
+}
+void MyApp::radio4clicked(wxCommandEvent& event){
+   data->isTSP = false;
+   frame->Refresh();
+}
 
-}
-void MyApp::buttonclicked2(wxCommandEvent& WXUNUSED(event)){
-  if(data->isTSP){
-    data->isTSP =  false;
-    button2->SetLabelText("軸間距離:角度");
-  }
-  else{ 
-    data->isTSP = true;
-    button2->SetLabelText("軸間距離:巡回路");
-  }
-  frame->Show();
-}
+
 void MyApp::undobuttonclicked(wxCommandEvent& WXUNUSED(event)){
   glPane->undo();
   frame->Show();
 }
 
-void MyApp::coodselectbuttonclicked(wxCommandEvent& WXUNUSED(event)){
+void MyApp::coodselect(wxCommandEvent& event){
   data->setCoodSelected();
 }
 void MyApp::resetbuttonclicked(wxCommandEvent& WXUNUSED(event)){
@@ -134,6 +161,12 @@ void MyApp::getslider(wxCommandEvent& WXUNUSED(event)){
     glPane->setdelta(d);
 
 }
+void MyApp::getthrslider(wxCommandEvent& WXUNUSED(event)){
+    double i =  thrslider->GetValue()/100.0;
+    data->recalEdge(i);  
+    frame->Refresh();
+}
+
 
 BEGIN_EVENT_TABLE(AGIPane, wxGLCanvas)
 EVT_MOTION(AGIPane::mouseMoved)
@@ -162,5 +195,7 @@ END_EVENT_TABLE()
 BEGIN_EVENT_TABLE(PCPBorder, wxGLCanvas)
 EVT_PAINT(PCPBorder::render)
 END_EVENT_TABLE()
+
+
 
 // some useful events to use 

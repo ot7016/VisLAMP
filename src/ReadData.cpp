@@ -186,7 +186,7 @@ void ReadData::readDist(string dir){
   double *dist;
   int len = DIST_SIZE;
   ifs.seekg(0);
-  //alldist = new double[aginum * aginum];
+  alldist = new double[aginum * aginum];
   dist = new double[len]; 
   int r = 0;
   while( (status == STATUS_OK) && (!ifs.eof())) {
@@ -196,7 +196,7 @@ void ReadData::readDist(string dir){
     for(int k = 0; k < to;k++){
       int i = (k + r*len)/ aginum;
       int j =( k + r*len) % aginum;
-    //  alldist[k +r * len] = dist[k];
+     alldist[k +r * len] = dist[k];
       if(i < j && dist[k] <  thr)
         edge.push_back(pair<int, int>(i,j));
     }
@@ -218,6 +218,16 @@ void ReadData::calEdge(){
       edge.push_back(pair<int,int>(i,j));
     }
     
+  }
+}
+void ReadData::recalEdge(double t){
+  edge.clear();
+  thr = t;
+  for(int k = 0; k < aginum*aginum; k++){
+    int i = k / aginum;
+    int j = k % aginum;
+    if(i< j && alldist[k] < thr)
+      edge.push_back(pair<int,int>(i,j));
   }
 }
 

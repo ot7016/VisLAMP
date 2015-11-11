@@ -50,6 +50,7 @@ class ReadData{
 	void readoriginal(string dir);
 	void readDist(string dir);
 	void calEdge();
+	void recalEdge(double t);
 	double getevector(int i, int j);
 	double getA(int i, int j);
 	void setOrder(TSPsolver* ts);
@@ -70,7 +71,7 @@ class ReadData{
 	RGB HSVtoRGB(HSV& hsv );
 	RGB setColor();
 	double* A;
-	//double* alldist;
+	double* alldist;
 	double *evalue;
 	double* evector;
 	bool isTSP, isPCA,isLenVar, isCoord;
@@ -82,12 +83,13 @@ class ReadData{
 	vector<string>  atrname;	
 	int* order;
 	int selectedorder;
+	double thr ;
 	//色をどのように決めるかが最大の問題　色はクラスターごとに一意であるべき
 	vector<S_Cluster > cluster;
 	//std::vector<list<int> > cluster;
 	private:
 		const int DIST_SIZE = 2000;
-		double thr ;
+		
 		vector<int> filterindex;
 		vector<pair<int,int> > edge;
 		list<int> notselectedindex;

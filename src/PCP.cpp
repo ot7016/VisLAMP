@@ -155,77 +155,18 @@ void PCPPane::solveAngle(double** v){
     int order[atr];
     double angledif2[atr];
     int j = 0;
-    for(int i = maxindex; i < atr; i++ ){
+    for(int i = maxindex+1; i < atr; i++ ){
         order[j] = angle.at(i).first;
         angledif2[j] = angledif[i]; 
         j++;
     }
-    for(int i = 0;i < maxindex ;i++){
+    for(int i = 0;i < maxindex+1 ;i++){
         order[j] = angle.at(i).first;
         angledif2[j] = angledif[i];
         j++;
     }
     data->setOrder(order);
 
-    /*
-    double** v2 =new double*[atr] ;
-    for(int i = 0;i<atr;i++){
-        v2[i] = new double[2];
-        double d = sqrt(pow(v[i][0],2)+pow(v[i][1],2));
-        v2[i][0] = v[i][0]/d;
-        v2[i][1] = v[i][1]/d;
-    }
-    vector<ipair> c1 ;
-    vector<ipair> c2;
-    vector<ipair> c3 ;
-    vector<ipair> c4;
-    //それぞれに場合分け
-    for(int i = 0;i < atr;i++){
-        if(v2[i][0]>0 && v2[i][1] >0)
-            c1.push_back(ipair(i,v2[i]));
-        else if(v2[i][0]>0 && v2[i][1] <0)
-            c2.push_back(ipair(i,v2[i]));
-        else if(v2[i][0]<0 && v2[i][1] <0)
-            c3.push_back(ipair(i,v2[i]));
-        else 
-            c4.push_back(ipair(i,v2[i]));
-    }
-    struct {
-        bool operator()(ipair& a,ipair& b){
-            return a.second[0] < b.second[0];
-        }
-    } xlesspair;
-    struct {
-        bool operator()(ipair& a,ipair& b){
-            return a.second[0] > b.second[0]; 
-            }  
-    }xgreaterpair;
-    struct {
-        bool operator()(ipair& a,ipair& b){
-            return a.second[1] < b.second[1];   
-        }
-    }ylesspair;
-    struct {
-        bool operator()(ipair& a,ipair& b){
-            return a.second[1] > b.second[1];       
-        }
-    }ygreaterpair;
-
-
-
-    sort(c1.begin(),c1.end(),ygreaterpair);
-    sort(c2.begin(),c2.end(),xgreaterpair);
-    sort(c3.begin(),c3.end(),ylesspair);
-    sort(c4.begin(),c4.end(),xlesspair);
-    copy(c2.begin(),c2.end(),back_inserter(c1));
-    copy(c3.begin(),c3.end(),back_inserter(c1));
-    copy(c4.begin(),c4.end(),back_inserter(c1));
-    int order[atr];
-    for(int i = 0;i< atr ;i++){
-        order[i] = c1.at(i).first;
-    }
-    data->setOrder(order);
-    */
     int k = 0;   
     if(data->isLenVar){
         sumlength = 0;

@@ -18,6 +18,7 @@
 //#include "wx/slider.h"
 #include "wx/stattext.h"
 #include "wx/glcanvas.h"
+#include "wx/radiobut.h"
 #include "AGI.hpp"
 #include "ReadData.hpp"
 #include "PCP.hpp"
@@ -31,18 +32,22 @@ class MyApp: public wxApp{
     AGIPane *glPane;
     PCPPane *pcPane;
     ReadData *data;
-    wxButton* button1;
-    wxButton* button2; 
     wxSlider *slider;
     MatrixView *md;
+     wxSlider* thrslider ;
 public:
-    void buttonclicked(wxCommandEvent& event);
-    void buttonclicked2(wxCommandEvent& event);
+    void radio1clicked(wxCommandEvent& event);
+    void radio2clicked(wxCommandEvent& event);
+    void radio3clicked(wxCommandEvent& event);
+    void radio4clicked(wxCommandEvent& event);
+
     void undobuttonclicked(wxCommandEvent& event);
     void resetbuttonclicked(wxCommandEvent& event);
-    void coodselectbuttonclicked(wxCommandEvent& event);
+    void coodselect(wxCommandEvent& event);
     void getslider(wxCommandEvent& event);
+    void getthrslider(wxCommandEvent& event);
 };
+ 
 
 IMPLEMENT_APP(MyApp);
 enum
