@@ -58,7 +58,7 @@ class ReadData{
 	void turnLenVar();
 	vector<pair<int,int> > getEdge();
 	vector<S_Cluster > getCluster();
-	vector<int> getFIndex();
+	list<int> getFIndex();
 	list<int> getNSIndex();
 	void setSIndex(int i);
 	void setSIndex(int j, vector<double> v, int clickid);
@@ -70,6 +70,7 @@ class ReadData{
 	void resetselected();
 	RGB HSVtoRGB(HSV& hsv );
 	RGB setColor();
+    void calDgCentrality(int dgthr);
 	double* A;
 	double* alldist;
 	double *evalue;
@@ -86,12 +87,15 @@ class ReadData{
 	double thr ;
 	//色をどのように決めるかが最大の問題　色はクラスターごとに一意であるべき
 	vector<S_Cluster > cluster;
+	list<int> filterindex;
+	vector<pair<int,int> > edge;
+	vector<pair<int,int> > filteredge;
 	//std::vector<list<int> > cluster;
 	private:
 		const int DIST_SIZE = 2000;
 		
-		vector<int> filterindex;
-		vector<pair<int,int> > edge;
+		
+
 		list<int> notselectedindex;
 		int lastclickid;
 

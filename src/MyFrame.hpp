@@ -35,6 +35,8 @@ class MyApp: public wxApp{
     wxSlider *slider;
     MatrixView *md;
      wxSlider* thrslider ;
+     wxSlider* vcslider;
+     int thr100;
 public:
     void radio1clicked(wxCommandEvent& event);
     void radio2clicked(wxCommandEvent& event);
@@ -46,6 +48,7 @@ public:
     void coodselect(wxCommandEvent& event);
     void getslider(wxCommandEvent& event);
     void getthrslider(wxCommandEvent& event);
+    void getvcslider(wxCommandEvent& event);
 };
  
 

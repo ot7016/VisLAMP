@@ -34,7 +34,6 @@ ReadData::ReadData(){
   getline(ifs,str);
   atr = stoi(str);
   getline(ifs,str);
-  
   if(str == "PCA"){
     isPCA =true;
     aginum = num;
@@ -167,6 +166,7 @@ void ReadData::readoriginal(string dir){
     }
   }
    for(int i = 0;i<num;i++){
+      filterindex.push_back(i);
       notselectedindex.push_back(i);
   }
 }
@@ -197,8 +197,10 @@ void ReadData::readDist(string dir){
       int i = (k + r*len)/ aginum;
       int j =( k + r*len) % aginum;
      alldist[k +r * len] = dist[k];
-      if(i < j && dist[k] <  thr)
+      if(i < j && dist[k] <  thr){
         edge.push_back(pair<int, int>(i,j));
+       filteredge.push_back(pair<int,int>(i,j));
+     }
     }
     r++;
   }
@@ -222,13 +224,21 @@ void ReadData::calEdge(){
 }
 void ReadData::recalEdge(double t){
   edge.clear();
+  filteredge.clear();
   thr = t;
   for(int k = 0; k < aginum*aginum; k++){
     int i = k / aginum;
     int j = k % aginum;
-    if(i< j && alldist[k] < thr)
+    if(i< j && alldist[k] < thr){
       edge.push_back(pair<int,int>(i,j));
+      filteredge.push_back(pair<int,int>(i,j));
+    }
   }
+  filterindex.clear();
+  for(int i = 0;i < num;i++){
+    filterindex.push_back(i);
+  }
+  repairNIndex();
 }
 
 double ReadData::getevector(int i, int j){
@@ -264,7 +274,7 @@ vector<S_Cluster > ReadData::getCluster(){
   return cluster;
 }
 
-vector<int>ReadData::getFIndex(){
+list<int>ReadData::getFIndex(){
   return filterindex;
 }
 
@@ -302,7 +312,9 @@ void ReadData::setSIndex(int j, vector<double> v, int clickid){
   }
   lastclickid = clickid;
 }
-//リストで実装し直すか?
+
+//フィルターを今までのリストとどう扱うかが問題
+
 void ReadData::setSIndex(list<int> v,int clickid){
 
   if(clickid == lastclickid){
@@ -323,7 +335,7 @@ void ReadData::setSIndex(list<int> v,int clickid){
 
 void ReadData::repairNIndex(){
   notselectedindex.clear();
-  for(int i = 0;i < num;i++){
+  for(int i: filterindex){
     notselectedindex.push_back(i);
   }
   for(auto c: cluster){
@@ -332,12 +344,49 @@ void ReadData::repairNIndex(){
     }
   }
 }
+
+void ReadData::calDgCentrality(int dgthr){
+  filterindex.clear();
+  filteredge.clear();
+  int vc[num];
+  for(int i = 0;i < num;i++){
+    vc[i] = 0;
+  }
+  for(pair<int,int> e :edge){
+    int i = e.first;
+    int j = e.second;
+    vc[i]++;
+    vc[j]++; 
+  }
+  bool filter[num];
+  for(int i = 0;i< num;i++ ){
+    if(vc[i] >= dgthr){
+      filterindex.push_back(i);
+      filter[i] = true;
+    }
+    else filter[i] = false;
+  }
+  //filterindexに入っていないものは描かないようにする。辺をどう減らすか?
+  for(pair<int,int>e: edge){
+    int i = e.first;
+    int j = e.second;
+    if(filter[i]&& filter[j])
+      filteredge.push_back(e);
+  }
+  repairNIndex();
+}
 //複数の選択グループを全部解除  場合によっては既存の関数と統合
 void ReadData::resetselected(){
   cluster.clear();
   notselectedindex.clear();
+  filterindex.clear();
+  filteredge.clear();
   for(int i = 0; i < num;i++){
     notselectedindex.push_back(i);
+    filterindex.push_back(i);
+  }
+  for(pair<int,int>p:edge){
+    filteredge.push_back(p);
   }
 }
 
@@ -359,13 +408,14 @@ bool ReadData::containSelectedCood(int a){
   }
   return false;
 }
+
+
+
 RGB ReadData::setColor(){
-  //とりあえずこれで40色
+  //とりあえずこれで49色
   int size = cluster.size();
-  float hue = size / 20.0;
-  if(size >= 10){
-    hue = hue - 0.975;
-  }
+  float hue = (size % 10 )* 0.1 + size/ 50.0;
+  
   HSV hsv =  HSV(hue,0.7,0.7) ;
   return  HSVtoRGB(hsv);
 } 

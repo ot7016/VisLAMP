@@ -493,7 +493,7 @@ void PCPBorder::render(wxPaintEvent& evt)
         glEnd();
         glRasterPos2d(xright+10,12);
         string str = data->atrname.at(atr);
-            std::cerr << str<< std::endl;
+       //     std::cerr << str<< std::endl;
         int size = (int)str.size();
         for(int j = 0;j< size;j++){
             char ic = str[j];

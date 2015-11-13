@@ -72,23 +72,23 @@ bool MyApp::OnInit()
 
     wxStaticText* thrtext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"類似度の閾値");
     thrslider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,data->thr*100,0,data->thr*200);
-  
+    thr100 = data->thr*100;
+    wxStaticText* vctext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"V-Centrality");
+    int avevc =  data->getEdge().size()*2 / data->num;
+    vcslider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,0,0,avevc*200);
    
     undobutton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
-        wxCommandEventHandler(MyApp::undobuttonclicked),
-        NULL, this);
+        wxCommandEventHandler(MyApp::undobuttonclicked),NULL, this);
     
     resetbutton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
-        wxCommandEventHandler(MyApp::resetbuttonclicked),
-        NULL, this);
+        wxCommandEventHandler(MyApp::resetbuttonclicked),NULL, this);
     
-
     slider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
-      wxCommandEventHandler(MyApp::getslider),
-        NULL, this);
+      wxCommandEventHandler(MyApp::getslider),NULL, this);
     thrslider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
-      wxCommandEventHandler(MyApp::getthrslider),
-        NULL, this);
+      wxCommandEventHandler(MyApp::getthrslider),NULL, this);
+    vcslider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
+      wxCommandEventHandler(MyApp::getvcslider),NULL, this);
 
     sizer2->Add(P1,1,wxEXPAND);
     sizer2->Add(P2,1,wxEXPAND);
@@ -97,8 +97,10 @@ bool MyApp::OnInit()
     sizer2->Add(resetbutton,1,wxEXPAND);
     sizer2->Add(pftext,1,wxEXPAND);
     sizer2->Add(slider,1,wxEXPAND);
-     sizer2->Add(thrtext,1,wxEXPAND);
+    sizer2->Add(thrtext,1,wxEXPAND);
     sizer2->Add(thrslider,1,wxEXPAND);
+    sizer2->Add(vctext,1,wxEXPAND);
+    sizer2->Add(vcslider,1,wxEXPAND);
     ctlPanel->SetSizer(sizer2);
     ctlPanel->SetAutoLayout(true);
 
@@ -153,6 +155,8 @@ void MyApp::coodselect(wxCommandEvent& event){
 }
 void MyApp::resetbuttonclicked(wxCommandEvent& WXUNUSED(event)){
   data->resetselected();
+  thrslider->SetValue(thr100);
+  vcslider->SetValue(0);
   frame->Refresh();
 }
 
@@ -163,7 +167,13 @@ void MyApp::getslider(wxCommandEvent& WXUNUSED(event)){
 }
 void MyApp::getthrslider(wxCommandEvent& WXUNUSED(event)){
     double i =  thrslider->GetValue()/100.0;
-    data->recalEdge(i);  
+    data->recalEdge(i); 
+    vcslider->SetValue(0); 
+    frame->Refresh();
+}
+void MyApp::getvcslider(wxCommandEvent& WXUNUSED(event)){
+    double i =  vcslider->GetValue()/100.0;
+    data->calDgCentrality(i);  
     frame->Refresh();
 }
 

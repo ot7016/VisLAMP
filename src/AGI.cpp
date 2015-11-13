@@ -289,7 +289,7 @@ void AGIPane::calRange(int x2, int y2){
     sort(x.begin(),x.end());
     sort(y.begin(),y.end());
     std::list<int> selected;
- 	for(int i = 0;i< data->num;i++){
+ 	for(int i : data->filterindex){
  		double a = ag->getB(i,0);
  		double b = ag->getB(i,1);
  		if(a > x.at(0) && a < x.at(1)){
@@ -436,7 +436,7 @@ int AGIPane::getindex(double x, double y){
     double x2 = (x - getWidth()/2) /xrate;
     double y2 = (y - getHeight()/2) /yrate;
 
-    for(int i = 0;i< data->aginum;i++){
+    for(int i :data->filterindex){
         d = sqrt(pow(ag->getB(i, 0)-x2, 2)+pow(ag->getB(i, 1)-y2, 2));
         if(d < minnow){
             minnow = d;
@@ -492,7 +492,7 @@ void AGIPane::render(wxPaintEvent& evt)
     glColor4f(0.2f, 0.4f, 0.7f, 0.3f);
 	glBegin(GL_LINES);
 	glLineWidth(1);
-	std::vector<std::pair<int,int> > edge = data->getEdge();
+	std::vector<std::pair<int,int> > edge = data->filteredge;
 	for(int i = 0;i< edge.size();i++){
 		int n1 = edge.at(i).first;
 		int n2 = edge.at(i).second;
