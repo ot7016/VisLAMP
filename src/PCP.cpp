@@ -34,7 +34,25 @@ PCPPane::PCPPane(wxWindow* parent, int* args,ReadData* d,PCPBorder* l) :
 PCPPane::~PCPPane(){
     delete[] rate;
 }
+　
+//dataを読み込んだあとの再描画
+void PCPPane::ReCreate(){
+    DestroyChildren();
 
+    clickid = 1;
+    int atr = data->atr;
+    wxSizer* sizer = GetSizer();
+    sumlength = atr-1;
+    int len = getHeight()/(atr-1);
+    
+    for(int i = 0 ;i< atr-1;i++){
+        PCPSub* sub =  new PCPSub(this,i,data,len);
+        sub->setSumLength(sumlength,getHeight());
+        sizer->Add(sub);
+    }
+    setRate(); 
+    last->setLastIndex(atr-1);
+}
 int PCPPane::getWidth()
 {
     return GetSize().x;

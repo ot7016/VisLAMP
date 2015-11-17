@@ -25,6 +25,11 @@ Agi::~Agi(){
 	delete[] B;
 	delete[] v;
 }
+void Agi::ReCreate(){
+	calprj();
+	cal2Mtr();
+	delta = 0.5;
+}
 
 double Agi::getB(int i,int j){
 	return B[2*  i +j];
@@ -225,6 +230,22 @@ AGIPane::~AGIPane(){
     delete m_context;
     delete[] _pre;
     delete[] _new;
+}
+void AGIPane::ReCreate(){
+    ag->ReCreate();
+    _pre = new double[2];
+    _new = new double[2];
+    nowindex = -1;
+    isMoved = false;
+    isDrug = false;
+    iscalc = false;
+    rangeselect =false;
+    xfrom = -1;
+    xto = -1;
+    yfrom = -1;
+    yto = -1;
+    clickid = 0;
+    setRate();
 }
 
 void AGIPane::mouseDown(wxMouseEvent& event) {

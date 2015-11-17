@@ -28,6 +28,7 @@
 	public:
 		Agi(ReadData* d);
 		virtual ~Agi();
+		void ReCreate();
 		void calprj();
 		void cal2Mtr() ;
 		int refine(double* _pre, double* _new,int index);
@@ -63,6 +64,7 @@
 	public:
 		AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p,MatrixView* m);
 		virtual ~AGIPane();
+		void ReCreate();
 		void resized(wxSizeEvent& evt);
 		int getWidth();
 		int getHeight();

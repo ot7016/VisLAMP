@@ -7,6 +7,8 @@
 #include <math.h>
 #include <tuple>
 #include <list>
+#include <sys/types.h>
+#include <dirent.h>
 #include "TSP.hpp"
 //#include "Color.hpp"
 
@@ -45,7 +47,10 @@ class ReadData{
 	public:
 		ReadData();
 		~ReadData();
-	void read(string dir);
+	void read(int id);
+	void readfname();
+	void readsetting(string dir);
+	void readcood(string dir);
 	void readevalue(string dir);
 	void readoriginal(string dir);
 	void readDist(string dir);
@@ -71,6 +76,7 @@ class ReadData{
 	RGB HSVtoRGB(HSV& hsv );
 	RGB setColor();
     void calDgCentrality(int dgthr);
+    void clearall();
 	double* A;
 	double* alldist;
 	double *evalue;
@@ -91,6 +97,7 @@ class ReadData{
 	vector<pair<int,int> > edge;
 	vector<pair<int,int> > filteredge;
 	//std::vector<list<int> > cluster;
+	vector<string> dataname;
 	private:
 		const int DIST_SIZE = 2000;
 		

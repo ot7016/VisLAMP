@@ -19,6 +19,8 @@
 #include "wx/stattext.h"
 #include "wx/glcanvas.h"
 #include "wx/radiobut.h"
+#include "wx/filedlg.h"
+#include <wx/wfstream.h>
 #include "AGI.hpp"
 #include "ReadData.hpp"
 #include "PCP.hpp"
@@ -27,6 +29,7 @@
 
 class MyApp: public wxApp{
     virtual bool OnInit();
+    void ReCreate();
  
     wxFrame *frame;
     AGIPane *glPane;
@@ -49,6 +52,7 @@ public:
     void getslider(wxCommandEvent& event);
     void getthrslider(wxCommandEvent& event);
     void getvcslider(wxCommandEvent& event);
+    void openfile(wxCommandEvent& event);
 };
  
 

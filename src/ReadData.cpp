@@ -15,14 +15,72 @@ dim 高次元配置の次元数
 ****/
 
 ReadData::ReadData(){
-	ifstream ifs("../data/input.txt");
-	if (ifs.fail()){
+	readfname();
+  read(1);
+}
+ReadData::~ReadData(){
+  delete[] A;
+  delete[] D;
+  delete[] evector;
+  delete[] order;
+  delete[] evalue;
+  }
+
+
+void ReadData::readfname(){
+  unsigned char isFolder =0x4;
+  //DIR* Dir;
+  struct dirent *DirEntry;
+  DIR* dir = opendir("../data/");
+  while(DirEntry =readdir(dir)){
+   //cout << DirEntry->d_name;
+   if ( DirEntry->d_type == isFolder)
+   {
+    char* folder = DirEntry->d_name;
+    if(folder[0] != '.'){
+  cout <<"Found a Directory : " <<folder << endl;
+  dataname.push_back(folder);
+}
+   }
+}
+  closedir(dir);
+}
+
+void ReadData::clearall(){
+  delete[] A;
+  delete[] D;
+  delete[] evector;
+  delete[] order;
+  delete[] evalue;
+  name.clear();
+  name.shrink_to_fit();
+  atrname.clear();
+  atrname.shrink_to_fit();
+  cluster.clear();
+  cluster.shrink_to_fit();
+  filterindex.clear();
+  edge.clear();
+  edge.shrink_to_fit();
+  filteredge.clear(); 
+  filteredge.shrink_to_fit(); 
+  notselectedindex.clear();
+}
+void ReadData::read(int id){
+   string d = dataname.at(id);
+  string dir = "../data/" + d +"/"+ d;
+  readsetting(dir);
+  readcood(dir);
+  readevalue(dir);
+  readDist(dir);
+  readoriginal(dir);
+}
+
+void ReadData::readsetting(string dir){
+  ifstream ifs(dir+ "-input.txt");
+  if (ifs.fail()){
         cerr << "失敗" << endl;
         exit(1);
     }
-    string dir;
-	getline(ifs,dir);
-    cerr << dir << endl;
     string str;
   
   getline(ifs,str);
@@ -46,28 +104,14 @@ ReadData::ReadData(){
   isTSP = false;
   isLenVar = true;
   isCoord =false;
-	read(dir);	
-  readevalue(dir);
-  readDist(dir);
-  readoriginal(dir);
   order = new int[atr];
   for(int i = 0;i<atr;i++){
     order[i] = i;
   }
   lastclickid = -1;
-
 }
-ReadData::~ReadData(){
-  delete[] A;
-  delete[] D;
-  delete[] evector;
-  delete[] order;
-  delete[] evalue;
-  }
 
-void ReadData::read(string dir){
-	
-	
+void ReadData::readcood(string dir){	
 	//ここでAを動的確保
 	//Aの読み取り
 	fstream fs(dir+"-cood.dat",ios::in | ios::binary);

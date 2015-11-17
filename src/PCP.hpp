@@ -24,6 +24,7 @@ class PCPBorder: public wxGLCanvas
 public:
 	PCPBorder(wxWindow* parent,bool b,ReadData* d, int size);
 	void setLastIndex(int i);
+	void ReCreate();
 	int getWidth();   
 	int getHeight(); 
 	void prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y);  
@@ -41,6 +42,7 @@ class PCPPane: public wxPanel{
 public:
 	PCPPane(wxWindow* parent, int* args, ReadData* d,PCPBorder* l);
 	virtual ~PCPPane();
+	void ReCreate();
 	int getWidth();   
 	int getHeight();  
 	void solveTSP(double** v, int atr);   
