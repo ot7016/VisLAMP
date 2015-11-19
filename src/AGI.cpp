@@ -208,7 +208,13 @@ AGIPane::AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p, MatrixView
     data = d;
     ag = new Agi(d);
     pcp = p;
-    _pre = new double[2];
+   Setting();
+    // To avoid flashing on MSW
+    SetBackgroundStyle(wxBG_STYLE_CUSTOM);
+}
+ 
+void AGIPane::Setting(){
+	_pre = new double[2];
     _new = new double[2];
     nowindex = -1;
     isMoved = false;
@@ -221,11 +227,7 @@ AGIPane::AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p, MatrixView
     yto = -1;
     clickid = 0;
     setRate();
-
-    // To avoid flashing on MSW
-    SetBackgroundStyle(wxBG_STYLE_CUSTOM);
-}
- 
+} 
 AGIPane::~AGIPane(){
     delete m_context;
     delete[] _pre;
@@ -233,19 +235,7 @@ AGIPane::~AGIPane(){
 }
 void AGIPane::ReCreate(){
     ag->ReCreate();
-    _pre = new double[2];
-    _new = new double[2];
-    nowindex = -1;
-    isMoved = false;
-    isDrug = false;
-    iscalc = false;
-    rangeselect =false;
-    xfrom = -1;
-    xto = -1;
-    yfrom = -1;
-    yto = -1;
-    clickid = 0;
-    setRate();
+    Setting();
 }
 
 void AGIPane::mouseDown(wxMouseEvent& event) {

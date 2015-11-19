@@ -65,6 +65,7 @@
 		AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p,MatrixView* m);
 		virtual ~AGIPane();
 		void ReCreate();
+		void Setting();
 		void resized(wxSizeEvent& evt);
 		int getWidth();
 		int getHeight();

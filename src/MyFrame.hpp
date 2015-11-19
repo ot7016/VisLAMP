@@ -7,7 +7,7 @@
 #include <sstream>
 #include <iostream>
 
-//#include <vecLib/vecLib.h>
+
 
 #include <wx/wxprec.h>
 //#ifndef WX_PRECOMP
@@ -19,12 +19,11 @@
 #include "wx/stattext.h"
 #include "wx/glcanvas.h"
 #include "wx/radiobut.h"
-#include "wx/filedlg.h"
-#include <wx/wfstream.h>
 #include "AGI.hpp"
 #include "ReadData.hpp"
 #include "PCP.hpp"
 #include "MatrixView.hpp"
+#include "HistView.hpp"
 
 
 class MyApp: public wxApp{
@@ -37,9 +36,14 @@ class MyApp: public wxApp{
     ReadData *data;
     wxSlider *slider;
     MatrixView *md;
-     wxSlider* thrslider ;
+    HistView* histview ;
+    // wxSlider* thrslider ;
      wxSlider* vcslider;
      int thr100;
+     wxRadioButton* rb1;
+     wxRadioButton* rb2;
+     wxRadioButton* rb3;
+     wxRadioButton* rb4;
 public:
     void radio1clicked(wxCommandEvent& event);
     void radio2clicked(wxCommandEvent& event);

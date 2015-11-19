@@ -33,16 +33,17 @@ bool MyApp::OnInit()
     pcPanel->SetSizer(pcsizer);
     
     glPane = new AGIPane( (wxWindow*)mainPanel, args,data,pcPane,md); 
-    wxGridSizer* sizer2 = new wxGridSizer(15,1,20,100);
+    wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
+    //wxGridSizer* sizer2 = new wxGridSizer(15,1,20,100);
     //パネルを生成、場合によっては拡張
     wxPanel* ctlPanel = new wxPanel((wxPanel*) mainPanel,wxID_ANY);
 
     wxPanel* P1 = new wxPanel((wxPanel*) ctlPanel,wxID_ANY);
      wxBoxSizer* P1sizer = new wxBoxSizer(wxHORIZONTAL);
      wxStaticText* text1 = new wxStaticText((wxPanel*) P1,wxID_ANY,"軸間の距離");
-    wxRadioButton *rb1 = new wxRadioButton((wxPanel*) P1, -1, wxT("可変"),wxDefaultPosition,wxDefaultSize, wxRB_GROUP);
+    rb1 = new wxRadioButton((wxPanel*) P1, -1, wxT("可変"),wxDefaultPosition,wxDefaultSize, wxRB_GROUP);
     rb1->SetValue(true);
-    wxRadioButton *rb2 = new wxRadioButton((wxPanel*) P1, -1, wxT("固定"));
+    rb2 = new wxRadioButton((wxPanel*) P1, -1, wxT("固定"));
     rb1->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio1clicked),NULL,this);
     rb2->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio2clicked),NULL,this);
     P1sizer->Add(text1);
@@ -53,9 +54,9 @@ bool MyApp::OnInit()
     wxPanel* P2 = new wxPanel((wxPanel*) ctlPanel,wxID_ANY);
      wxBoxSizer* P2sizer = new wxBoxSizer(wxHORIZONTAL);
      wxStaticText* text2 = new wxStaticText((wxPanel*) P2,wxID_ANY,"軸間距離");
-    wxRadioButton *rb3 = new wxRadioButton((wxPanel*) P2, -1, wxT("巡回路"),wxDefaultPosition,wxDefaultSize, wxRB_GROUP);
+    rb3 = new wxRadioButton((wxPanel*) P2, -1, wxT("巡回路"),wxDefaultPosition,wxDefaultSize, wxRB_GROUP);
   
-    wxRadioButton *rb4 = new wxRadioButton((wxPanel*) P2, -1, wxT("角度"));
+    rb4 = new wxRadioButton((wxPanel*) P2, -1, wxT("角度"));
     rb4->SetValue(true);
     rb3->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio3clicked),NULL,this);
     rb4->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio4clicked),NULL,this);
@@ -73,11 +74,12 @@ bool MyApp::OnInit()
     slider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,50,0,400);
 
     wxStaticText* thrtext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"類似度の閾値");
-    thrslider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,data->thr*100,0,data->thr*200);
+    //thrslider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,data->thr*100,0,data->thr*200);
     thr100 = data->thr*100;
     wxStaticText* vctext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"V-Centrality");
     int avevc =  data->getEdge().size()*2 / data->num;
     vcslider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,0,0,avevc*200);
+    histview = new HistView((wxPanel*) ctlPanel,vcslider,data);
    
     undobutton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
         wxCommandEventHandler(MyApp::undobuttonclicked),NULL, this);
@@ -87,11 +89,13 @@ bool MyApp::OnInit()
     
     slider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
       wxCommandEventHandler(MyApp::getslider),NULL, this);
+    /*
     thrslider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
       wxCommandEventHandler(MyApp::getthrslider),NULL, this);
+    */
     vcslider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
       wxCommandEventHandler(MyApp::getvcslider),NULL, this);
-
+    
     sizer2->Add(P1,1,wxEXPAND);
     sizer2->Add(P2,1,wxEXPAND);
     sizer2->Add(coodselectbox,1,wxEXPAND);
@@ -100,7 +104,8 @@ bool MyApp::OnInit()
     sizer2->Add(pftext,1,wxEXPAND);
     sizer2->Add(slider,1,wxEXPAND);
     sizer2->Add(thrtext,1,wxEXPAND);
-    sizer2->Add(thrslider,1,wxEXPAND);
+    sizer2->Add(histview,1,wxEXPAND);
+   // sizer2->Add(thrslider,1,wxEXPAND);
     sizer2->Add(vctext,1,wxEXPAND);
     sizer2->Add(vcslider,1,wxEXPAND);
     ctlPanel->SetSizer(sizer2);
@@ -143,141 +148,21 @@ bool MyApp::OnInit()
     glPane->ReCreate();
     pcPane->ReCreate();
     md->ReCreate();
-    thrslider->SetValue(data->thr*100);
-    thrslider->SetMin(0);
-    thrslider->SetMax(data->thr*200);
-    vcslider->SetValue(0);
-    vcslider->SetMin(0);
+    histview->ReCreate();
+    //thrslider->SetValue(data->thr*100);
+    //thrslider->SetMin(0);
+    //thrslider->SetMax(data->thr*200);
+    int vclen = vcslider->GetLineSize();
     int avevc =  data->getEdge().size()*2 / data->num;
-    vcslider->SetMax(avevc);
+    vcslider->SetRange(0,avevc);
+    vcslider->SetLineSize(vclen);
+    vcslider->SetValue(0);
+    rb1->SetValue(true);
+    rb4->SetValue(true);
     frame->Refresh();
     int j = 0 ;
  }
- /*
- void MyApp::Create(){
-  frame = new wxFrame((wxFrame *)NULL, -1, wxT("Pcoordagi"),wxPoint(0,50), wxSize(1500,1000));
-    wxMenuBar* menubar = new wxMenuBar();
-   wxMenu* menu1 = new wxMenu();
-   int k = 0;
-   for(string s:data->dataname){
-   menu1->Append(k, s, _T("Opens an existing file"));
-   //menu1->Append(wxID_SAVE, _T("&Save"), _T("Save the content"));
-   menu1->Bind(wxEVT_COMMAND_MENU_SELECTED,&MyApp::openfile,this,k) ;
-   k++;
-   }
-   menubar->Append(menu1, _T("&Data"));
-   frame->SetMenuBar(menubar);
-    wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-    int args[] = {WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0};
-    wxWindow* mainPanel = new wxWindow((wxFrame*) frame,wxID_ANY);
-    wxBoxSizer* mainsizer = new wxBoxSizer(wxVERTICAL);
-    md  = new MatrixView((wxFrame*) frame,data);
-    wxWindow* pcPanel = new wxWindow((wxWindow*)mainPanel,wxID_ANY);
-    PCPBorder* upper = new PCPBorder((wxWindow*) pcPanel,false,data,25);
-    PCPBorder* lower = new PCPBorder((wxWindow*) pcPanel,true,data,25);
-    pcPane = new PCPPane( (wxWindow*) pcPanel, args,data,lower);
-    wxBoxSizer* pcsizer = new wxBoxSizer(wxVERTICAL);
-    pcsizer->Add(upper);
-    pcsizer->Add(pcPane);
-    pcsizer->Add(lower);
-    pcPanel->SetSizer(pcsizer);
-    
-    glPane = new AGIPane( (wxWindow*)mainPanel, args,data,pcPane,md); 
-    wxGridSizer* sizer2 = new wxGridSizer(15,1,20,100);
-    //パネルを生成、場合によっては拡張
-    wxPanel* ctlPanel = new wxPanel((wxPanel*) mainPanel,wxID_ANY);
-
-    wxPanel* P1 = new wxPanel((wxPanel*) ctlPanel,wxID_ANY);
-     wxBoxSizer* P1sizer = new wxBoxSizer(wxHORIZONTAL);
-     wxStaticText* text1 = new wxStaticText((wxPanel*) P1,wxID_ANY,"軸間の距離");
-    wxRadioButton *rb1 = new wxRadioButton((wxPanel*) P1, -1, wxT("可変"),wxDefaultPosition,wxDefaultSize, wxRB_GROUP);
-    rb1->SetValue(true);
-    wxRadioButton *rb2 = new wxRadioButton((wxPanel*) P1, -1, wxT("固定"));
-    rb1->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio1clicked),NULL,this);
-    rb2->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio2clicked),NULL,this);
-    P1sizer->Add(text1);
-    P1sizer->Add(rb1);
-    P1sizer->Add(rb2);
-    P1->SetSizer(P1sizer);
-    P1->SetAutoLayout(true);
-    wxPanel* P2 = new wxPanel((wxPanel*) ctlPanel,wxID_ANY);
-     wxBoxSizer* P2sizer = new wxBoxSizer(wxHORIZONTAL);
-     wxStaticText* text2 = new wxStaticText((wxPanel*) P2,wxID_ANY,"軸間距離");
-    wxRadioButton *rb3 = new wxRadioButton((wxPanel*) P2, -1, wxT("巡回路"),wxDefaultPosition,wxDefaultSize, wxRB_GROUP);
-  
-    wxRadioButton *rb4 = new wxRadioButton((wxPanel*) P2, -1, wxT("角度"));
-    rb4->SetValue(true);
-    rb3->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio3clicked),NULL,this);
-    rb4->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio4clicked),NULL,this);
-    P2sizer->Add(text2);
-    P2sizer->Add(rb3);
-    P2sizer->Add(rb4);
-    P2->SetSizer(P2sizer);
-    P2->SetAutoLayout(true);
-    wxButton* undobutton = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"射影を戻す");
-    wxButton* resetbutton = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"リセット");
-    wxCheckBox* coodselectbox = new wxCheckBox((wxPanel*) ctlPanel,wxID_ANY,"軸選択モード");
-    coodselectbox-> Connect( wxEVT_CHECKBOX, wxCommandEventHandler(MyApp::coodselect),NULL, this);
-    wxStaticText* pftext;
-    pftext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"Projection Factor");
-    slider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,50,0,400);
-
-    wxStaticText* thrtext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"類似度の閾値");
-    thrslider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,data->thr*100,0,data->thr*200);
-    thr100 = data->thr*100;
-    wxStaticText* vctext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"V-Centrality");
-    int avevc =  data->getEdge().size()*2 / data->num;
-    vcslider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,0,0,avevc*200);
-   
-    undobutton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
-        wxCommandEventHandler(MyApp::undobuttonclicked),NULL, this);
-    
-    resetbutton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
-        wxCommandEventHandler(MyApp::resetbuttonclicked),NULL, this);
-    
-    slider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
-      wxCommandEventHandler(MyApp::getslider),NULL, this);
-    thrslider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
-      wxCommandEventHandler(MyApp::getthrslider),NULL, this);
-    vcslider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
-      wxCommandEventHandler(MyApp::getvcslider),NULL, this);
-
-    sizer2->Add(P1,1,wxEXPAND);
-    sizer2->Add(P2,1,wxEXPAND);
-    sizer2->Add(coodselectbox,1,wxEXPAND);
-    sizer2->Add(undobutton,1,wxEXPAND);
-    sizer2->Add(resetbutton,1,wxEXPAND);
-    sizer2->Add(pftext,1,wxEXPAND);
-    sizer2->Add(slider,1,wxEXPAND);
-    sizer2->Add(thrtext,1,wxEXPAND);
-    sizer2->Add(thrslider,1,wxEXPAND);
-    sizer2->Add(vctext,1,wxEXPAND);
-    sizer2->Add(vcslider,1,wxEXPAND);
-    ctlPanel->SetSizer(sizer2);
-    ctlPanel->SetAutoLayout(true);
-
-   sizer->Add(glPane, 1, wxEXPAND);
-   sizer->Add(pcPanel,1,wxEXPAND);
-   sizer->Add(ctlPanel,1,wxEXPAND);
-   mainPanel->SetSizer(sizer);
-   mainPanel->SetAutoLayout(true);
-
-   mainsizer->Add(mainPanel,1,wxEXPAND);
-   mainsizer->Add(md,1,wxEXPAND);
-   frame->SetSizer(mainsizer);
-   
-    frame->SetAutoLayout(true);
-
-    frame->Show();
-    /*
-    cerr << "VENDOR:   " << glGetString(GL_VENDOR)   << endl;
-    cerr << "RENDERER: " << glGetString(GL_RENDERER) << endl;
-    cerr << "VERSION:  " << glGetString(GL_VERSION)  << endl;
-    cerr << "GLSL:     " << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl << endl;
-    */
-    /*
- }
-*/
+ 
  void MyApp::radio1clicked(wxCommandEvent& event){
    data->isLenVar = true;
    //現在は長さの計算を描画のときにやってないので要対処
@@ -307,7 +192,7 @@ void MyApp::coodselect(wxCommandEvent& event){
 }
 void MyApp::resetbuttonclicked(wxCommandEvent& WXUNUSED(event)){
   data->resetselected();
-  thrslider->SetValue(thr100);
+ // thrslider->SetValue(thr100);
   vcslider->SetValue(0);
   frame->Refresh();
 }
@@ -317,17 +202,21 @@ void MyApp::getslider(wxCommandEvent& WXUNUSED(event)){
     glPane->setdelta(d);
 
 }
+/*
 void MyApp::getthrslider(wxCommandEvent& WXUNUSED(event)){
     double i =  thrslider->GetValue()/100.0;
     data->recalEdge(i); 
     vcslider->SetValue(0); 
     frame->Refresh();
 }
+*/
+
 void MyApp::getvcslider(wxCommandEvent& WXUNUSED(event)){
     double i =  vcslider->GetValue()/100.0;
     data->calDgCentrality(i);  
     frame->Refresh();
 }
+
 void MyApp::openfile(wxCommandEvent& event){
   //id がdatasetの番号を表す　あらかじめどれが何かは読み込んである
   int id = event.GetId();
@@ -368,6 +257,13 @@ END_EVENT_TABLE()
 
 BEGIN_EVENT_TABLE(PCPBorder, wxGLCanvas)
 EVT_PAINT(PCPBorder::render)
+END_EVENT_TABLE()
+
+BEGIN_EVENT_TABLE(HistView, wxGLCanvas)
+EVT_MOTION(HistView::mouseMoved)
+EVT_LEFT_DOWN(HistView::mouseDown)
+EVT_LEFT_UP(HistView::mouseReleased)
+EVT_PAINT(HistView::render)
 END_EVENT_TABLE()
 
 

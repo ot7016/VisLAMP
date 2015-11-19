@@ -1,6 +1,6 @@
 APP = pcoordagi
 
-SOURCES = ReadData.cpp ConstraintSolver2D.cpp TSP.cpp MatrixView.cpp  AGI.cpp PCP.cpp MyFrame.cpp 
+SOURCES = ReadData.cpp ConstraintSolver2D.cpp TSP.cpp MatrixView.cpp  AGI.cpp PCP.cpp HistView.cpp MyFrame.cpp 
 
 ../bin/$(APP): $(SOURCES)
 	clang++ -g -w  -std=c++0x  -o $@ $^ `wx-config --libs --cxxflags --gl-libs` -llbfgs -framework GLUT -framework OpenGL  -framework Accelerate
