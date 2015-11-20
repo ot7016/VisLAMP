@@ -1,7 +1,3 @@
-#include <sstream>
-#include <string>
-#include <iostream>
-#include <vector>
 #include "ReadData.hpp"
 
 using namespace std;
@@ -85,6 +81,7 @@ void ReadData::readsetting(string dir){
   
   getline(ifs,str);
   thr = stod(str);
+  pthr = thr;
   getline(ifs,str);
   num = stoi(str);
   getline(ifs,str);

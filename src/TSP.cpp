@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <math.h>
-#include <algorithm>
-#include <iterator>
-#include <sstream>
 #include "TSP.hpp"
 
 using namespace std;

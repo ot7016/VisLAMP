@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <math.h>
-#include <lbfgs.h>
-#include <iostream>
 #include "ConstraintSolver2D.hpp"
 
 using namespace std;

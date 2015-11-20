@@ -2,7 +2,7 @@
 
 using namespace std;
 HistView::HistView(wxWindow* parent,wxSlider* vc, ReadData* d) :
- wxGLCanvas(parent, wxID_ANY, NULL, wxDefaultPosition, wxSize(100,50), wxFULL_REPAINT_ON_RESIZE){
+ wxGLCanvas(parent, wxID_ANY, NULL, wxDefaultPosition, wxSize(300,50), wxFULL_REPAINT_ON_RESIZE){
  	 m_context = new wxGLContext(this);
      vcslider = vc;
     data = d;
@@ -22,8 +22,8 @@ void HistView::Setting(){
             distmax = d; 
         }
     }
-    //15のヒストグラムにわける
-    histlen = 15;  
+    //30のヒストグラムにわける
+    histlen = 45;  
     hist = new int[histlen];
     for(int i = 0; i< histlen;i++){
         hist[i] = 0;
@@ -38,23 +38,31 @@ void HistView::Setting(){
         }
 
     }
-    reset();
-    SetRate();
+    setValue(data->thr);
+    setRate();
 }
 void HistView::reset(){
+    
+}
+void HistView::setValue(double r2){
     selected.clear();
     notselected.clear();
     for(int i = 0;i< histlen;i++){
         notselected.push_back(i);
     }
+    for(int i = 0; i< histlen;i++){
+        if(i < r2 ){
+            selected.push_back(i);
+            notselected.remove(i);
+        }
+    }
 }
-
 
 void HistView::ReCreate(){
     delete[] hist;
     Setting();
 }
-void HistView::SetRate(){
+void HistView::setRate(){
     xrate =  getWidth() /histlen;
     double max = 0;
     for(int i = 0; i< histlen;i++){
@@ -78,17 +86,11 @@ void HistView::mouseMoved(wxMouseEvent& event){
         isdruged = true;
         if(!iscalc){
             iscalc =true;
-            reset();
              int x = event.GetX();
 
              //selected を決める 
              double r2 = x/xrate;
-             for(int i = 0; i< histlen;i++){
-                if(i < r2 ){
-                    selected.push_back(i);
-                    notselected.remove(i);
-                }
-             }
+             setValue(r2);
             data->recalEdge(r2); 
             vcslider->SetValue(0);
             auto grandparent = GetGrandParent()->GetParent();
@@ -101,8 +103,8 @@ void HistView::mouseMoved(wxMouseEvent& event){
 
 void HistView::mouseDown(wxMouseEvent& event){
 //あとで整理
+
     isclicked = true;
-    reset();
 }
 void HistView::mouseReleased(wxMouseEvent& event){
     isclicked = false;
@@ -156,7 +158,7 @@ void HistView::render(wxPaintEvent& evt)
     glEnd();
     //draw histgram  
     //選択もある
-    glColor4f(0.7f, 0.5f, 0.2f, 1);
+    glColor4f(0.2f, 0.4f, 0.7f, 1.0f);
     for(int i: selected){
         int h = hist[i];
         glBegin(GL_QUADS);
@@ -166,7 +168,7 @@ void HistView::render(wxPaintEvent& evt)
         glVertex3f(xrate* (i+1), 0, 0);
         glEnd();
     }
-    glColor4f(0.7f, 0.5f, 0.2f, 0.3f);
+    glColor4f(0.2f, 0.4f, 0.7f, 0.3f);
     for(int i: notselected){
         int h = hist[i];
          glBegin(GL_QUADS);

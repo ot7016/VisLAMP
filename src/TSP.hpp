@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <fstream>
 #include <math.h>
+#include <algorithm>
+#include <iterator>
 
 #ifndef tsp 
 #define tsp

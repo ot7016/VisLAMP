@@ -38,8 +38,9 @@ class HistView :public wxGLCanvas
 	bool iscalc,isdruged,isclicked;
 public:
 	HistView(wxWindow* parent, wxSlider* vc, ReadData* d);
-	void SetRate();
+	void setRate();
 	void Setting();
+	void setValue(double r2);
 	void reset();
 	void ReCreate();
 	int getWidth();

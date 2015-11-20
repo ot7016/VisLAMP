@@ -90,7 +90,7 @@ class ReadData{
 	vector<string>  atrname;	
 	int* order;
 	int selectedorder;
-	double thr ;
+	double thr ,pthr;
 	//色をどのように決めるかが最大の問題　色はクラスターごとに一意であるべき
 	vector<S_Cluster > cluster;
 	list<int> filterindex;

@@ -1,36 +1,16 @@
 //#include <stdio.h>
 //#include <vector>
-#include <string>
 #include "MatrixView.hpp"
 
 MatrixView::MatrixView(wxFrame* parent,ReadData* d):wxPanel(parent,wxID_ANY,wxDefaultPosition, wxSize(1000,300), wxFULL_REPAINT_ON_RESIZE){
 	data  = d;
 	//wxStaticText* title = new wxStaticText((wxPanel*) this,wxID_ANY,"MatrixView");
-	wxPanel* nPanel = new wxPanel(this,0);
-	wxPanel* space = new wxPanel(nPanel,wxID_ANY);
-	name = new wxStaticText(nPanel,wxID_ANY,"                                        ");
-	wxGridSizer* nsizer = new wxGridSizer(2,1,20,100);
-	nsizer->Add(space,1,wxEXPAND);
-	nsizer->Add(name,1,wxEXPAND);
-	nPanel->SetSizer(nsizer);
+	
 
 	//vPanel = new wxPanel(this,wxID_ANY);
 	int atr = data->atr;
 	wxGridSizer* sizer = new wxGridSizer((atr+10)/10,10,20,20); 
-	//  wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-	sizer->Add(nPanel,1,wxEXPAND);
-	for(int i = 0;i< atr;i++){
-		wxPanel* vPanel = new wxPanel(this,i+1,wxDefaultPosition, wxSize(100,50), wxFULL_REPAINT_ON_RESIZE);
-		wxGridSizer* vsizer = new wxGridSizer(2,1,20,100);
-		wxStaticText* label =  new wxStaticText(vPanel,wxID_ANY,data->atrname.at(i));
-		vsizer->Add(label,1,wxEXPAND);
-		wxStaticText* value = new wxStaticText(vPanel,wxID_ANY,"");
-		vsizer->Add(value,1,wxEXPAND);
-		vPanel->SetSizer(vsizer);
-		sizer->Add(vPanel,1,wxEXPAND);
-
-
-	}
+	Create(sizer);
 	
 	SetSizerAndFit(sizer);
 	SetAutoLayout(true);
@@ -39,8 +19,32 @@ MatrixView::MatrixView(wxFrame* parent,ReadData* d):wxPanel(parent,wxID_ANY,wxDe
 
 MatrixView::~MatrixView(){
 
-
 }
+
+void MatrixView::Create(wxGridSizer* sizer){
+	wxPanel* nPanel = new wxPanel(this,0);
+	wxPanel* space = new wxPanel(nPanel,wxID_ANY);
+	name = new wxStaticText(nPanel,wxID_ANY,"                                        ");
+	wxGridSizer* nsizer = new wxGridSizer(2,1,20,100);
+	nsizer->Add(space,1,wxEXPAND);
+	nsizer->Add(name,1,wxEXPAND);
+	nPanel->SetSizer(nsizer);
+	sizer->Add(nPanel,1,wxEXPAND);
+	int atr = data->atr;
+	for(int i = 0;i< atr;i++){
+		wxPanel* vPanel = new wxPanel(this,i+1,wxDefaultPosition, wxSize(100,50), wxFULL_REPAINT_ON_RESIZE);
+		wxGridSizer* vsizer = new wxGridSizer(2,1,20,100);
+		wxStaticText* label =  new wxStaticText(vPanel,wxID_ANY,data->atrname.at(i));
+		vsizer->Add(label,1,wxEXPAND);
+		wxStaticText* value = new wxStaticText(vPanel,wxID_ANY,"");
+		vsizer->Add(value,1,wxEXPAND);
+		vPanel->SetAutoLayout(true);
+		vPanel->SetSizer(vsizer);
+		sizer->Add(vPanel,1,wxEXPAND);
+	}
+}
+
+
 void MatrixView::ReCreate(){
 	wxWindowList & children = GetChildren();
 	int j = 0;
@@ -53,35 +57,11 @@ void MatrixView::ReCreate(){
 	wxGridSizer* sizer =(wxGridSizer*) GetSizer();
 
 	sizer->SetCols((atr+10)/10);
-	wxPanel* nPanel = new wxPanel(this,0);
-	wxPanel* space = new wxPanel(nPanel,wxID_ANY);
-	name = new wxStaticText(nPanel,wxID_ANY,"                                        ");
-	wxGridSizer* nsizer = new wxGridSizer(2,1,20,100);
-	nsizer->Add(space,1,wxEXPAND);
-	nsizer->Add(name,1,wxEXPAND);
-	nPanel->SetSizer(nsizer);
-
-	//vPanel = new wxPanel(this,wxID_ANY);
-	 
-	sizer->Add(nPanel,1,wxEXPAND);
-	for(int i = 0;i< atr;i++){
-		wxPanel* vPanel = new wxPanel(this,i+1,wxDefaultPosition, wxSize(100,50), wxFULL_REPAINT_ON_RESIZE);
-		wxGridSizer* vsizer = new wxGridSizer(2,1,20,100);
-		wxStaticText* label =  new wxStaticText(vPanel,wxID_ANY,data->atrname.at(i));
-		vsizer->Add(label,1,wxEXPAND);
-		wxStaticText* value = new wxStaticText(vPanel,wxID_ANY,"");
-		vsizer->Add(value,1,wxEXPAND);
-		vPanel->SetSizer(vsizer);
-		sizer->Add(vPanel,1,wxEXPAND);
-
-
-	}
-	//SetAutoLayout(true);
+	Create(sizer);
 }
 
 void MatrixView::setText(int index){
 	int atr = data->atr;
-	//wxWindowList wlist = GetChildren();
 	//wxWindowList::iterator it = wlist.begin(); 
 	name->SetLabelText(data->name.at(index));
 

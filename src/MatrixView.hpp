@@ -19,6 +19,7 @@ private:
 public:
 	MatrixView(wxFrame* frame, ReadData* d);
 	~MatrixView();
+	void Create(wxGridSizer* sizer);
 	void ReCreate();
 	void setText(int index);
 };

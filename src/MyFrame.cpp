@@ -1,5 +1,3 @@
-#include <sstream>
-#include <iostream>
 #include "MyFrame.hpp"
 // include OpenGL
 //#ifdef __WXMAC__
@@ -15,7 +13,6 @@ bool MyApp::OnInit()
     
     data = new ReadData(); 
     frame = new wxFrame((wxFrame *)NULL, -1, wxT("Pcoordagi"),wxPoint(0,50), wxSize(1500,1000));
-    //Create();
     
     wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
     int args[] = {WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0};
@@ -34,7 +31,6 @@ bool MyApp::OnInit()
     
     glPane = new AGIPane( (wxWindow*)mainPanel, args,data,pcPane,md); 
     wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
-    //wxGridSizer* sizer2 = new wxGridSizer(15,1,20,100);
     //パネルを生成、場合によっては拡張
     wxPanel* ctlPanel = new wxPanel((wxPanel*) mainPanel,wxID_ANY);
 
@@ -74,8 +70,9 @@ bool MyApp::OnInit()
     slider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,50,0,400);
 
     wxStaticText* thrtext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"類似度の閾値");
+    wxButton* thrbutton = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"類似度初期化" );
     //thrslider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,data->thr*100,0,data->thr*200);
-    thr100 = data->thr*100;
+     //thr100 = data->thr*100;
     wxStaticText* vctext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"V-Centrality");
     int avevc =  data->getEdge().size()*2 / data->num;
     vcslider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,0,0,avevc*200);
@@ -87,6 +84,8 @@ bool MyApp::OnInit()
     resetbutton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
         wxCommandEventHandler(MyApp::resetbuttonclicked),NULL, this);
     
+     thrbutton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
+        wxCommandEventHandler(MyApp::thrbuttonclicked),NULL, this);
     slider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
       wxCommandEventHandler(MyApp::getslider),NULL, this);
     /*
@@ -104,6 +103,7 @@ bool MyApp::OnInit()
     sizer2->Add(pftext,1,wxEXPAND);
     sizer2->Add(slider,1,wxEXPAND);
     sizer2->Add(thrtext,1,wxEXPAND);
+    sizer2->Add(thrbutton,1,wxEXPAND);
     sizer2->Add(histview,1,wxEXPAND);
    // sizer2->Add(thrslider,1,wxEXPAND);
     sizer2->Add(vctext,1,wxEXPAND);
@@ -192,6 +192,8 @@ void MyApp::coodselect(wxCommandEvent& event){
 }
 void MyApp::resetbuttonclicked(wxCommandEvent& WXUNUSED(event)){
   data->resetselected();
+  histview->reset();
+ // histview->setValue(data->thr);
  // thrslider->SetValue(thr100);
   vcslider->SetValue(0);
   frame->Refresh();
@@ -202,6 +204,13 @@ void MyApp::getslider(wxCommandEvent& WXUNUSED(event)){
     glPane->setdelta(d);
 
 }
+void MyApp::thrbuttonclicked(wxCommandEvent& WXUNUSED(event)){
+  double thr =  data->pthr;
+  data->thr = thr;
+  histview->setValue(thr);
+  data->recalEdge(thr);
+  frame->Refresh();
+  }
 /*
 void MyApp::getthrslider(wxCommandEvent& WXUNUSED(event)){
     double i =  thrslider->GetValue()/100.0;
@@ -223,8 +232,6 @@ void MyApp::openfile(wxCommandEvent& event){
    cerr<< id <<endl;
    data->clearall();
    data->read(id);
-   //frame-> DestroyChildren();
-   //frame->Destroy();
    ReCreate();
    frame->Refresh();
   

@@ -1,11 +1,5 @@
-#include <sstream>
-#include <string>
-#include <vector>
-#include "OpenGL/glu.h"
-#include "OpenGL/gl.h"
 #include "Agi.hpp"
 #include "wx/wx.h"
-#include "ConstraintSolver2D.hpp"
 #include <GLUT/glut.h>
 //#include <GL/glew.h>
 
@@ -586,7 +580,6 @@ void AGIPane::drawcoodname(int i, int w, int h){
     for(int j = 0;j< size;j++){
        	char ic = str[j];
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ic);
-    }
-    		
+    }   		
 }
 
