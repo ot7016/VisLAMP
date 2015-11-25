@@ -11,6 +11,7 @@
 Agi::Agi(ReadData* d){
 	data = d;
 	calprj();
+	writeprojection();
 	cal2Mtr();
 	delta = 0.5;
 }
@@ -193,6 +194,26 @@ void Agi::setdelta(double d){
 double Agi::getV(int i, int j){
 	return v[2 *i + j];
 }
+//評価用
+void Agi::writeprojection(){
+    //保存場所とファイル名を考慮
+     string d = data->dataname.at(data->dataid);
+     string dir = "../data/" + d +"/"+ d+ "-projection/projection_" +to_string(writenum)+  ".dat";
+     int dim = data->dim;
+     double projection[dim*2];
+     int j = 0;
+     for (prj p : ee){
+     	projection[2*j] = p.first;
+     	projection[2*j+1] = p.second;
+     	j++;
+     }
+     ofstream fs2(dir,ios::out | ios::binary);
+     for(int i = 0; i< dim *2 ;i++ ){
+     fs2.write((char*) &projection[i],sizeof(double));
+   }
+   fs2.close();
+     writenum++;
+  }
 
 AGIPane::AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p, MatrixView* m) :
     wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxSize(600,600), wxFULL_REPAINT_ON_RESIZE)
@@ -324,6 +345,7 @@ void AGIPane::mouseReleased(wxMouseEvent& event){
    clickid  = clickid +2;
    isMoved = false;
    isDrug = false;
+    ag->writeprojection();
 }
 void AGIPane::rightClick(wxMouseEvent& event) {
 	std::cerr << "Right click " << std::endl;

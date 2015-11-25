@@ -15,7 +15,6 @@
 #include "wx/panel.h"
 #include "wx/event.h"
 #include "wx/sizer.h"
-//#include "wx/slider.h"
 #include "wx/stattext.h"
 #include "wx/glcanvas.h"
 #include "wx/radiobut.h"

@@ -39,6 +39,7 @@
 		double getXMin();
 		double getYMin();
 		double getV(int i,int j);
+		void writeprojection();
 		void setdelta(double d);
 		typedef std::pair<double,double> prj;
 		std::vector<prj> ee; //射影行列(新)
@@ -51,6 +52,7 @@
 		double xmax ,xmin;  
  		double ymax ,ymin;
  		double* v;
+ 	    int writenum = 0;
 
 	};
 

@@ -12,7 +12,7 @@ dim 高次元配置の次元数
 
 ReadData::ReadData(){
 	readfname();
-  read(1);
+  read(dataid);
 }
 ReadData::~ReadData(){
   delete[] A;
@@ -62,6 +62,7 @@ void ReadData::clearall(){
   notselectedindex.clear();
 }
 void ReadData::read(int id){
+  dataid = id;
    string d = dataname.at(id);
   string dir = "../data/" + d +"/"+ d;
   readsetting(dir);
@@ -483,8 +484,11 @@ RGB ReadData::HSVtoRGB(HSV& hsv ){
       case 4: rgb.r = p; rgb.g = m; rgb.b = v; break;
       default: rgb.r = v; rgb.g = m; rgb.b = n; break;
     }
-
+ 
     return rgb;
   }
+
+
+  
 
 
