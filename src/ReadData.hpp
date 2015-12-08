@@ -78,6 +78,7 @@ class ReadData{
     void clearall();
 	double* A;
 	double* alldist;
+	double distmax;
 	double *evalue;
 	double* evector;
 	bool isTSP, isPCA,isLenVar, isCoord;

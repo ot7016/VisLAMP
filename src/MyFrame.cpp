@@ -3,6 +3,7 @@
 //#ifdef __WXMAC__
 #include "OpenGL/glu.h"
 #include "OpenGL/gl.h"
+
 //#else
 //#include <GL/glu.h>
 //#include <GL/gl.h>
@@ -12,7 +13,7 @@ bool MyApp::OnInit()
 {
     
     data = new ReadData(); 
-    frame = new wxFrame((wxFrame *)NULL, -1, wxT("Pcoordagi"),wxPoint(0,50), wxSize(1500,1000));
+    frame = new wxFrame((wxFrame *)NULL, -1, wxT("Pcoordagi"),wxPoint(0,50), wxSize(2100,1000));
     
     wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
     int args[] = {WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0};
@@ -28,11 +29,12 @@ bool MyApp::OnInit()
     pcsizer->Add(pcPane);
     pcsizer->Add(lower);
     pcPanel->SetSizer(pcsizer);
-    
     glPane = new AGIPane( (wxWindow*)mainPanel, args,data,pcPane,md); 
     wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
     //パネルを生成、場合によっては拡張
-    wxPanel* ctlPanel = new wxPanel((wxPanel*) mainPanel,wxID_ANY);
+    wxPanel* ctlPanel = new wxPanel((wxWindow*) mainPanel,wxID_ANY);
+
+    XXView* xxview = new XXView((wxWindow*) mainPanel,data,glPane->ag);
 
     wxPanel* P1 = new wxPanel((wxPanel*) ctlPanel,wxID_ANY);
      wxBoxSizer* P1sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -77,7 +79,7 @@ bool MyApp::OnInit()
     int avevc =  data->getEdge().size()*2 / data->num;
     vcslider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,0,0,avevc*200);
     histview = new HistView((wxPanel*) ctlPanel,vcslider,data);
-   
+    
     undobutton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
         wxCommandEventHandler(MyApp::undobuttonclicked),NULL, this);
     
@@ -113,6 +115,7 @@ bool MyApp::OnInit()
 
    sizer->Add(glPane, 1, wxEXPAND);
    sizer->Add(pcPanel,1,wxEXPAND);
+   sizer->Add(xxview,1,wxEXPAND);
    sizer->Add(ctlPanel,1,wxEXPAND);
    mainPanel->SetSizer(sizer);
    mainPanel->SetAutoLayout(true);
@@ -125,7 +128,6 @@ bool MyApp::OnInit()
    int k = 0;
    for(string s:data->dataname){
    menu1->Append(k, s, _T("Opens an existing file"));
-   //menu1->Append(wxID_SAVE, _T("&Save"), _T("Save the content"));
    menu1->Bind(wxEVT_COMMAND_MENU_SELECTED,&MyApp::openfile,this,k) ;
    k++;
    }
@@ -273,6 +275,8 @@ EVT_LEFT_UP(HistView::mouseReleased)
 EVT_PAINT(HistView::render)
 END_EVENT_TABLE()
 
-
+BEGIN_EVENT_TABLE(XXView, wxGLCanvas)
+EVT_PAINT(XXView::render)
+END_EVENT_TABLE()
 
 // some useful events to use 

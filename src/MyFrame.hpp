@@ -23,6 +23,7 @@
 #include "PCP.hpp"
 #include "MatrixView.hpp"
 #include "HistView.hpp"
+#include "XXView.hpp"
 
 
 class MyApp: public wxApp{

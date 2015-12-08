@@ -10,10 +10,11 @@
 //コンストラクタ
 Agi::Agi(ReadData* d){
 	data = d;
+	//delta = 0.5;
 	calprj();
-	writeprojection();
 	cal2Mtr();
-	delta = 0.5;
+	writeagicood();
+	
 }
 
 Agi::~Agi(){
@@ -21,9 +22,15 @@ Agi::~Agi(){
 	delete[] v;
 }
 void Agi::ReCreate(){
+	while(!prjstack.empty()){
+		prjstack.pop();
+	}
+	ee.clear();
+	writenum = 0;
+	delta = 0.5;
 	calprj();
 	cal2Mtr();
-	delta = 0.5;
+
 }
 
 double Agi::getB(int i,int j){
@@ -61,11 +68,6 @@ void Agi::calprj(){
 }
 //行列の計算   とりあえず実装　最適化とかなし　最終的にはBlasを使う
 void Agi::cal2Mtr() {
-	double prexmax = -100;
-	double preymax = -100;
-	double prexmin = 100;
-	double preymin = 100; 
-
 	const int n = data->aginum;
 	const int m = data->dim;
 	const int d = 2;
@@ -79,6 +81,11 @@ void Agi::cal2Mtr() {
 
 	// BLAS で計算　B[n,2] = A[n,m] * e[m,2]  　コピーはしたくないがここでは1次元配列にしなければならないのでどうしようもない
 	cblas_dgemm(CblasRowMajor, CblasNoTrans ,CblasNoTrans, n, 2, m, 1, data->A, m, e, d, 0 , B, d);
+
+	double prexmax = B[0];
+	double preymax = B[1];
+	double prexmin = B[0];
+	double preymin = B[1]; 
 
 	for (int i = 0; i < n; i++) {
 		// 最大値を求める
@@ -214,6 +221,18 @@ void Agi::writeprojection(){
    fs2.close();
      writenum++;
   }
+  void Agi::writeagicood(){
+    //保存場所とファイル名を考慮
+     string d = data->dataname.at(data->dataid);
+     string dir = "../data/" + d +"/"+ d+ "-agicood/agicood_" +to_string(writenum)+  ".dat";
+     int num = data->num;
+     ofstream fs2(dir,ios::out | ios::binary);
+     for(int i = 0; i< num *2 ;i++ ){
+     fs2.write((char*) &B[i],sizeof(double));
+   }
+   fs2.close();
+     writenum++;
+  }
 
 AGIPane::AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p, MatrixView* m) :
     wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxSize(600,600), wxFULL_REPAINT_ON_RESIZE)
@@ -292,9 +311,9 @@ void AGIPane::mouseMoved(wxMouseEvent& event) {
 	 	std::cerr << "mouseMoved " << std::endl;
 	 	isDrug = true;
 	 	calcagain(event.GetX(),event.GetY());
-	 	iscalc = false;
 	 	_pre[0] = ag->getB(nowindex, 0);
     	_pre[1] = ag->getB(nowindex, 1);
+    	iscalc = false;
  	}
  	else if(rangeselect && !iscalc){
  		iscalc =true;
@@ -345,7 +364,8 @@ void AGIPane::mouseReleased(wxMouseEvent& event){
    clickid  = clickid +2;
    isMoved = false;
    isDrug = false;
-    ag->writeprojection();
+   // ag->writeprojection();
+   ag -> writeagicood();
 }
 void AGIPane::rightClick(wxMouseEvent& event) {
 	std::cerr << "Right click " << std::endl;
@@ -424,13 +444,11 @@ void AGIPane::prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x,
 }
  
  
-int AGIPane::getWidth()
-{
+int AGIPane::getWidth(){
     return GetSize().x;
 }
  
-int AGIPane::getHeight()
-{
+int AGIPane::getHeight(){
     return GetSize().y;
 }
 
@@ -453,7 +471,6 @@ void AGIPane::setRate(){
  	ag->cal2Mtr();
  	Refresh();
  }
-
 
 int AGIPane::getindex(double x, double y){
     int index = -1;

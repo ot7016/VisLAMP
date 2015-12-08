@@ -1,6 +1,6 @@
-../data/cars-pca/kcars
-PCA
-0.5
+../data/cars/cars
+1.5
 398
 8
 8
+PCA

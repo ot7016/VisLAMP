@@ -40,6 +40,7 @@
 		double getYMin();
 		double getV(int i,int j);
 		void writeprojection();
+		void writeagicood();
 		void setdelta(double d);
 		typedef std::pair<double,double> prj;
 		std::vector<prj> ee; //射影行列(新)
@@ -47,7 +48,7 @@
 
 		ReadData* data;
 		std::stack<std::vector<prj> > prjstack; //射影行列のスタック 
-		double delta;
+		double delta = 0.5;
 		double* B; 
 		double xmax ,xmin;  
  		double ymax ,ymin;
@@ -60,7 +61,7 @@
 	class AGIPane: public wxGLCanvas{
 		wxGLContext* m_context;
 		MatrixView* md;
-		Agi* ag;
+		
 		ReadData* data;
 		PCPPane* pcp;
 	public:
@@ -89,6 +90,7 @@
 	void calRange(int x2, int y2);
 	void undo();
 	void drawcoodname(int i, int w, int h);
+	Agi* ag;
  
 
 	DECLARE_EVENT_TABLE()

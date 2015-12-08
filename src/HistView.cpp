@@ -13,15 +13,8 @@ void HistView::Setting(){
     isdruged = false;
     isclicked = false;
     //distの最大値を求める
-    double distmax = 0;
+    double distmax = data->distmax;
     int num = data->num;
-    for(int i = 0; i< num; i++){
-        for(int j = i; j< num;j++){
-           double d = data->alldist[i*num +j] ;
-           if(distmax < d)
-            distmax = d; 
-        }
-    }
     //30のヒストグラムにわける
     histlen = 45;  
     hist = new int[histlen];
@@ -30,7 +23,7 @@ void HistView::Setting(){
     }
     double dist10 = distmax /histlen;
     for(int i = 0; i< num;i++){
-        for(int j= i;j< num;j++){
+        for(int j= i+1;j< num;j++){
             int h = (int) ceil(data->alldist[i*num + j] / dist10);
             if(h == histlen )
                  h--;
@@ -162,20 +155,20 @@ void HistView::render(wxPaintEvent& evt)
     for(int i: selected){
         int h = hist[i];
         glBegin(GL_QUADS);
-        glVertex3f(xrate* i, 0, 0);
-        glVertex3f(xrate*i, h*yrate, 0);
-        glVertex3f(xrate* (i+1), h*yrate,0);
-        glVertex3f(xrate* (i+1), 0, 0);
+        glVertex3f(xrate* i, height, 0);
+        glVertex3f(xrate*i, height-h*yrate, 0);
+        glVertex3f(xrate* (i+1), height - h*yrate,0);
+        glVertex3f(xrate* (i+1), height, 0);
         glEnd();
     }
     glColor4f(0.2f, 0.4f, 0.7f, 0.3f);
     for(int i: notselected){
         int h = hist[i];
          glBegin(GL_QUADS);
-        glVertex3f(xrate* i, 0, 0);
-        glVertex3f(xrate*i, h*yrate, 0);
-        glVertex3f(xrate* (i+1), h*yrate,0);
-        glVertex3f(xrate* (i+1), 0, 0);
+        glVertex3f(xrate* i, height, 0);
+        glVertex3f(xrate*i, height - h*yrate, 0);
+        glVertex3f(xrate* (i+1), height - h*yrate,0);
+        glVertex3f(xrate* (i+1), height , 0);
         glEnd();
     }
     

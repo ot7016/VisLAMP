@@ -224,7 +224,7 @@ void ReadData::readDist(string dir){
         exit(1);
   }
     
-  // distを全て読み込まないようにする 
+  // alldistを全て読み込まないようにする 
   double *dist;
   int len = DIST_SIZE;
   ifs.seekg(0);
@@ -248,6 +248,15 @@ void ReadData::readDist(string dir){
   }
   ifs.close();
   delete[] dist;
+  //alldistの最大値を求めておく
+  distmax = 0;
+  for(int i = 0; i< num; i++){
+      for(int j = i+1; j< num;j++){
+          double d =　alldist[i*num +j] ;
+           if(distmax < d)
+            distmax = d; 
+      }
+  }
 }
 //一応残しておく
 void ReadData::calEdge(){
