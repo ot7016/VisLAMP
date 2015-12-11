@@ -65,6 +65,8 @@ bool MyApp::OnInit()
     P2->SetAutoLayout(true);
     wxButton* undobutton = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"射影を戻す");
     wxButton* resetbutton = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"リセット");
+    wxCheckBox* polyselectbox = new wxCheckBox((wxPanel*) ctlPanel,wxID_ANY,"多角形選択");
+    polyselectbox-> Connect( wxEVT_CHECKBOX, wxCommandEventHandler(MyApp::polyselect),NULL, this);
     wxCheckBox* coodselectbox = new wxCheckBox((wxPanel*) ctlPanel,wxID_ANY,"軸選択モード");
     coodselectbox-> Connect( wxEVT_CHECKBOX, wxCommandEventHandler(MyApp::coodselect),NULL, this);
     wxStaticText* pftext;
@@ -100,6 +102,7 @@ bool MyApp::OnInit()
     sizer2->Add(P1,1,wxEXPAND);
     sizer2->Add(P2,1,wxEXPAND);
     sizer2->Add(coodselectbox,1,wxEXPAND);
+    sizer2->Add(polyselectbox,1,wxEXPAND);
     sizer2->Add(undobutton,1,wxEXPAND);
     sizer2->Add(resetbutton,1,wxEXPAND);
     sizer2->Add(pftext,1,wxEXPAND);
@@ -187,6 +190,9 @@ void MyApp::radio4clicked(wxCommandEvent& event){
 void MyApp::undobuttonclicked(wxCommandEvent& WXUNUSED(event)){
   glPane->undo();
   frame->Show();
+}
+void MyApp::polyselect(wxCommandEvent& event){
+  glPane->isPoly = true;
 }
 
 void MyApp::coodselect(wxCommandEvent& event){

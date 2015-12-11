@@ -254,7 +254,12 @@ void AGIPane::Setting(){
     isMoved = false;
     isDrug = false;
     iscalc = false;
+    isPoly = false;
     rangeselect =false;
+    polyselect = false;
+    polystart = false;
+    polyvector.clear();
+    polynow = pair<int,int> (0,0);
     xfrom = -1;
     xto = -1;
     yfrom = -1;
@@ -278,6 +283,7 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
     double x = event.GetX();
     double y = event.GetY();
     if(!isMoved){
+    if(!isPoly){
     //このxとyが点の2次元配列に含まれるならOK
     //もちろんある程度の誤差は許容しなければならない
     nowindex = getindex(x,y);
@@ -296,29 +302,61 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
 		nowindex = -1;
 		std::cerr << data->atrname.at(index)<< std::endl;
 	}
+	
 	//どのノードも近くないときは複数選択
-	else {
+	else{
 		xfrom = x;
 		yfrom = y;
 		rangeselect = true;
 	}
+   }
+   // 投げ縄選択はボタンを押して発動させるようにする
+	//2点以上クリックで選んだのち右クリックして終了
+	// mouse release後も処理が続くので注意	
+	else if(isPoly){
+		if(!polystart){
+			polyvector.clear();
+			polystart = true;
+		}
+		auto from = pair<int,int>(x,y);
+		polyvector.push_back(from);
+	}
+	
 }
 }
 
 void AGIPane::mouseMoved(wxMouseEvent& event) {
-	 if(nowindex != -1 && isMoved && !iscalc){
-	 	iscalc = true;
-	 	std::cerr << "mouseMoved " << std::endl;
-	 	isDrug = true;
-	 	calcagain(event.GetX(),event.GetY());
-	 	_pre[0] = ag->getB(nowindex, 0);
-    	_pre[1] = ag->getB(nowindex, 1);
-    	iscalc = false;
+	if(!isPoly){
+	 	if(nowindex != -1 && isMoved && !iscalc){
+	 		iscalc = true;
+	 		std::cerr << "mouseMoved " << std::endl;
+	 		isDrug = true;
+	 		calcagain(event.GetX(),event.GetY());
+	 		_pre[0] = ag->getB(nowindex, 0);
+    		_pre[1] = ag->getB(nowindex, 1);
+    		iscalc = false;
+ 		}
+ 		else if(rangeselect && !iscalc){
+ 			iscalc =true;
+ 			calRange(event.GetX(),event.GetY());
+ 			iscalc = false;
+ 		}
  	}
- 	else if(rangeselect && !iscalc){
- 		iscalc =true;
- 		calRange(event.GetX(),event.GetY());
- 		iscalc = false;
+ 	//polyline選択のときマウスを動かしているだけなのでまだ確定していない
+ 	else{
+ 		if(polystart&&!iscalc){
+ 			iscalc = true;
+ 			int x = event.GetX();
+ 			int y = event.GetY();
+ 			//仮に入れる
+ 		    polynow = pair<int,int>(x,y);
+ 			if(polyvector.size() >1)
+ 				calPoly();
+ 			auto parent = GetParent();
+    		parent->Refresh();
+
+ 			iscalc = false;
+ 		}
  	}
 
 }
@@ -347,43 +385,98 @@ void AGIPane::calRange(int x2, int y2){
  	auto parent = GetParent();
     parent->Refresh(); 
 }
+void AGIPane::calPoly(){
+	std::list<int> selected;
+	double width = getWidth();
+	double height = getHeight();
+	std::vector<pair<int,int> > calpolyvector(polyvector.begin(),polyvector.end());
+	calpolyvector.push_back(polynow);
+	double xg = 0;
+	double yg = 0;
+	for(auto v: calpolyvector){
+		xg = xg + (double)v.first;
+		yg = yg + (double)v.second;
+	}
+	xg = xg /calpolyvector.size();
+	yg = yg /calpolyvector.size();  
+	for(int i :data ->filterindex){
+		double x = ag->getB(i,0)*xrate + width/2 -xg;
+		double y = ag->getB(i,1)*yrate + height/2 -yg;
+		for(int j= 0; j< calpolyvector.size();j++){
+			pair<int,int> p1 = calpolyvector.at(j);
+			pair<int,int> p2;
+			if(j == calpolyvector.size()-1)
+				p2 = calpolyvector.at(0);
+			else p2 = calpolyvector.at(j+1);
+			double p1x =(double) p1.first -xg;
+			double p1y =(double) p1.second -yg;
+			double p2x = (double )p2.first -xg;
+			double p2y = (double) p2.second -yg;
+			double d = p1x * p2y - p2x * p1y ;
+			if(d != 0){
+				double a = ( x * p2y - y * p2x) /d;
+				double b = -1 *( x * p1y - y * p1x) /d;
+				if(a >= 0 && b >= 0 && a+b <= 1){
+					selected.push_back(i);
+					break;
+				}
+			}
+		}
+	}
+	data->setSIndex(selected,clickid);
+	
+}
 
 void AGIPane::mouseWheelMoved(wxMouseEvent& event) {
 	
 }
 void AGIPane::mouseReleased(wxMouseEvent& event){
 	std::cerr << "MouseReleased " << std::endl;
-  if(nowindex != -1 && isDrug){
-  	calcagain(event.GetX(),event.GetY());
-    //このxとyが点の2次元配列に含まれるならOK
-    //もちろんある程度の誤差は許容しなければならない
-  }
-  else if(rangeselect){
-  	rangeselect = false;
-  } 
-   clickid  = clickid +2;
-   isMoved = false;
-   isDrug = false;
-   // ag->writeprojection();
-   ag -> writeagicood();
+	if(!isPoly){	
+		if(nowindex != -1 && isDrug){
+  			calcagain(event.GetX(),event.GetY());
+    		//このxとyが点の2次元配列に含まれるならOK
+    		//もちろんある程度の誤差は許容しなければならない
+  		}
+  		else if(rangeselect){
+	  		rangeselect = false;
+  		} 
+   		clickid  = clickid +2;
+   		isMoved = false;
+   		isDrug = false;
+   		// ag->writeprojection();
+   		ag -> writeagicood();
+ 	}
+ 	//poly選択の際にはこのイベントがあっても続く
+ 	else{
+ 		polyselect = false;
+ 	}
 }
 void AGIPane::rightClick(wxMouseEvent& event) {
 	std::cerr << "Right click " << std::endl;
 	double x = event.GetX();
 	double y = event.GetY();
 	//ドラッグ中に右クリックされると間違いなくバグるのであとで対処
-	nowindex = getindex(x,y);
-	if(nowindex !=  -1 && nowindex < data->num){
-		data->setSIndex(nowindex);
-		pcp->Refresh();
-		md->setText(nowindex);
-		Refresh();
+	if(!isPoly){
+		nowindex = getindex(x,y);
+		if(nowindex !=  -1 && nowindex < data->num){
+			data->setSIndex(nowindex);
+			pcp->Refresh();
+			md->setText(nowindex);
+			Refresh();
+		}
+		else if(nowindex !=-1  && nowindex < data->aginum){
+			int index = nowindex - data->num;
+			 nowindex = -1;
+			 std::cerr << data->atrname.at(index)<< std::endl;
+		} 
 	}
-	else if(nowindex !=-1  && nowindex < data->aginum){
-		 int index = nowindex - data->num;
-		 nowindex = -1;
-		 std::cerr << data->atrname.at(index)<< std::endl;
-	} 
+	else if(polystart){
+		//ここで終了処理
+		calPoly();
+		polystart = false;
+		clickid = clickid+2;
+	}
 }
 void AGIPane::mouseLeftWindow(wxMouseEvent& event) {}
 void AGIPane::keyPressed(wxKeyEvent& event) {}
@@ -606,6 +699,14 @@ void AGIPane::render(wxPaintEvent& evt)
     	glVertex3f(xto,yto,0);
     	glVertex3f(xto,yfrom,0);
     	glVertex3f(xfrom,yfrom,0);
+    	glEnd();
+    }
+    if(polystart){
+    	glColor4f(0.0f,0.0f,0.0f,1.0f);
+    	glBegin(GL_LINE_LOOP);
+    	for(auto p:polyvector)
+    		glVertex3f(p.first,p.second,0);
+    	glVertex3f(polynow.first,polynow.second,0);
     	glEnd();
     }
     glFlush();

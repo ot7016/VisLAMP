@@ -88,9 +88,11 @@
 	void setdelta(double d);
 	void calcagain(double x, double y);
 	void calRange(int x2, int y2);
+	void calPoly();
 	void undo();
 	void drawcoodname(int i, int w, int h);
 	Agi* ag;
+	bool isPoly = false;
  
 
 	DECLARE_EVENT_TABLE()
@@ -100,14 +102,15 @@ private:
 	int nowindex;
 	double* _pre;
 	double* _new;
-	bool isMoved;
-	bool isDrug;
-	bool iscalc;
-	bool rangeselect;
+	bool isMoved, isDrug, iscalc;
+	bool polystart = false;
+	bool rangeselect,polyselect;
 	int xfrom;
 	int yfrom;
 	int xto;
 	int yto;
 	int clickid;
+	vector<pair<int,int> > polyvector;
+	pair<int,int>  polynow;
 };
 #endif

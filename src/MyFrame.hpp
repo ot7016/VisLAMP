@@ -52,7 +52,8 @@ public:
 
     void undobuttonclicked(wxCommandEvent& event);
     void resetbuttonclicked(wxCommandEvent& event);
-     void thrbuttonclicked(wxCommandEvent& event);
+    void thrbuttonclicked(wxCommandEvent& event);
+    void polyselect(wxCommandEvent& event);
     void coodselect(wxCommandEvent& event);
     void getslider(wxCommandEvent& event);
     void getthrslider(wxCommandEvent& event);
