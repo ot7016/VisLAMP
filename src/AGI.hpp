@@ -52,7 +52,7 @@
 		double* B; 
 		double xmax ,xmin;  
  		double ymax ,ymin;
- 		double* v;
+ 		double* v; 
  	    int writenum = 0;
 
 	};
@@ -65,8 +65,9 @@
 		ReadData* data;
 		PCPPane* pcp;
 	public:
-		AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p,MatrixView* m);
+		AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p);
 		virtual ~AGIPane();
+		void setMV(MatrixView* m);
 		void ReCreate();
 		void Setting();
 		void resized(wxSizeEvent& evt);

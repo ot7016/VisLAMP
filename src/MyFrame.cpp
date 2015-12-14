@@ -13,13 +13,13 @@ bool MyApp::OnInit()
 {
     
     data = new ReadData(); 
-    frame = new wxFrame((wxFrame *)NULL, -1, wxT("Pcoordagi"),wxPoint(0,50), wxSize(2100,1000));
+    frame = new wxFrame((wxFrame *)NULL, -1, wxT("Pcoordagi"),wxPoint(0,50), wxSize(1200,1000));
     
-    wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
     int args[] = {WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0};
     wxWindow* mainPanel = new wxWindow((wxFrame*) frame,wxID_ANY);
-    wxBoxSizer* mainsizer = new wxBoxSizer(wxVERTICAL);
-    md  = new MatrixView((wxFrame*) frame,data);
+    wxBoxSizer* mainsizer =  new wxBoxSizer(wxHORIZONTAL);
+   
     wxWindow* pcPanel = new wxWindow((wxWindow*)mainPanel,wxID_ANY);
     PCPBorder* upper = new PCPBorder((wxWindow*) pcPanel,false,data,25);
     PCPBorder* lower = new PCPBorder((wxWindow*) pcPanel,true,data,25);
@@ -29,14 +29,24 @@ bool MyApp::OnInit()
     pcsizer->Add(pcPane);
     pcsizer->Add(lower);
     pcPanel->SetSizer(pcsizer);
-    glPane = new AGIPane( (wxWindow*)mainPanel, args,data,pcPane,md); 
-    wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
+
+    glPane = new AGIPane( (wxWindow*)mainPanel, args,data,pcPane); 
+    
+    
+   
+   wxWindow* underPanel = new wxWindow((wxFrame*) frame,wxID_ANY);
+   wxBoxSizer* undersizer = new wxBoxSizer(wxHORIZONTAL);
+    XXView* xxview = new XXView((wxWindow*) underPanel,data,glPane->ag);
+    md  = new MatrixView((wxWindow*) underPanel,data);
+    glPane->setMV(md);
     //パネルを生成、場合によっては拡張
-    wxPanel* ctlPanel = new wxPanel((wxWindow*) mainPanel,wxID_ANY);
+    wxPanel* leftctl = new wxPanel((wxWindow*) underPanel,wxID_ANY);
+    wxGridSizer* leftsizer = new wxGridSizer(10,1,0,0);
+    wxPanel* rightctl = new wxPanel((wxWindow*) underPanel,wxID_ANY);
+    wxGridSizer* rightsizer = new wxGridSizer(10,1,0,0);
+   
 
-    XXView* xxview = new XXView((wxWindow*) mainPanel,data,glPane->ag);
-
-    wxPanel* P1 = new wxPanel((wxPanel*) ctlPanel,wxID_ANY);
+    wxPanel* P1 = new wxPanel((wxPanel*) rightctl,wxID_ANY);
      wxBoxSizer* P1sizer = new wxBoxSizer(wxHORIZONTAL);
      wxStaticText* text1 = new wxStaticText((wxPanel*) P1,wxID_ANY,"軸間の距離");
     rb1 = new wxRadioButton((wxPanel*) P1, -1, wxT("可変"),wxDefaultPosition,wxDefaultSize, wxRB_GROUP);
@@ -49,7 +59,7 @@ bool MyApp::OnInit()
     P1sizer->Add(rb2);
     P1->SetSizer(P1sizer);
     P1->SetAutoLayout(true);
-    wxPanel* P2 = new wxPanel((wxPanel*) ctlPanel,wxID_ANY);
+    wxPanel* P2 = new wxPanel((wxPanel*) rightctl,wxID_ANY);
      wxBoxSizer* P2sizer = new wxBoxSizer(wxHORIZONTAL);
      wxStaticText* text2 = new wxStaticText((wxPanel*) P2,wxID_ANY,"軸間距離");
     rb3 = new wxRadioButton((wxPanel*) P2, -1, wxT("巡回路"),wxDefaultPosition,wxDefaultSize, wxRB_GROUP);
@@ -63,29 +73,32 @@ bool MyApp::OnInit()
     P2sizer->Add(rb4);
     P2->SetSizer(P2sizer);
     P2->SetAutoLayout(true);
-    wxButton* undobutton = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"射影を戻す");
-    wxButton* resetbutton = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"リセット");
-    wxCheckBox* polyselectbox = new wxCheckBox((wxPanel*) ctlPanel,wxID_ANY,"多角形選択");
+    wxButton* undobutton = new wxButton((wxPanel*) leftctl,wxID_ANY,"射影を戻す");
+    wxButton* resetbutton1 = new wxButton((wxPanel*) leftctl,wxID_ANY,"選択をリセット");
+    wxButton* resetbutton2 = new wxButton((wxPanel*) rightctl,wxID_ANY,"選択をリセット");
+    wxCheckBox* polyselectbox = new wxCheckBox((wxPanel*) leftctl,wxID_ANY,"多角形選択");
     polyselectbox-> Connect( wxEVT_CHECKBOX, wxCommandEventHandler(MyApp::polyselect),NULL, this);
-    wxCheckBox* coodselectbox = new wxCheckBox((wxPanel*) ctlPanel,wxID_ANY,"軸選択モード");
+    wxCheckBox* coodselectbox = new wxCheckBox((wxPanel*) rightctl,wxID_ANY,"軸選択モード");
     coodselectbox-> Connect( wxEVT_CHECKBOX, wxCommandEventHandler(MyApp::coodselect),NULL, this);
     wxStaticText* pftext;
-    pftext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"Projection Factor");
-    slider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,50,0,400);
+    pftext = new wxStaticText((wxPanel*) leftctl,wxID_ANY,"Projection Factor");
+    slider = new wxSlider((wxPanel*) leftctl,wxID_ANY,50,0,400);
 
-    wxStaticText* thrtext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"類似度の閾値");
-    wxButton* thrbutton = new wxButton((wxPanel*) ctlPanel,wxID_ANY,"類似度初期化" );
-    //thrslider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,data->thr*100,0,data->thr*200);
+    wxStaticText* thrtext = new wxStaticText((wxPanel*) leftctl,wxID_ANY,"類似度の閾値");
+    wxButton* thrbutton = new wxButton((wxPanel*) leftctl,wxID_ANY,"類似度初期化" );
+    //thrslider = new wxSlider((wxPanel*) rightctl,wxID_ANY,data->thr*100,0,data->thr*200);
      //thr100 = data->thr*100;
-    wxStaticText* vctext = new wxStaticText((wxPanel*) ctlPanel,wxID_ANY,"V-Centrality");
+    wxStaticText* vctext = new wxStaticText((wxPanel*) leftctl,wxID_ANY,"V-Centrality");
     int avevc =  data->getEdge().size()*2 / data->num;
-    vcslider = new wxSlider((wxPanel*) ctlPanel,wxID_ANY,0,0,avevc*200);
-    histview = new HistView((wxPanel*) ctlPanel,vcslider,data);
+    vcslider = new wxSlider((wxPanel*) leftctl,wxID_ANY,0,0,avevc*200);
+    histview = new HistView((wxPanel*) leftctl,vcslider,data);
     
     undobutton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
         wxCommandEventHandler(MyApp::undobuttonclicked),NULL, this);
     
-    resetbutton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
+    resetbutton1->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
+        wxCommandEventHandler(MyApp::resetbuttonclicked),NULL, this);
+    resetbutton2->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
         wxCommandEventHandler(MyApp::resetbuttonclicked),NULL, this);
     
      thrbutton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
@@ -98,34 +111,46 @@ bool MyApp::OnInit()
     */
     vcslider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
       wxCommandEventHandler(MyApp::getvcslider),NULL, this);
-    
-    sizer2->Add(P1,1,wxEXPAND);
-    sizer2->Add(P2,1,wxEXPAND);
-    sizer2->Add(coodselectbox,1,wxEXPAND);
-    sizer2->Add(polyselectbox,1,wxEXPAND);
-    sizer2->Add(undobutton,1,wxEXPAND);
-    sizer2->Add(resetbutton,1,wxEXPAND);
-    sizer2->Add(pftext,1,wxEXPAND);
-    sizer2->Add(slider,1,wxEXPAND);
-    sizer2->Add(thrtext,1,wxEXPAND);
-    sizer2->Add(thrbutton,1,wxEXPAND);
-    sizer2->Add(histview,1,wxEXPAND);
-   // sizer2->Add(thrslider,1,wxEXPAND);
-    sizer2->Add(vctext,1,wxEXPAND);
-    sizer2->Add(vcslider,1,wxEXPAND);
-    ctlPanel->SetSizer(sizer2);
-    ctlPanel->SetAutoLayout(true);
 
-   sizer->Add(glPane, 1, wxEXPAND);
-   sizer->Add(pcPanel,1,wxEXPAND);
-   sizer->Add(xxview,1,wxEXPAND);
-   sizer->Add(ctlPanel,1,wxEXPAND);
-   mainPanel->SetSizer(sizer);
+    leftsizer->Add(polyselectbox,1,wxEXPAND);
+    leftsizer->Add(undobutton,1,wxEXPAND);
+    leftsizer->Add(resetbutton1,1,wxEXPAND);
+    leftsizer->Add(pftext,1,wxEXPAND);
+    leftsizer->Add(slider,1,wxEXPAND);
+    leftsizer->Add(histview,1,wxEXPAND);
+    leftsizer->Add(thrtext,1,wxEXPAND);
+    leftsizer->Add(thrbutton,1,wxEXPAND);
+    leftsizer->Add(vctext,1,wxEXPAND);
+    leftsizer->Add(vcslider,1,wxEXPAND);
+
+    leftctl->SetSizer(leftsizer);
+    leftctl->SetAutoLayout(true);
+    
+
+    rightsizer->Add(P1,1,wxEXPAND);
+    rightsizer->Add(P2,1,wxEXPAND);
+    rightsizer->Add(coodselectbox,1,wxEXPAND);
+    rightsizer->Add(resetbutton2,1,wxEXPAND);
+   // rightsizer->Add(thrslider,1,wxEXPAND);
+    rightctl->SetSizer(rightsizer);
+    rightctl->SetAutoLayout(true);
+   
+ 
+   mainsizer->Add(glPane, 1, wxEXPAND);
+   mainsizer->Add(pcPanel,1,wxEXPAND);
+   mainPanel->SetSizer(mainsizer);
    mainPanel->SetAutoLayout(true);
 
-   mainsizer->Add(mainPanel,1,wxEXPAND);
-   mainsizer->Add(md,1,wxEXPAND);
-   frame->SetSizer(mainsizer);
+   undersizer->Add(leftctl,1,wxEXPAND);
+   undersizer->Add(xxview,1,wxEXPAND);
+   undersizer->Add(md,1,wxEXPAND);
+   underPanel->SetSizer(undersizer);
+   undersizer->Add(rightctl,1,wxEXPAND);
+   underPanel->SetAutoLayout(true);
+
+   sizer->Add(mainPanel,1,wxEXPAND);
+   sizer->Add(underPanel,1,wxEXPAND);
+   frame->SetSizer(sizer);
    wxMenuBar* menubar = new wxMenuBar();
    wxMenu* menu1 = new wxMenu();
    int k = 0;
@@ -192,7 +217,7 @@ void MyApp::undobuttonclicked(wxCommandEvent& WXUNUSED(event)){
   frame->Show();
 }
 void MyApp::polyselect(wxCommandEvent& event){
-  glPane->isPoly = true;
+  glPane->isPoly = !glPane->isPoly  ;
 }
 
 void MyApp::coodselect(wxCommandEvent& event){

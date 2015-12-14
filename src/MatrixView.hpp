@@ -16,10 +16,11 @@ class MatrixView : public wxPanel{
 private:
 	ReadData* data;
 	wxStaticText* name;
+	wxGridSizer* sizer ;
 public:
-	MatrixView(wxFrame* frame, ReadData* d);
+	MatrixView(wxWindow* parent, ReadData* d);
 	~MatrixView();
-	void Create(wxGridSizer* sizer);
+	void Create();
 	void ReCreate();
 	void setText(int index);
 };

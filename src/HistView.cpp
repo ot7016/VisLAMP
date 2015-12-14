@@ -2,7 +2,7 @@
 
 using namespace std;
 HistView::HistView(wxWindow* parent,wxSlider* vc, ReadData* d) :
- wxGLCanvas(parent, wxID_ANY, NULL, wxDefaultPosition, wxSize(300,50), wxFULL_REPAINT_ON_RESIZE){
+ wxGLCanvas(parent, wxID_ANY, NULL, wxDefaultPosition, wxSize(200,50), wxFULL_REPAINT_ON_RESIZE){
  	 m_context = new wxGLContext(this);
      vcslider = vc;
     data = d;

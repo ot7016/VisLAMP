@@ -234,11 +234,10 @@ void Agi::writeprojection(){
      writenum++;
   }
 
-AGIPane::AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p, MatrixView* m) :
+AGIPane::AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p) :
     wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxSize(600,600), wxFULL_REPAINT_ON_RESIZE)
 {
     m_context = new wxGLContext(this);
-    md = m;
     data = d;
     ag = new Agi(d);
     pcp = p;
@@ -267,6 +266,10 @@ void AGIPane::Setting(){
     clickid = 0;
     setRate();
 } 
+void AGIPane::setMV(MatrixView* m){
+	md = m;
+}
+		void ReCreate();
 AGIPane::~AGIPane(){
     delete m_context;
     delete[] _pre;

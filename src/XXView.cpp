@@ -1,7 +1,7 @@
 #include "XXView.hpp"
 //大きさ要修正
 XXView::XXView(wxWindow* parent,ReadData* d,Agi* a)
-	:wxGLCanvas(parent,wxID_ANY,wxDefaultPosition, wxSize(600,600), wxFULL_REPAINT_ON_RESIZE){
+	:wxGLCanvas(parent,wxID_ANY,wxDefaultPosition, wxSize(400,400), wxFULL_REPAINT_ON_RESIZE){
          m_context = new wxGLContext(this);
 		data = d;
 		ag = a;

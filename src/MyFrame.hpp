@@ -26,6 +26,9 @@
 #include "XXView.hpp"
 
 
+
+
+
 class MyApp: public wxApp{
     virtual bool OnInit();
     void ReCreate();
