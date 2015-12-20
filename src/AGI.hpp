@@ -70,7 +70,6 @@
 		void setMV(MatrixView* m);
 		void ReCreate();
 		void Setting();
-		void resized(wxSizeEvent& evt);
 		int getWidth();
 		int getHeight();
 	void render(wxPaintEvent& evt);
@@ -78,12 +77,8 @@
 	// events
 	void mouseMoved(wxMouseEvent& event);
 	void mouseDown(wxMouseEvent& event);
-	void mouseWheelMoved(wxMouseEvent& event);
 	void mouseReleased(wxMouseEvent& event);
 	void rightClick(wxMouseEvent& event);
-	void mouseLeftWindow(wxMouseEvent& event);
-	void keyPressed(wxKeyEvent& event);
-	void keyReleased(wxKeyEvent& event);
 	int getindex(double x, double y);
 	void setRate();
 	void setdelta(double d);
@@ -113,5 +108,6 @@ private:
 	int clickid;
 	vector<pair<int,int> > polyvector;
 	pair<int,int>  polynow;
+	const int coodrate = 2;
 };
 #endif

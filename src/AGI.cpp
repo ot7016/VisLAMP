@@ -112,16 +112,27 @@ void Agi::cal2Mtr() {
 }
 //射影の更新
 
-
+//mdsの場合はこのままでも大丈夫 PCAの属性に対応すればOK
 int Agi::refine(double* _pre, double* _new, int index) {
 		//まずはe3を求める
 	int n = data->aginum;
 	int m = data->dim;
 	double pi[m];
 	double powpinorm = 0;
-	for(int i = 0; i<m; i++){
-		pi[i] = data->getA(index, i);
-		powpinorm = pow(pi[i], 2)+powpinorm;
+	//PCAで属性軸が選択されたとき
+	if(data->isPCA && index >= n){
+		int atrindex = index -n ;
+		for(int i = 0; i< m; i++){
+			pi[i] = 0.0;
+		}
+		pi[atrindex] = 1.0;
+		powpinorm = 1.0;
+	}
+	else{
+		for(int i = 0; i<m; i++){
+			pi[i] = data->getA(index, i);
+			powpinorm = pow(pi[i], 2)+powpinorm;
+		}
 	}
 	double pinorm = sqrt(powpinorm);
 	double powprenorm = pow(_pre[0], 2)+pow(_pre[1], 2);
@@ -269,7 +280,6 @@ void AGIPane::Setting(){
 void AGIPane::setMV(MatrixView* m){
 	md = m;
 }
-		void ReCreate();
 AGIPane::~AGIPane(){
     delete m_context;
     delete[] _pre;
@@ -286,48 +296,52 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
     double x = event.GetX();
     double y = event.GetY();
     if(!isMoved){
-    if(!isPoly){
-    //このxとyが点の2次元配列に含まれるならOK
-    //もちろんある程度の誤差は許容しなければならない
-    nowindex = getindex(x,y);
-    if(nowindex != -1 && nowindex < data->num){
-    	 std::cerr << data->name.at(nowindex) << std::endl;
-	    _pre[0] = ag->getB(nowindex, 0);
-    	_pre[1] = ag->getB(nowindex, 1);
-    	isMoved = true;
-    	data->setSIndex(nowindex);
-		md->setText(nowindex);
-		Refresh();
-		pcp->Refresh();
-	}
-	else if(!data->isPCA && nowindex != -1 && nowindex < data->aginum){
-		int index = nowindex - data->num;
-		nowindex = -1;
-		std::cerr << data->atrname.at(index)<< std::endl;
-	}
+    	if(!isPoly){
+    		//このxとyが点の2次元配列に含まれるならOK
+    		//もちろんある程度の誤差は許容しなければならない
+    		nowindex = getindex(x,y);
+    		if(nowindex != -1 && nowindex < data->num){
+    	 		std::cerr << data->name.at(nowindex) << std::endl;
+	    		_pre[0] = ag->getB(nowindex, 0);
+    			_pre[1] = ag->getB(nowindex, 1);
+    			isMoved = true;
+    			data->setSIndex(nowindex);
+				md->setText(nowindex);
+				Refresh();
+				pcp->Refresh();
+			}
+			else if(nowindex != -1 && nowindex < data->num+data->atr){
+				int index = nowindex - data->num;
+				//nowindex = -1;
+				std::cerr << data->atrname.at(index)<< std::endl;
+				_pre[0] = ag->getV(index,0);
+    			_pre[1]  =ag->getV(index,1);
+    			isMoved = true;
+				//Refresh();
+				//pcp->Refresh();
+				}
 	
-	//どのノードも近くないときは複数選択
-	else{
-		xfrom = x;
-		yfrom = y;
-		rangeselect = true;
+			//どのノードも近くないときは複数選択
+			else{
+				xfrom = x;
+				yfrom = y;
+				rangeselect = true;
+			}
+   		}
+   		// 投げ縄選択はボタンを押して発動させるようにする
+		//2点以上クリックで選んだのち右クリックして終了
+		// mouse release後も処理が続くので注意	
+		else if(isPoly){
+			if(!polystart){
+				polyvector.clear();
+				polystart = true;
+			}
+			auto from = pair<int,int>(x,y);
+			polyvector.push_back(from);
+		}	
 	}
-   }
-   // 投げ縄選択はボタンを押して発動させるようにする
-	//2点以上クリックで選んだのち右クリックして終了
-	// mouse release後も処理が続くので注意	
-	else if(isPoly){
-		if(!polystart){
-			polyvector.clear();
-			polystart = true;
-		}
-		auto from = pair<int,int>(x,y);
-		polyvector.push_back(from);
-	}
-	
 }
-}
-
+//属性にも対応させる  calcagainでも大丈夫か?
 void AGIPane::mouseMoved(wxMouseEvent& event) {
 	if(!isPoly){
 	 	if(nowindex != -1 && isMoved && !iscalc){
@@ -335,9 +349,16 @@ void AGIPane::mouseMoved(wxMouseEvent& event) {
 	 		std::cerr << "mouseMoved " << std::endl;
 	 		isDrug = true;
 	 		calcagain(event.GetX(),event.GetY());
-	 		_pre[0] = ag->getB(nowindex, 0);
-    		_pre[1] = ag->getB(nowindex, 1);
-    		iscalc = false;
+	 		int num = data->num;
+	 		if(data->isPCA && nowindex >= num){
+	 			_pre[0] = ag->getV(nowindex-num,0);
+	 			_pre[1] = ag->getV(nowindex-num,1);
+	 		}
+	 		else{
+	 			_pre[0] = ag->getB(nowindex, 0);
+    			_pre[1] = ag->getB(nowindex, 1);
+    		}
+    		iscalc = false; 
  		}
  		else if(rangeselect && !iscalc){
  			iscalc =true;
@@ -363,6 +384,74 @@ void AGIPane::mouseMoved(wxMouseEvent& event) {
  	}
 
 }
+
+int AGIPane::getindex(double x, double y){
+    int index = -1;
+    const double min = 0.05;
+    double minnow = min; 
+    double d; 
+    double x2 = (x - getWidth()/2) /xrate;
+    double y2 = (y - getHeight()/2) /yrate;
+
+    for(int i :data->filterindex){
+        d = sqrt(pow(ag->getB(i, 0)-x2, 2)+pow(ag->getB(i, 1)-y2, 2));
+        if(d < minnow){
+            minnow = d;
+            index = i;
+        }
+    }
+    if(index== -1 && data->isPCA){
+    	minnow = 0.05;
+    	x2 = x2/ coodrate;
+    	y2 = y2/coodrate;
+    	for(int i = 0;i< data->atr;i++){
+    		 //直線上どこでも選択できるようにすると移動でマウスによるベクトルの長さが選択できなくなる
+    		d = sqrt(pow(ag->getV(i, 0)-x2, 2)+pow(ag->getV(i, 1)-y2, 2));
+    		//d =fabs( ag->getV(i,0)* y2  - ag->getV(i,1) * x2 );
+    		if(d < minnow){
+    			minnow = d;
+    			index = i+data->num;
+    		}
+    	}
+    }
+    return index;
+} 
+
+void AGIPane::calcagain(double x,double y){
+	_new[0] = (x - getWidth() /2) /xrate;
+     _new[1] = (y - getHeight() /2) /yrate;
+     int n = data->num;
+     if(data->isPCA && nowindex >= n){
+     	_new[0] = _new[0]/ coodrate;
+     	_new[1] = _new[1]/ coodrate;
+     }
+     ag->refine(_pre, _new, nowindex) ;
+     int atr = data->atr;
+     
+     double** v = new double*[atr];
+     if(data->isPCA){
+     		//PCAのときはePをvに入れる
+     		for(int i = 0;i< atr;i++){
+     			v[i] = new double[2];
+     			v[i][0] = ag->getV(i,0);
+     			v[i][1] = ag->getV(i,1);
+     		}
+     	}
+     	else{
+     		for(int i = 0 ; i< atr; i++){
+     			v[i] = new double[2];
+   				v[i][0] = ag->getB(n + i, 0);
+    			v[i][1] = ag->getB(n + i, 1);
+     		}
+     	}
+     	pcp->refine(v); 
+     	if(nowindex < n)
+     		md->setText(nowindex);
+     	auto parent = GetGrandParent();
+     	parent-> Refresh();
+    
+}
+
 void AGIPane::calRange(int x2, int y2){
 	xto = x2;
 	yto = y2;
@@ -430,9 +519,6 @@ void AGIPane::calPoly(){
 	
 }
 
-void AGIPane::mouseWheelMoved(wxMouseEvent& event) {
-	
-}
 void AGIPane::mouseReleased(wxMouseEvent& event){
 	std::cerr << "MouseReleased " << std::endl;
 	if(!isPoly){	
@@ -447,7 +533,6 @@ void AGIPane::mouseReleased(wxMouseEvent& event){
    		clickid  = clickid +2;
    		isMoved = false;
    		isDrug = false;
-   		// ag->writeprojection();
    		ag -> writeagicood();
  	}
  	//poly選択の際にはこのイベントがあっても続く
@@ -481,43 +566,9 @@ void AGIPane::rightClick(wxMouseEvent& event) {
 		clickid = clickid+2;
 	}
 }
-void AGIPane::mouseLeftWindow(wxMouseEvent& event) {}
-void AGIPane::keyPressed(wxKeyEvent& event) {}
-void AGIPane::keyReleased(wxKeyEvent& event) {}
 
-void AGIPane::calcagain(double x,double y){
-	_new[0] = (x - getWidth() /2) /xrate;
-     _new[1] = (y - getHeight() /2) /yrate;
-  
-     	ag->refine(_pre, _new, nowindex) ;
-     	int atr = data->atr;
-     	int n = data->num;
-     	double** v = new double*[atr];
-     	if(data->isPCA){
-     		//PCAのときはePをvに入れる
-     		for(int i = 0;i< atr;i++){
-     			v[i] = new double[2];
-     			v[i][0] = ag->getV(i,0);
-     			v[i][1] = ag->getV(i,1);
-     		}
-     	}
-     	else{
-     		for(int i = 0 ; i< atr; i++){
-     			v[i] = new double[2];
-   				v[i][0] = ag->getB(n + i, 0);
-    			v[i][1] = ag->getB(n + i, 1);
-     		}
-     	}
-     	pcp->refine(v); 
-     	md->setText(nowindex);
-     	auto parent = GetGrandParent();
-     	parent-> Refresh();
-    
-}
+
  
-void AGIPane::resized(wxSizeEvent& evt)
-{
-}
  
 void AGIPane::prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y)
 {
@@ -568,23 +619,7 @@ void AGIPane::setRate(){
  	Refresh();
  }
 
-int AGIPane::getindex(double x, double y){
-    int index = -1;
-    const double min = 0.05;
-    double minnow = min; 
-    double d; 
-    double x2 = (x - getWidth()/2) /xrate;
-    double y2 = (y - getHeight()/2) /yrate;
 
-    for(int i :data->filterindex){
-        d = sqrt(pow(ag->getB(i, 0)-x2, 2)+pow(ag->getB(i, 1)-y2, 2));
-        if(d < minnow){
-            minnow = d;
-            index = i;
-        }
-    }
-    return index;
-} 
 
 void AGIPane::undo(){
 	ag->backprj();
@@ -625,7 +660,6 @@ void AGIPane::render(wxPaintEvent& evt)
     glVertex3f(width, height, 0);
     glVertex3f(0, height, 0);
     glEnd();
-	//std::vector<int> selected = data->getSIndex();
     std::list<int> notselected = data->getNSIndex();
     int num = data->num;
     //辺を描く
@@ -717,7 +751,7 @@ void AGIPane::render(wxPaintEvent& evt)
 
 }
 void AGIPane::drawcoodname(int i, int w, int h){
-	glRasterPos2d(ag->getV(i,0)*xrate *2 + w/2, ag->getV(i,1)*yrate *2+ h/2);
+	glRasterPos2d(ag->getV(i,0)*xrate * coodrate + w/2, ag->getV(i,1)*yrate *coodrate+ h/2);
     std::string str = data->atrname.at(i);
    	int size = (int)str.size();
     for(int j = 0;j< size;j++){

@@ -465,7 +465,7 @@ bool ReadData::containSelectedCood(int a){
 RGB ReadData::setColor(){
   //とりあえずこれで49色
   int size = cluster.size();
-  float hue = (size % 10 )* 0.1 + size/ 50.0;
+  float hue = (size % 10 )* 0.1;
   
   HSV hsv =  HSV(hue,0.7,0.7) ;
   return  HSVtoRGB(hsv);

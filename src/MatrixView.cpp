@@ -29,30 +29,6 @@ void MatrixView::Create(){
 		wxStaticText* value =  new wxStaticText(this,i+atr,"");
 		sizer->Add(value,1,wxEXPAND);
 	} 
-	/*
-	//再読み込みの際にバグるので書き直したほうがいいかも	
-	wxPanel* nPanel = new wxPanel(this,0);
-	wxPanel* space = new wxPanel(nPanel,wxID_ANY);
-	name = new wxStaticText(nPanel,wxID_ANY,"                                        ");
-	wxGridSizer* nsizer = new wxGridSizer(2,1,20,100);
-	nsizer->Add(space,1,wxEXPAND);
-	nsizer->Add(name,1,wxEXPAND);
-	nPanel->SetSizer(nsizer);
-	sizer->Add(nPanel,1,wxEXPAND);
-	int atr = data->atr;
-	for(int i = 0;i< atr;i++){
-		wxPanel* vPanel = new wxPanel(this,i+1,wxDefaultPosition, wxSize(100,50), wxFULL_REPAINT_ON_RESIZE);
-		wxGridSizer* vsizer = new wxGridSizer(2,1,20,100);
-		wxStaticText* label =  new wxStaticText(vPanel,wxID_ANY,data->atrname.at(i));
-		vsizer->Add(label,1,wxEXPAND);
-		wxStaticText* value = new wxStaticText(vPanel,wxID_ANY,"");
-		vsizer->Add(value,1,wxEXPAND);
-		vPanel->SetAutoLayout(true);
-		vPanel->SetSizer(vsizer);
-		sizer->Add(vPanel,1,wxEXPAND);
-		
-	}
-	*/
 	
 }
 
