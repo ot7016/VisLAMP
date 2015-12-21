@@ -177,9 +177,13 @@ int Agi::refine(double* _pre, double* _new, int index) {
 	for(int i = 0; i < m; i++){
 		ee.push_back(prj(e1[i],e2[i]));
 	}
-	prjstack.push(ee);
+	
 	cal2Mtr();
 	return 0;
+}
+
+void Agi::prjpush(){
+	prjstack.push(ee);
 }
 void Agi::backprj(){
 	if(prjstack.size()>1){
@@ -271,6 +275,8 @@ void AGIPane::Setting(){
     yfrom = -1;
     yto = -1;
     clickid = 0;
+    logvector.clear();
+    logmode = false;
     setRate();
 } 
 void AGIPane::setMV(MatrixView* m){
@@ -305,6 +311,7 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
 				md->setText(nowindex);
 				Refresh();
 				pcp->Refresh();
+				addLog(nowindex,_pre[0],_pre[1]);
 			}
 			else if(nowindex != -1 && nowindex < data->num+data->atr){
 				int index = nowindex - data->num;
@@ -313,8 +320,7 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
 				_pre[0] = ag->getV(index,0);
     			_pre[1]  =ag->getV(index,1);
     			isMoved = true;
-				//Refresh();
-				//pcp->Refresh();
+				addLog(nowindex,_pre[0],_pre[1]);
 				}
 	
 			//どのノードも近くないときは複数選択
@@ -354,6 +360,7 @@ void AGIPane::mouseMoved(wxMouseEvent& event) {
 	 			_pre[0] = ag->getB(nowindex, 0);
     			_pre[1] = ag->getB(nowindex, 1);
     		}
+
     		iscalc = false; 
  		}
  		else if(rangeselect && !iscalc){
@@ -403,7 +410,6 @@ int AGIPane::getindex(double x, double y){
     	for(int i = 0;i< data->atr;i++){
     		 //直線上どこでも選択できるようにすると移動でマウスによるベクトルの長さが選択できなくなる
     		d = sqrt(pow(ag->getV(i, 0)-x2, 2)+pow(ag->getV(i, 1)-y2, 2));
-    		//d =fabs( ag->getV(i,0)* y2  - ag->getV(i,1) * x2 );
     		if(d < minnow){
     			minnow = d;
     			index = i+data->num;
@@ -519,9 +525,11 @@ void AGIPane::mouseReleased(wxMouseEvent& event){
 	std::cerr << "MouseReleased " << std::endl;
 	if(!isPoly){	
 		if(nowindex != -1 && isDrug){
-  			calcagain(event.GetX(),event.GetY());
+  			//calcagain(event.GetX(),event.GetY());
     		//このxとyが点の2次元配列に含まれるならOK
     		//もちろんある程度の誤差は許容しなければならない
+    		ag->prjpush();
+    		addLog(nowindex,_pre[0],_pre[1]);
   		}
   		else if(rangeselect){
 	  		rangeselect = false;
@@ -625,8 +633,14 @@ void AGIPane::undo(){
      double** v = new double*[atr];
      for(int i = 0 ; i< atr; i++){
      	v[i] = new double[2];
-   		v[i][0] = ag->getB(n + i, 0);
-    	v[i][1] = ag->getB(n + i, 1);
+     	if(data->isPCA){
+     		v[i][0] = ag->getV(i,0);
+     		v[i][1] = ag->getV(i,1);
+     	}
+     	else{
+   			v[i][0] = ag->getB(n + i, 0);
+    		v[i][1] = ag->getB(n + i, 1);
+    	}
      }
      pcp->refine(v); 
 }
@@ -754,5 +768,56 @@ void AGIPane::drawcoodname(int i, int w, int h){
        	char ic = str[j];
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ic);
     }   		
+}
+
+
+void AGIPane::keyPressed(wxKeyEvent& event){
+	   std::cerr << "keyPressed" << std::endl; 
+	   if(logmode){
+	   	//nodeを読み込み計算する	
+	   }
+}
+void AGIPane::addLog(int index,int x, int y){
+	auto l = NodeLog(index,x,y);
+	logvector.push_back(l);
+}
+void AGIPane::saveLog(){
+	string d = data->dataname.at(data->dataid);
+    string dir = "../data/" + d +"/"+ d+ "-log.dat";
+
+    ofstream fs2(dir,ios::out | ios::binary);
+    for(auto node: logvector ){
+     	fs2.write((char*) &node.index,sizeof(int));
+     	fs2.write((char*) &node.x,sizeof(double));
+     	fs2.write((char*) &node.y,sizeof(double));
+   }
+   fs2.close();
+}
+void AGIPane::loadLog(){
+  ifstream ifs;
+  int status = STATUS_OK;
+  string d = data->dataname.at(data->dataid);
+  string dir = "../data/" + d +"/"+ d+ "-log.dat";
+  ifs.open(dir,ios::binary);
+  //src_size = ifs.tellg();
+  logvector.clear();
+  string str;
+  if (ifs.fail()){
+        cerr << "log読み込み失敗" << endl;
+        exit(1);
+  }
+    
+  ifs.seekg(0);
+  while( (status == STATUS_OK) && (!ifs.eof())) {
+  	//このindexが本当に大丈夫か確認必要あり
+  	int index ;
+    ifs.read((char* ) index, sizeof(int) );
+    double xy[2]; 
+    ifs.read((char* ) xy, sizeof(double)*2 );
+    auto l = NodeLog(index,xy[0],xy[1]);
+    logvector.push_back(l);
+  }
+  ifs.close();
+  logmode = true;
 }
 

@@ -30,6 +30,7 @@
 		virtual ~Agi();
 		void ReCreate();
 		void calprj();
+		void prjpush();
 		void cal2Mtr() ;
 		int refine(double* _pre, double* _new,int index);
 		void backprj();
@@ -56,6 +57,12 @@
  	    int writenum = 0;
 
 	};
+	struct NodeLog{
+		NodeLog(){}
+    	NodeLog( int i_, double x_, double y_ ) : index(i_),x(x_),y(y_){}
+    	int index;
+    	double x,y;  // [0.0f, 1.0f]
+    };
 
 
 	class AGIPane: public wxGLCanvas{
@@ -79,6 +86,7 @@
 	void mouseDown(wxMouseEvent& event);
 	void mouseReleased(wxMouseEvent& event);
 	void rightClick(wxMouseEvent& event);
+	void keyPressed(wxKeyEvent& event);
 	int getindex(double x, double y);
 	void setRate();
 	void setdelta(double d);
@@ -87,8 +95,13 @@
 	void calPoly();
 	void undo();
 	void drawcoodname(int i, int w, int h);
+	void addLog(int index,int x, int y);
+	void saveLog();
+	void loadLog();
+
 	Agi* ag;
 	bool isPoly = false;
+	std::vector<NodeLog > logvector; 
  
 
 	DECLARE_EVENT_TABLE()
@@ -101,6 +114,7 @@ private:
 	bool isMoved, isDrug, iscalc;
 	bool polystart = false;
 	bool rangeselect,polyselect;
+	bool logmode;
 	int xfrom;
 	int yfrom;
 	int xto;

@@ -62,6 +62,7 @@ public:
     void getthrslider(wxCommandEvent& event);
     void getvcslider(wxCommandEvent& event);
     void openfile(wxCommandEvent& event);
+    void savelog(wxCommandEvent& event);
 };
  
 

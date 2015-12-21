@@ -93,8 +93,8 @@ void PCPPane::refine(double** v){
         PCPSub *current = (PCPSub *)node->GetData(); 
         current->setSumLength(sumlength,getHeight());
         }
-         SetAutoLayout(true);
-       //  Refresh();
+        // Layout();
+         Refresh();
 }
 void PCPPane::reselect(){
     auto parent = GetGrandParent();

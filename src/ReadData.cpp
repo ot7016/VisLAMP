@@ -485,6 +485,7 @@ RGB ReadData::HSVtoRGB(HSV& hsv ){
 
     RGB rgb;
 
+  
     switch(hueI)
     {
       case 0: rgb.r = v; rgb.g = p; rgb.b = m; break;

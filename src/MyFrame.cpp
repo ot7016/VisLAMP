@@ -160,6 +160,12 @@ bool MyApp::OnInit()
    k++;
    }
    menubar->Append(menu1, _T("&Data"));
+   wxMenu* menu2 = new wxMenu();
+   menu2->Append(0, "Save", _T("Save MouseLog"));
+   menu2->Bind(wxEVT_COMMAND_MENU_SELECTED,&MyApp::savelog,this,0) ;
+   menu2->Append(1, "Load", _T("Load MouseLog"));
+   menu2->Bind(wxEVT_COMMAND_MENU_SELECTED,&MyApp::savelog,this,1) ;
+   menubar->Append(menu2, _T("&Mouse Log"));
    frame->SetMenuBar(menubar);
     frame->SetAutoLayout(true);
 
@@ -269,13 +275,21 @@ void MyApp::openfile(wxCommandEvent& event){
    frame->Refresh();
   
 }
-
+void MyApp::savelog(wxCommandEvent& event){
+  int id = event.GetId();
+  switch(id)
+    {
+      case 0: glPane->saveLog(); break;
+      case 1: glPane->loadLog(); frame->Refresh(); break;
+      }
+}
 
 BEGIN_EVENT_TABLE(AGIPane, wxGLCanvas)
 EVT_MOTION(AGIPane::mouseMoved)
 EVT_LEFT_DOWN(AGIPane::mouseDown)
 EVT_LEFT_UP(AGIPane::mouseReleased)
 EVT_RIGHT_DOWN(AGIPane::rightClick)
+EVT_KEY_DOWN(AGIPane::keyPressed)
 EVT_PAINT(AGIPane::render)
 END_EVENT_TABLE()
 
