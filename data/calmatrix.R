@@ -104,8 +104,8 @@ readcarpca<-function(){
 	close(wt)
 	write.csv(colnames(t)[1:8],"cars-pca/kcars-atrname.csv",quote = FALSE,row.names = FALSE)
 	
-	write.csv(t[,9],"cars-pca/kcars-name.csv",quote = FALSE,row.names = FALSE)
-	 calpca(t1,"cars-pca/kcars")
+	write.csv(t[,9],"cars/cars-name.csv",quote = FALSE,row.names = FALSE)
+	 calpca(t1,"cars/cars")
 }
 readturkiyepca <- function(){
 	t <- read.csv("turkiye-pca/turkiye-student-evaluation_R_Specific.csv",header = T)
@@ -113,11 +113,11 @@ readturkiyepca <- function(){
 	#t3 <- t[,1]
 	write.csv(colnames(t)[2:33],"turkiye-pca/turkiye-atrname.csv",quote = FALSE,row.names = FALSE)
     write.csv(rownames(t),"turkiye-pca/turkiye-name.csv",quote = FALSE,row.names = FALSE)
-	wt = file("turkiye-pca/turkiye-original.dat","wb")
+	wt = file("turkiye/turkiye-original.dat","wb")
 	t4 <- as.double(t(as.matrix(t2)))
 	writeBin(t4,wt)
 	close(wt)
-	calpca(t2,"turkiye-pca/turkiye")
+	calpca(t2,"turkiye/turkiye")
 }
 
 readspidpca <- function(){
@@ -127,10 +127,10 @@ readspidpca <- function(){
     t3 <- as.double(t(as.matrix(t2)))
     write.csv(colnames(t)[3:53],"spid-pca/spid-atrname.csv",quote = FALSE,row.names = FALSE)
     write.csv(t1,"spid-pca/spid-name.csv",quote = FALSE,row.names = FALSE)
-    wt = file("spid-pca/spid-original.dat","wb")
+    wt = file("spid/spid-original.dat","wb")
     writeBin(t3,wt)
     close(wt)
-    calpca(t2,"spid-pca/spid")
+    calpca(t2,"spid/spid")
 }
 readbikepca <- function(){
 	t <- read.csv("bike-pca/day.csv",header = T)
@@ -142,9 +142,25 @@ readbikepca <- function(){
     wt = file("bike-pca/bike-original.dat","wb")
     writeBin(t3,wt)
     close(wt)
-    calpca(t2,"bike-pca/bike")
+    calpca(t2,"bike/bike")
 
 }
+#xmdvからダウンロードしたものを使うとき	
+readxmdvpca <- function(str){
+	dir <- paste(str,"/",str,sep = "")
+	t2 <- read.table(paste(dir,".txt",sep = ""),header = T)
+    t3 <- as.double(t(as.matrix(t2)))
+    write.csv(colnames(t2),paste(dir,"-atrname.csv",sep = ""),quote = FALSE,row.names = FALSE)
+    write.csv(rownames(t2),paste(dir,"-name.csv",sep = ""),quote = FALSE,row.names = FALSE)
+    wt = file(paste(dir,"-original.dat",sep = ""),"wb")
+    writeBin(t3,wt)
+    close(wt)
+    calpca(t2,dir)
+
+}
+
+
+
 readtenkipca <- function(){
 	t <- read.csv("tenki/tenki.csv",header = T)
      #全部表示すると潰れてしまうので今はこれで
@@ -159,6 +175,8 @@ readtenkipca <- function(){
     calpca(t2,"tenki/tenki")
 
 }
+
+
 
 #thrは 閾値
 readcars<- function(thr = 0){

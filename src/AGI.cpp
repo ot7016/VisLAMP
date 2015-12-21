@@ -111,7 +111,6 @@ void Agi::cal2Mtr() {
 
 }
 //射影の更新
-
 //mdsの場合はこのままでも大丈夫 PCAの属性に対応すればOK
 int Agi::refine(double* _pre, double* _new, int index) {
 		//まずはe3を求める
@@ -123,10 +122,9 @@ int Agi::refine(double* _pre, double* _new, int index) {
 	if(data->isPCA && index >= n){
 		int atrindex = index -n ;
 		for(int i = 0; i< m; i++){
-			pi[i] = 0.0;
+			pi[i] = data->getevector(atrindex,i);
+		 powpinorm = pow(pi[i], 2)+powpinorm;
 		}
-		pi[atrindex] = 1.0;
-		powpinorm = 1.0;
 	}
 	else{
 		for(int i = 0; i<m; i++){
@@ -138,7 +136,6 @@ int Agi::refine(double* _pre, double* _new, int index) {
 	double powprenorm = pow(_pre[0], 2)+pow(_pre[1], 2);
 	double prenorm = sqrt(powprenorm);
 	double newnorm = sqrt(pow(_new[0], 2)+pow(_new[1], 2));
-	
  	if(pinorm < prenorm) {
  		std::cerr << "X error pinorm " << std::endl;
  		std::cerr << pinorm << std::endl;
@@ -150,7 +147,6 @@ int Agi::refine(double* _pre, double* _new, int index) {
  		std::cerr << "X2 error" << std::endl;
  		return -2;
  	}
- 	
 	double f3[m];
  	double f3norm = 0;
  	for(int i = 0; i<m; i++) {

@@ -111,7 +111,8 @@ void ReadData::readsetting(string dir){
 
 void ReadData::readcood(string dir){	
 	//ここでAを動的確保
-	//Aの読み取り
+  //論文中ではAを元のデータ行列としてしまっているがこのプログラム中では高次元配置
+	//Aの読み取り 
 	fstream fs(dir+"-cood.dat",ios::in | ios::binary);
 	if (!fs){
         cerr << "cood失敗" << endl;
