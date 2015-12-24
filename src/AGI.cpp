@@ -277,6 +277,7 @@ void AGIPane::Setting(){
     clickid = 0;
     logvector.clear();
     logmode = false;
+    logid = 0;
     setRate();
 } 
 void AGIPane::setMV(MatrixView* m){
@@ -773,9 +774,31 @@ void AGIPane::drawcoodname(int i, int w, int h){
 
 void AGIPane::keyPressed(wxKeyEvent& event){
 	   std::cerr << "keyPressed" << std::endl; 
-	   if(logmode){
+	   if(logmode && logid < logvector.size()){
 	   	//nodeを読み込み計算する	
+	   	auto nodelog = logvector.at(logid);
+	   	if(logid %2 == 0){
+	   		nowindex = nodelog.index;
+	   		_pre[0] = nodelog.x;
+	   		_pre[1] = nodelog.y;
+	   		if(nowindex < data->num)
+	   			data->setSIndex(nowindex);
+	   		auto parent = GetGrandParent();
+	   		parent->Refresh();
+	   	}
+	   	else {
+	   		_new[0] = nodelog.x;
+	   		_new[1] = nodelog.y;
+	   		calcagain(nodelog.x*xrate + getWidth()/2, nodelog.y *yrate + getHeight()/2);
+
+	   	}
+	   	logid++;
+	   	if(logid == logvector.size()){
+	   	 std::cerr << " DONE ALL" << std::endl; 
+	   	logmode = false;
 	   }
+	   }
+	   
 }
 void AGIPane::addLog(int index,int x, int y){
 	auto l = NodeLog(index,x,y);
@@ -792,6 +815,7 @@ void AGIPane::saveLog(){
      	fs2.write((char*) &node.y,sizeof(double));
    }
    fs2.close();
+    std::cerr << "SAVE LOG" << std::endl; 
 }
 void AGIPane::loadLog(){
   ifstream ifs;
@@ -810,14 +834,15 @@ void AGIPane::loadLog(){
   ifs.seekg(0);
   while( (status == STATUS_OK) && (!ifs.eof())) {
   	//このindexが本当に大丈夫か確認必要あり
-  	int index ;
+  	int index[1] ;
     ifs.read((char* ) index, sizeof(int) );
     double xy[2]; 
     ifs.read((char* ) xy, sizeof(double)*2 );
-    auto l = NodeLog(index,xy[0],xy[1]);
+    auto l = NodeLog(index[0],xy[0],xy[1]);
     logvector.push_back(l);
   }
   ifs.close();
+   std::cerr << " LOAD COMPLETE" << std::endl; 
   logmode = true;
 }
 

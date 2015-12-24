@@ -120,6 +120,7 @@ private:
 	int xto;
 	int yto;
 	int clickid;
+	int logid ;
 	vector<pair<int,int> > polyvector;
 	pair<int,int>  polynow;
 	const int coodrate = 2;
