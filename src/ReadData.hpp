@@ -76,6 +76,7 @@ class ReadData{
 	RGB setColor();
     void calDgCentrality(int dgthr);
     void clearall();
+    void makesubdata();
 	double* A;
 	double* alldist;
 	double distmax;

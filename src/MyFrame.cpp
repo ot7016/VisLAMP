@@ -283,6 +283,14 @@ void MyApp::savelog(wxCommandEvent& event){
       case 1: glPane->loadLog(); frame->Refresh(); break;
       }
 }
+void MyApp::makedatabuttonclicked(wxCommandEvent& event){
+  //選択されている部分をサブデータにして保存
+  data->makesubdata();
+  //data->clearall();
+   ReCreate();
+   frame->Refresh();
+
+}
 
 BEGIN_EVENT_TABLE(AGIPane, wxGLCanvas)
 EVT_MOTION(AGIPane::mouseMoved)

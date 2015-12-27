@@ -79,7 +79,7 @@ void XXView::render(wxPaintEvent &event){
     sort(xindex.begin(),xindex.end(),lesspair);
     //色はあとで調整
     //色の違いをどのように変えるかが問題 とりあえずdistmaxを三等分で
-    double distmax = data->distmax;
+    double thr = data->thr;
      glColor4f(0.2f, 0.4f, 0.7f, 1.0f);
     for(int i = 0; i< num;i++){
     	auto p1 = xindex.at(i);
@@ -87,7 +87,7 @@ void XXView::render(wxPaintEvent &event){
     		auto p2 = xindex.at(j);
     		double d = data->alldist[num* p1.first + p2.first];
             //ここのしきい値をどうするかが課題
-    		if(i != j && d < distmax/5){
+    		if(i != j && d < thr){
                 glBegin(GL_QUADS);
                 int x1 =(int) (xrate * i);
                 int x2 = max((int)( xrate*(i+1)),x1+1);

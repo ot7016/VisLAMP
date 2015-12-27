@@ -499,6 +499,49 @@ RGB ReadData::HSVtoRGB(HSV& hsv ){
     return rgb;
   }
 
+  //一番最後に選択されたクラスターを保存し、サブデータに
+  //必要なもの クラスターデータの元の値 　属性名　項目の名前 属性数 
+  void ReadData::makesubdata(){
+    auto cnum = cluster.back();
+     string d = dataname.at(dataid);
+    system("mkdir ../data/temp");
+    const char* d2 = d.c_str();
+    int size = cnum.index.size();
+    string dir = "../data/temp/"+ d+ "-original.dat";
+
+    ofstream fs2(dir,ios::out | ios::binary);
+    for(int i:cnum.index){
+      for(int j = 0; j< atr; j++){
+      fs2.write((char*) &D[i*num+j],sizeof(double));
+    }
+   }
+   fs2.close();
+   //input.txtも作る
+   ofstream ofs("../data/temp/"+d+ "-atrname.csv");
+   for(string a: atrname){
+    ofs << a << std::endl;
+   }
+   ofstream ofs2("../data/temp/"+d+ "-name.csv");
+   for(int i:cnum.index){
+    ofs << name.at(i) << std::endl;
+   }
+    // ファイルに1行ずつ書き込み
+    std::cerr << "R boot" << std::endl; 
+    //引数をつける
+    string strcommand = "R ../data/makesubdata.R "+ d + " "+to_string(num) +" "+to_string(atr);
+    const char* command = strcommand.c_str(); 
+    system(command);
+    //再起動
+    //temp の　ところを読み込み
+    clearall();
+    string dir = "../data/temp/"+ d;
+    readsetting(dir);
+    readcood(dir);
+    readevalue(dir);
+    readDist(dir);
+    readoriginal(dir);
+  }
+
 
   
 

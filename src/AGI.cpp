@@ -144,8 +144,17 @@ int Agi::refine(double* _pre, double* _new, int index) {
  		return -1;
  	} 
  	if (pinorm < newnorm){
- 		std::cerr << "X2 error" << std::endl;
- 		return -2;
+ 		double gamma = 0.001;
+ 		if(newnorm > (1- gamma)*pinorm){
+ 			double _new2[2];
+ 			_new2[0] = (1-gamma) * pinorm * _new[0] / newnorm ;
+ 			_new2[1] = (1-gamma) * pinorm * _new[1] / newnorm ;
+ 			refine(_pre, _new2,index);
+ 		}
+ 		else {
+ 			std::cerr << "X2 error" << std::endl;
+ 			return -2;
+ 		}
  	}
 	double f3[m];
  	double f3norm = 0;
@@ -538,7 +547,7 @@ void AGIPane::mouseReleased(wxMouseEvent& event){
    		clickid  = clickid +2;
    		isMoved = false;
    		isDrug = false;
-   		ag -> writeagicood();
+   		//ag -> writeagicood();
  	}
  	//poly選択の際にはこのイベントがあっても続く
  	else{

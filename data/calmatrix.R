@@ -107,6 +107,7 @@ readcarpca<-function(){
 	write.csv(t[,9],"cars/cars-name.csv",quote = FALSE,row.names = FALSE)
 	 calpca(t1,"cars/cars")
 }
+
 readturkiyepca <- function(){
 	t <- read.csv("turkiye-pca/turkiye-student-evaluation_R_Specific.csv",header = T)
 	t2 <- t[,2:33]
@@ -157,6 +158,30 @@ readxmdvpca <- function(str){
     close(wt)
     calpca(t2,dir)
 
+}
+readwineqred<-function(){
+	t1 <- read.csv("wineq/winequality-red.csv",header = T)
+	wt = file("wineq/wineq-original.dat","wb")
+	t2 <- t(as.matrix(t1))
+	t3 <- as.double(t2)
+	writeBin(t3,wt)
+	close(wt)
+	write.csv(colnames(t1),"wineq/wineq-atrname.csv",quote = FALSE,row.names = FALSE)
+	
+	write.csv(rownames(t1),"wineq/wineq-name.csv",quote = FALSE,row.names = FALSE)
+	 calpca(t1,"wineq/wineq")
+}
+readwine<-function(){
+	t1 <- read.csv("wine/winedata.txt",header = T)
+	wt = file("wine/wine-original.dat","wb")
+	t2 <- t(as.matrix(t1))
+	t3 <- as.double(t2)
+	writeBin(t3,wt)
+	close(wt)
+	write.csv(colnames(t1),"wine/wine-atrname.csv",quote = FALSE,row.names = FALSE)
+	
+	write.csv(rownames(t1),"wine/wine-name.csv",quote = FALSE,row.names = FALSE)
+	 calpca(t1,"wine/wine")
 }
 
 
