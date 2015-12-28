@@ -1,10 +1,11 @@
-#!/bin/r
-source("calmatrix.R")
+#!/usr/bin/rscript
+source("../data/calmatrix.R")
 args <- commandArgs(trailingOnly = T)
 dataname <- args[1]
-num <- args[2]
-atr <- args[3]
+num <- as.integer(args[2])
+atr <-as.integer(args[3])
 to.read = file(paste(dataname,"-original.dat",sep = ""), "rb")
-cd <-readbin(to.read, double(), n = num* atr, endian = "little")
-data <-t(matrix(cd,nrow = num, ncol = atr))
+cd <-readBin(to.read, double(), n = num* atr, endian = "little")
+data <-t(matrix(cd,nrow = atr, ncol = num))
+print(data[1,])
 calpca(data,paste(dataname, sep = "") )

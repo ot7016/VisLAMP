@@ -15,6 +15,13 @@ ReadData::ReadData(){
   read(dataid);
 }
 ReadData::~ReadData(){
+  for(int i = 1; i<= makesubnum;i++){
+    string rm = "rm -r ../data/temp" + to_string(makesubnum);
+   const char* rmcommand = rm.c_str();
+    system(rmcommand);
+  }
+
+  
   delete[] A;
   delete[] D;
   delete[] evector;
@@ -81,24 +88,31 @@ void ReadData::readsetting(string dir){
     string str;
   
   getline(ifs,str);
-  thr = stod(str);
+  double th = stod(str);
+  getline(ifs,str);
+  int n = stoi(str);
+  getline(ifs,str);
+  int d = stoi(str);
+  getline(ifs,str);
+  int a = stoi(str);
+  getline(ifs,str);
+  bool pc = (str == "PCA");
+  setting(th,n,d,a,pc);
+}
+void ReadData::setting(double th, int n,int d,int a, bool pc){
+  thr = th;
   pthr = thr;
-  getline(ifs,str);
-  num = stoi(str);
-  getline(ifs,str);
-  dim = stoi(str);
-  getline(ifs,str);
-  atr = stoi(str);
-  getline(ifs,str);
-  if(str == "PCA"){
-    isPCA =true;
+  num = n;
+  dim = d;
+  atr = a;
+  if(pc){
+    isPCA = true;
     aginum = num;
   }
-  else if(str == "MDS"){
-    isPCA =false;
-    aginum = num+atr;
-  } 
-  
+  else{
+    isPCA = false;
+    aginum = num+ atr;
+  }
   isTSP = false;
   isLenVar = true;
   isCoord =false;
@@ -502,44 +516,54 @@ RGB ReadData::HSVtoRGB(HSV& hsv ){
   //一番最後に選択されたクラスターを保存し、サブデータに
   //必要なもの クラスターデータの元の値 　属性名　項目の名前 属性数 
   void ReadData::makesubdata(){
+    makesubnum++;
+    string subnum = to_string(makesubnum); 
     auto cnum = cluster.back();
      string d = dataname.at(dataid);
-    system("mkdir ../data/temp");
+     string mk = "mkdir ../data/temp"+ subnum;
+    const char* mkcommand = mk.c_str(); 
+    system(mkcommand);
     const char* d2 = d.c_str();
     int size = cnum.index.size();
-    string dir = "../data/temp/"+ d+ "-original.dat";
+    string dir = "../data/temp" +subnum+ "/"+ d+ "-original.dat";
 
     ofstream fs2(dir,ios::out | ios::binary);
     for(int i:cnum.index){
       for(int j = 0; j< atr; j++){
-      fs2.write((char*) &D[i*num+j],sizeof(double));
+      fs2.write((char*) &D[i][j],sizeof(double));
     }
    }
    fs2.close();
    //input.txtも作る
-   ofstream ofs("../data/temp/"+d+ "-atrname.csv");
+   ofstream ofs("../data/temp"+subnum + "/"+d+ "-atrname.csv");
+   ofs << "x" << std::endl;
    for(string a: atrname){
     ofs << a << std::endl;
    }
-   ofstream ofs2("../data/temp/"+d+ "-name.csv");
+   ofs.close();
+   ofstream ofs2("../data/temp" + subnum + "/"+d+ "-name.csv");
+    ofs2 << "x" << std::endl;
    for(int i:cnum.index){
-    ofs << name.at(i) << std::endl;
+    ofs2 << name.at(i) << std::endl;
    }
+    ofs2.close();
+  
+
     // ファイルに1行ずつ書き込み
     std::cerr << "R boot" << std::endl; 
     //引数をつける
-    string strcommand = "R ../data/makesubdata.R "+ d + " "+to_string(num) +" "+to_string(atr);
+    string strcommand = "Rscript --vanilla --slave ../data/makesubdata.R ../data/temp"+ subnum+ "/"+ d + " "+to_string(size) +" "+to_string(atr);
     const char* command = strcommand.c_str(); 
     system(command);
     //再起動
     //temp の　ところを読み込み
     clearall();
-    string dir = "../data/temp/"+ d;
-    readsetting(dir);
-    readcood(dir);
-    readevalue(dir);
-    readDist(dir);
-    readoriginal(dir);
+    string dir2 = "../data/temp"+ subnum+ "/"+ d;
+     setting(thr,size,dim,atr,isPCA);
+    readcood(dir2);
+    readevalue(dir2);
+    readDist(dir2);
+    readoriginal(dir2); 
   }
 
 

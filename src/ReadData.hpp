@@ -49,6 +49,7 @@ class ReadData{
 	void read(int id);
 	void readfname();
 	void readsetting(string dir);
+	void setting(double th, int n,int d,int a, bool pc);
 	void readcood(string dir);
 	void readevalue(string dir);
 	void readoriginal(string dir);
@@ -104,6 +105,7 @@ class ReadData{
 		const int DIST_SIZE = 2000;
 		list<int> notselectedindex;
 		int lastclickid;
+		int makesubnum = 0;
 
 };
 #endif

@@ -64,6 +64,7 @@ public:
     void openfile(wxCommandEvent& event);
     void savelog(wxCommandEvent& event);
     void makedatabuttonclicked(wxCommandEvent& event);
+    void HandleExit( wxCommandEvent & );
 };
  
 
