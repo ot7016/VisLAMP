@@ -47,6 +47,7 @@ class MyApp: public wxApp{
      wxRadioButton* rb2;
      wxRadioButton* rb3;
      wxRadioButton* rb4;
+      wxMenu* menu3;
 public:
     void radio1clicked(wxCommandEvent& event);
     void radio2clicked(wxCommandEvent& event);
@@ -65,6 +66,7 @@ public:
     void savelog(wxCommandEvent& event);
     void makedatabuttonclicked(wxCommandEvent& event);
     void HandleExit( wxCommandEvent & );
+    void opentemp(wxCommandEvent& event);
 };
  
 

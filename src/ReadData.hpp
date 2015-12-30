@@ -78,6 +78,7 @@ class ReadData{
     void calDgCentrality(int dgthr);
     void clearall();
     void makesubdata();
+    void readtemp(int id);
 	double* A;
 	double* alldist;
 	double distmax;
@@ -94,6 +95,7 @@ class ReadData{
 	int selectedorder;
 	double thr ,pthr;
 	int dataid = 1;
+	int makesubnum = 0;
 	//色をどのように決めるかが最大の問題　色はクラスターごとに一意であるべき
 	vector<S_Cluster > cluster;
 	list<int> filterindex;
@@ -105,7 +107,6 @@ class ReadData{
 		const int DIST_SIZE = 2000;
 		list<int> notselectedindex;
 		int lastclickid;
-		int makesubnum = 0;
 
 };
 #endif
