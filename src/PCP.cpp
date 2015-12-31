@@ -2,14 +2,12 @@
 #include "OpenGL/glu.h"
 #include "OpenGL/gl.h"
 #include <GLUT/glut.h>
-//#include <GL/glew.h>
 //PCPを実装する場合 agi描画部分も独立させるべき
-//それぞれをパネルに乗っけるのが無難か 大幅な書き換えがいる
 using namespace std;
  
- 
-PCPPane::PCPPane(wxWindow* parent, int* args,ReadData* d,PCPBorder* l) :
-    wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(600,550), wxFULL_REPAINT_ON_RESIZE)
+ //できればサイズをmacbook用とiMac用の両方を用意
+PCPPane::PCPPane(wxWindow* parent, int* args,ReadData* d,PCPBorder* l,int h) :
+    wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(100*h,450), wxFULL_REPAINT_ON_RESIZE)
 {
     data = d;
     last = l;
@@ -435,8 +433,8 @@ void PCPSub::draw(int i,int height){
     glVertex3f( (data->Dmax[upperatr] - data->D[i][upperatr] ) *urate,0 ,0); 
     glVertex3f( (data->Dmax[loweratr] - data->D[i][loweratr] ) *lrate,height,0);      
     }
-PCPBorder::PCPBorder(wxWindow* parent,bool b,ReadData* d, int size) :
-wxGLCanvas(parent, wxID_ANY, NULL, wxPoint(0,0), wxSize(590,24), wxFULL_REPAINT_ON_RESIZE)
+PCPBorder::PCPBorder(wxWindow* parent,bool b,ReadData* d, int size,int h) :
+wxGLCanvas(parent, wxID_ANY, NULL, wxPoint(0,0), wxSize(100*h,24), wxFULL_REPAINT_ON_RESIZE)
 {
     m_context = new wxGLContext(this);
     data = d;

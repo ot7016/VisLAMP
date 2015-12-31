@@ -48,6 +48,9 @@ class MyApp: public wxApp{
      wxRadioButton* rb3;
      wxRadioButton* rb4;
       wxMenu* menu3;
+      bool iMac = false;
+      int up ;
+      int low;
 public:
     void radio1clicked(wxCommandEvent& event);
     void radio2clicked(wxCommandEvent& event);

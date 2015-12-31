@@ -22,7 +22,7 @@ class PCPBorder: public wxGLCanvas
 	wxGLContext* m_context;
 	ReadData* data;
 public:
-	PCPBorder(wxWindow* parent,bool b,ReadData* d, int size);
+	PCPBorder(wxWindow* parent,bool b,ReadData* d, int size,int h);
 	void setLastIndex(int i);
 	void ReCreate();
 	int getWidth();   
@@ -40,7 +40,7 @@ class PCPPane: public wxPanel{
 	
 	ReadData* data;
 public:
-	PCPPane(wxWindow* parent, int* args, ReadData* d,PCPBorder* l);
+	PCPPane(wxWindow* parent, int* args, ReadData* d,PCPBorder* l,int h);
 	virtual ~PCPPane();
 	void ReCreate();
 	int getWidth();   

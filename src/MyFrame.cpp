@@ -13,7 +13,16 @@ bool MyApp::OnInit()
 {
     
     data = new ReadData(); 
-    frame = new wxFrame((wxFrame *)NULL, -1, wxT("Pcoordagi"),wxPoint(0,50), wxSize(1200,1000));
+    if(iMac){
+      up = 6;
+      low = 4;
+    }
+    else{
+      up = 5;
+      low = 3;
+
+    }
+    frame = new wxFrame((wxFrame *)NULL, -1, wxT("Pcoordagi"),wxPoint(0,50), wxSize(1200,(up+low)*100));
     
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
     int args[] = {WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0};
@@ -21,22 +30,22 @@ bool MyApp::OnInit()
     wxBoxSizer* mainsizer =  new wxBoxSizer(wxHORIZONTAL);
    
     wxWindow* pcPanel = new wxWindow((wxWindow*)mainPanel,wxID_ANY);
-    PCPBorder* upper = new PCPBorder((wxWindow*) pcPanel,false,data,25);
-    PCPBorder* lower = new PCPBorder((wxWindow*) pcPanel,true,data,25);
-    pcPane = new PCPPane( (wxWindow*) pcPanel, args,data,lower);
+    PCPBorder* upperborder = new PCPBorder((wxWindow*) pcPanel,false,data,25,up);
+    PCPBorder* lowerborder = new PCPBorder((wxWindow*) pcPanel,true,data,25,up);
+    pcPane = new PCPPane( (wxWindow*) pcPanel, args,data,lowerborder,up);
     wxBoxSizer* pcsizer = new wxBoxSizer(wxVERTICAL);
-    pcsizer->Add(upper);
+    pcsizer->Add(upperborder);
     pcsizer->Add(pcPane);
-    pcsizer->Add(lower);
+    pcsizer->Add(lowerborder);
     pcPanel->SetSizer(pcsizer);
 
-    glPane = new AGIPane( (wxWindow*)mainPanel, args,data,pcPane); 
+    glPane = new AGIPane( (wxWindow*)mainPanel, args,data,pcPane,up); 
     
     
    
    wxWindow* underPanel = new wxWindow((wxFrame*) frame,wxID_ANY);
    wxBoxSizer* undersizer = new wxBoxSizer(wxHORIZONTAL);
-    XXView* xxview = new XXView((wxWindow*) underPanel,data,glPane->ag);
+    XXView* xxview = new XXView((wxWindow*) underPanel,data,glPane->ag,low);
     md  = new MatrixView((wxWindow*) underPanel,data);
     glPane->setMV(md);
     //パネルを生成、場合によっては拡張
@@ -194,7 +203,7 @@ bool MyApp::OnInit()
     //thrslider->SetMax(data->thr*200);
     int vclen = vcslider->GetLineSize();
     int avevc =  data->getEdge().size()*2 / data->num;
-    vcslider->SetRange(0,avevc);
+    vcslider->SetRange(0,avevc*100);
     vcslider->SetLineSize(vclen);
     vcslider->SetValue(0);
     rb1->SetValue(true);

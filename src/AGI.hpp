@@ -72,7 +72,7 @@
 		ReadData* data;
 		PCPPane* pcp;
 	public:
-		AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p);
+		AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p,int h);
 		virtual ~AGIPane();
 		void setMV(MatrixView* m);
 		void ReCreate();

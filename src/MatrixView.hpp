@@ -7,16 +7,18 @@
 #include "wx/panel.h"
 #include "wx/event.h"
 #include "wx/sizer.h"
+#include <wx/grid.h>
 #include "wx/stattext.h"
 #include "ReadData.hpp"
 
 #ifndef mview
 #define mview
-class MatrixView : public wxPanel{
+class MatrixView : public wxGrid{
 private:
 	ReadData* data;
 	wxStaticText* name;
 	wxGridSizer* sizer ;
+	int nowrow;
 public:
 	MatrixView(wxWindow* parent, ReadData* d);
 	~MatrixView();

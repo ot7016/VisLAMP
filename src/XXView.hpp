@@ -26,7 +26,7 @@
 #define xview
 class XXView : public wxGLCanvas{
 public:
-	XXView(wxWindow* parent,ReadData* d,Agi* a);
+	XXView(wxWindow* parent,ReadData* d,Agi* a,int h);
 	void setRate();
 	int getWidth();
 	int getHeight();
