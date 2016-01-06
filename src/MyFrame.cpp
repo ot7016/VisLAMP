@@ -85,7 +85,7 @@ bool MyApp::OnInit()
     wxButton* undobutton = new wxButton((wxPanel*) leftctl,wxID_ANY,"射影を戻す");
     wxButton* resetbutton1 = new wxButton((wxPanel*) leftctl,wxID_ANY,"選択をリセット");
     wxButton* resetbutton2 = new wxButton((wxPanel*) rightctl,wxID_ANY,"選択をリセット");
-    wxCheckBox* polyselectbox = new wxCheckBox((wxPanel*) leftctl,wxID_ANY,"多角形選択");
+    polyselectbox = new wxCheckBox((wxPanel*) leftctl,wxID_ANY,"多角形選択");
     polyselectbox-> Connect( wxEVT_CHECKBOX, wxCommandEventHandler(MyApp::polyselect),NULL, this);
     wxCheckBox* coodselectbox = new wxCheckBox((wxPanel*) rightctl,wxID_ANY,"軸選択モード");
     coodselectbox-> Connect( wxEVT_CHECKBOX, wxCommandEventHandler(MyApp::coodselect),NULL, this);
@@ -208,6 +208,7 @@ bool MyApp::OnInit()
     vcslider->SetValue(0);
     rb1->SetValue(true);
     rb4->SetValue(true);
+    polyselectbox->SetValue(false);
     frame->Refresh();
     int j = 0 ;
  }
@@ -236,7 +237,8 @@ void MyApp::undobuttonclicked(wxCommandEvent& WXUNUSED(event)){
   frame->Show();
 }
 void MyApp::polyselect(wxCommandEvent& event){
-  glPane->isPoly = !glPane->isPoly  ;
+  bool poly = glPane->isPoly;
+  glPane->isPoly = !poly  ;
 }
 
 void MyApp::coodselect(wxCommandEvent& event){

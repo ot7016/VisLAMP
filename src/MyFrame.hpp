@@ -42,13 +42,14 @@ class MyApp: public wxApp{
     HistView* histview ;
     // wxSlider* thrslider ;
      wxSlider* vcslider;
+    wxCheckBox* polyselectbox;
      int thr100;
      wxRadioButton* rb1;
      wxRadioButton* rb2;
      wxRadioButton* rb3;
      wxRadioButton* rb4;
       wxMenu* menu3;
-      bool iMac = false;
+      bool iMac = true;
       int up ;
       int low;
 public:

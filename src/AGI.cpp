@@ -255,7 +255,7 @@ void Agi::writeprojection(){
   }
 
 AGIPane::AGIPane(wxWindow* parent, int* args,ReadData* d, PCPPane* p,int h) :
-    wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxSize(h*100,500), wxFULL_REPAINT_ON_RESIZE)
+    wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxSize(h*100,h*100), wxFULL_REPAINT_ON_RESIZE)
 {
     m_context = new wxGLContext(this);
     data = d;

@@ -7,7 +7,7 @@ using namespace std;
  
  //できればサイズをmacbook用とiMac用の両方を用意
 PCPPane::PCPPane(wxWindow* parent, int* args,ReadData* d,PCPBorder* l,int h) :
-    wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(100*h,450), wxFULL_REPAINT_ON_RESIZE)
+    wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(100*h,100*(h-1)+50), wxFULL_REPAINT_ON_RESIZE)
 {
     data = d;
     last = l;
@@ -220,18 +220,9 @@ void PCPSub::mouseMoved(wxMouseEvent& event) {
         isdruged = true;
         if(!iscalc){
             iscalc =true;
-            int x = event.GetX();
-            int atr;
-            double rate;
-            if(isUpper){
-                atr = upperatr;
-                rate =urate;
-            }
-            else{
-                atr = loweratr;
-                rate =lrate;
-            }
-            double to =  data->Dmax[atr] - x/rate;
+            const int atr = isUpper ? upperatr:loweratr;
+
+            double to = getOriginalValue(event.GetX());
             vector<double> v;
             v.push_back(from);
             v.push_back(to);
@@ -254,31 +245,27 @@ void PCPSub::mouseDown(wxMouseEvent& event) {
             data->setCood(layer,false);
     }
     else{
-    if(y < height/2)     //上がクリックされたとき
-        setFrom(event.GetX(),true);
-    else   //下がクリックされたとき
-        setFrom(event.GetX(),false);
+        if(y < height/2){    //上がクリックされたとき
+            isUpper =true;
+            from = getOriginalValue(event.GetX()); 
+        }   
+        else{
+            isUpper = false;
+             from = getOriginalValue(event.GetX());
+        }   //下がクリックされたとき
+           
+        isclicked =true;
     }
     auto parent = GetParent()->GetGrandParent();
     parent->Refresh();
 }
 
-void PCPSub::setFrom(int x,bool u){
-    int atr;
-    double rate;
-    isUpper = u;
-    if(u){
-        atr = upperatr;
-        rate = urate;
-    }
-    else{
-        atr = loweratr;
-        rate = lrate;
-    }
-    from =  data->Dmax[atr] - x/rate;
-    isclicked = true;
-}
+double PCPSub::getOriginalValue(int x){
+    const int atr = isUpper ? upperatr:loweratr;
+    const double rate = isUpper ? urate:lrate;
 
+    return   x/rate +data->Dmin[atr];
+}
 
 
 void PCPSub::mouseWheelMoved(wxMouseEvent& event) {}
@@ -395,7 +382,7 @@ void PCPSub::render(wxPaintEvent& evt)
         int size = (int)str.size();
         for(int j = 0;j< size;j++){
             char ic = str[j];
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10,ic);
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ic);
 
         }
     }
@@ -430,8 +417,8 @@ void PCPSub::render(wxPaintEvent& evt)
 
 void PCPSub::draw(int i,int height){
     
-    glVertex3f( (data->Dmax[upperatr] - data->D[i][upperatr] ) *urate,0 ,0); 
-    glVertex3f( (data->Dmax[loweratr] - data->D[i][loweratr] ) *lrate,height,0);      
+    glVertex3f( /* (data->Dmax[upperatr] - */ ( data->D[i][upperatr] - data->Dmin[upperatr]) *urate,0 ,0); 
+    glVertex3f( /* (data->Dmax[loweratr] - */ ( data->D[i][loweratr] -data->Dmin[loweratr]) *lrate,height,0);      
     }
 PCPBorder::PCPBorder(wxWindow* parent,bool b,ReadData* d, int size,int h) :
 wxGLCanvas(parent, wxID_ANY, NULL, wxPoint(0,0), wxSize(100*h,24), wxFULL_REPAINT_ON_RESIZE)

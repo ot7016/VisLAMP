@@ -71,7 +71,7 @@ public:
 	int getHeight();  
 	void setRate(int u, int l, double upper, double lower);
 	void setLength(double p,double l);
-	void setFrom(int x, bool l);
+	double getOriginalValue(int x);
 	void setSumLength(double l, double w);
 	void render(wxPaintEvent& evt);  
 	void draw(int i,int height);   
