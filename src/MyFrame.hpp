@@ -49,7 +49,7 @@ class MyApp: public wxApp{
      wxRadioButton* rb3;
      wxRadioButton* rb4;
       wxMenu* menu3;
-      bool iMac = true;
+      bool iMac = false;
       int up ;
       int low;
 public:

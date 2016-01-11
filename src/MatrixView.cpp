@@ -2,7 +2,7 @@
 //#include <vector>
 #include "MatrixView.hpp"
 
-MatrixView::MatrixView(wxWindow* parent,ReadData* d):wxGrid(parent,wxID_ANY,wxDefaultPosition, wxSize(400,(d->atr+1)*50), wxFULL_REPAINT_ON_RESIZE){
+MatrixView::MatrixView(wxWindow* parent,ReadData* d,int l):wxGrid(parent,wxID_ANY,wxDefaultPosition, wxSize(l*100,(d->atr+1)*50), wxFULL_REPAINT_ON_RESIZE){
 	data  = d;
 	//vPanel = new wxPanel(this,wxID_ANY);
 	int atr = data->atr;

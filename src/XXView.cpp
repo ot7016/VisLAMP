@@ -15,7 +15,7 @@ int XXView::getHeight(){
 }
 
 void XXView::setRate(){
-	double num = data->num;
+	const double num = data->num;
 	xrate = getWidth()/(num);
 	yrate = getHeight()/(num);
 }
@@ -50,8 +50,8 @@ void XXView::render(wxPaintEvent &event){
 	int dim = data->dim;
     
 
-    int width = getWidth();
-    int height = getHeight();
+    const int width = getWidth();
+    const int height = getHeight();
     setRate();
     prepare2DViewport(0,0,width, height);
     glLoadIdentity();
@@ -79,7 +79,7 @@ void XXView::render(wxPaintEvent &event){
     sort(xindex.begin(),xindex.end(),lesspair);
     //色はあとで調整
     //色の違いをどのように変えるかが問題 とりあえずdistmaxを三等分で
-    double thr = data->thr;
+    const double thr = data->thr;
      glColor4f(0.2f, 0.4f, 0.7f, 1.0f);
     for(int i = 0; i< num;i++){
     	auto p1 = xindex.at(i);

@@ -20,7 +20,7 @@ private:
 	wxGridSizer* sizer ;
 	int nowrow;
 public:
-	MatrixView(wxWindow* parent, ReadData* d);
+	MatrixView(wxWindow* parent, ReadData* d,int l);
 	~MatrixView();
 	void Create();
 	void ReCreate();

@@ -103,7 +103,7 @@ void Agi::cal2Mtr() {
 	xmax = prexmax ;
 	ymax = preymax ;
 	if(data->isPCA){
-		//BLASで Peも計算 PCAの場合
+		//BLASで 属性の射影V も計算 PCAの場合   V[m * 2] = evector[m * m] * e[m,2]
 		delete[] v;
     	v = new double[m * d];
     	cblas_dgemm(CblasRowMajor, CblasNoTrans ,CblasNoTrans, m, d, m, 1, data->evector, m, e, d, 0 , v, d);
@@ -136,14 +136,14 @@ int Agi::refine(double* _pre, double* _new, int index) {
 	double powprenorm = pow(_pre[0], 2)+pow(_pre[1], 2);
 	double prenorm = sqrt(powprenorm);
 	double newnorm = sqrt(pow(_new[0], 2)+pow(_new[1], 2));
- 	if(pinorm < prenorm) {
+ 	if(pinorm <= prenorm) {
  		std::cerr << "X error pinorm " << std::endl;
  		std::cerr << pinorm << std::endl;
  		std::cerr << "prenorm" << std::endl;
  		std::cerr << prenorm << std::endl;
  		return -1;
  	} 
- 	if (pinorm < newnorm){
+ 	if (pinorm <= newnorm){
  		double gamma = 0.001;
  		if(newnorm > (1- gamma)*pinorm){
  			double _new2[2];

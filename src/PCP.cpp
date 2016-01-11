@@ -12,10 +12,10 @@ PCPPane::PCPPane(wxWindow* parent, int* args,ReadData* d,PCPBorder* l,int h) :
     data = d;
     last = l;
     clickid = 1;
-    int atr = data->atr;
+    const int atr = data->atr;
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
     sumlength = atr-1;
-    int len = getHeight()/(atr-1);
+   const int len = getHeight()/(atr-1);
     
     for(int i = 0 ;i< atr-1;i++){
         PCPSub* sub =  new PCPSub(this,i,d,len);
@@ -264,7 +264,7 @@ double PCPSub::getOriginalValue(int x){
     const int atr = isUpper ? upperatr:loweratr;
     const double rate = isUpper ? urate:lrate;
 
-    return   x/rate +data->Dmin[atr];
+    return  x/rate +data->Dmin[atr];
 }
 
 
@@ -353,8 +353,8 @@ void PCPSub::render(wxPaintEvent& evt)
     wxPaintDC(this); // only to be used in paint events. use wxClientDC to paint outside the paint event
  
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    int width = getWidth();
-    int height = getHeight();
+    const int width = getWidth();
+    const int height = getHeight();
     // ------------- draw some 2D ----------------
     prepare2DViewport(0,0,width, height);
     glLoadIdentity();
@@ -472,8 +472,8 @@ void PCPBorder::render(wxPaintEvent& evt)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
  
     // ------------- draw some 2D ----------------
-    int width = getWidth();
-    int height = getHeight();
+    const int width = getWidth();
+    const int height = getHeight();
     prepare2DViewport(0,0,width, height);
     glLoadIdentity();
  

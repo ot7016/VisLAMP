@@ -22,7 +22,7 @@ bool MyApp::OnInit()
       low = 3;
 
     }
-    frame = new wxFrame((wxFrame *)NULL, -1, wxT("Pcoordagi"),wxPoint(0,50), wxSize(1200,(up+low)*100));
+    frame = new wxFrame((wxFrame *)NULL, -1, wxT("Pcoordagi"),wxPoint(0,50), wxSize(up*200,(up+low)*100));
     
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
     int args[] = {WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0};
@@ -46,7 +46,7 @@ bool MyApp::OnInit()
    wxWindow* underPanel = new wxWindow((wxFrame*) frame,wxID_ANY);
    wxBoxSizer* undersizer = new wxBoxSizer(wxHORIZONTAL);
     XXView* xxview = new XXView((wxWindow*) underPanel,data,glPane->ag,low);
-    md  = new MatrixView((wxWindow*) underPanel,data);
+    md  = new MatrixView((wxWindow*) underPanel,data,low);
     glPane->setMV(md);
     //パネルを生成、場合によっては拡張
     wxPanel* leftctl = new wxPanel((wxWindow*) underPanel,wxID_ANY);
@@ -175,7 +175,7 @@ bool MyApp::OnInit()
    menu2->Append(1, "Load", _T("Load MouseLog"));
    menu2->Bind(wxEVT_COMMAND_MENU_SELECTED,&MyApp::savelog,this,1) ;
    menubar->Append(menu2, _T("&Mouse Log"));
-  menu3 = new wxMenu();
+   menu3 = new wxMenu();
    menu3->Append(0, "Make Subdata", _T("Analyize Cluster"));
    menu3->Bind(wxEVT_COMMAND_MENU_SELECTED,&MyApp::makedatabuttonclicked,this,0) ;
    menubar->Append(menu3, _T("&ReAnalyze"));
@@ -210,7 +210,6 @@ bool MyApp::OnInit()
     rb4->SetValue(true);
     polyselectbox->SetValue(false);
     frame->Refresh();
-    int j = 0 ;
  }
  
  void MyApp::radio1clicked(wxCommandEvent& event){
@@ -283,11 +282,14 @@ void MyApp::getvcslider(wxCommandEvent& WXUNUSED(event)){
 void MyApp::openfile(wxCommandEvent& event){
   //id がdatasetの番号を表す　あらかじめどれが何かは読み込んである
   int id = event.GetId();
-   cerr<< id <<endl;
-   data->clearall();
-   data->read(id);
-   ReCreate();
-   frame->Refresh();
+  cerr<< id <<endl;
+   for(int i = 0; i < data->makesubnum;i++){
+    menu3->Delete(i+1);
+  }
+  data->clearall();
+  data->read(id);
+  ReCreate();
+  frame->Refresh();
   
 }
 void MyApp::savelog(wxCommandEvent& event){
