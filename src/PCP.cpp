@@ -99,6 +99,13 @@ void PCPPane::reselect(){
     parent->Refresh(); 
 }
 
+void PCPPane::isVisible(bool b){
+    for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
+        PCPSub *current = (PCPSub *)node->GetData();
+        current->Show(b);
+    }
+}
+
 void PCPPane::solveTSP(double** v,int atr){
     TSPsolver* ts = new TSPsolver(v,atr);
     ts->solve();
@@ -107,14 +114,13 @@ void PCPPane::solveTSP(double** v,int atr){
     int k = 0;
     if(data->isLenVar){ 
         for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
-
-                PCPSub *current = (PCPSub *)node->GetData();
-                double l = ts->getlength(k+1);
-                current->setLength(sumlength,l);
-                sumlength = sumlength + l;
-                int lindex = data->order[k];
-                int rindex = data->order[k+1];
-                current->setRate(lindex,rindex,rate[lindex],rate[rindex]);
+            PCPSub *current = (PCPSub *)node->GetData();
+            double l = ts->getlength(k+1);
+            current->setLength(sumlength,l);
+            sumlength = sumlength + l;
+            int lindex = data->order[k];
+            int rindex = data->order[k+1];
+            current->setRate(lindex,rindex,rate[lindex],rate[rindex]);
             
             k++;
         }
@@ -369,6 +375,7 @@ void PCPSub::render(wxPaintEvent& evt)
     glEnd();
 
     glColor4f(0.0f,0.0f,0.0f,1.0f);
+    glLineWidth(3.0);
     glBegin(GL_LINES);
     int xright = width*3/4;
     int xleft = 0 ;
@@ -488,6 +495,7 @@ void PCPBorder::render(wxPaintEvent& evt)
 
     if(islast){
         glColor4f(0.0f,0.0f,0.0f,1.0f);
+        glLineWidth(2.0);
         glBegin(GL_LINES);
         int xright = width*3/4;
         int xleft = 0 ;

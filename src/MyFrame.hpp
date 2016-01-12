@@ -10,6 +10,7 @@
 
 
 #include <wx/wxprec.h>
+#include <wx/textdlg.h>
 //#ifndef WX_PRECOMP
 #include "wx/wx.h"
 #include "wx/panel.h"
@@ -36,6 +37,7 @@ class MyApp: public wxApp{
     wxFrame *frame;
     AGIPane *glPane;
     PCPPane *pcPane;
+    PCPBorder* lowerborder;
     ReadData *data;
     wxSlider *slider;
     MatrixView *md;
@@ -43,13 +45,15 @@ class MyApp: public wxApp{
     // wxSlider* thrslider ;
      wxSlider* vcslider;
     wxCheckBox* polyselectbox;
+    wxCheckBox* pcpvisiblebox;
      int thr100;
      wxRadioButton* rb1;
      wxRadioButton* rb2;
      wxRadioButton* rb3;
      wxRadioButton* rb4;
       wxMenu* menu3;
-      bool iMac = false;
+
+      bool iMac = true;
       int up ;
       int low;
 public:
@@ -60,6 +64,7 @@ public:
 
     void undobuttonclicked(wxCommandEvent& event);
     void resetbuttonclicked(wxCommandEvent& event);
+    void visiblebuttonclicked(wxCommandEvent& event);
     void thrbuttonclicked(wxCommandEvent& event);
     void polyselect(wxCommandEvent& event);
     void coodselect(wxCommandEvent& event);

@@ -312,20 +312,21 @@ void AGIPane::mouseDown(wxMouseEvent& event) {
     		//このxとyが点の2次元配列に含まれるならOK
     		//もちろんある程度の誤差は許容しなければならない
     		nowindex = getindex(x,y);
-    		if(nowindex != -1 && nowindex < data->num){
+    		if(nowindex != -1 && nowindex < data->aginum){
     	 		std::cerr << data->name.at(nowindex) << std::endl;
 	    		_pre[0] = ag->getB(nowindex, 0);
     			_pre[1] = ag->getB(nowindex, 1);
     			isMoved = true;
     			data->setSIndex(nowindex);
+    			data->selectedcoord = -1;
 				md->setText(nowindex);
 				Refresh();
 				pcp->Refresh();
 				addLog(nowindex,_pre[0],_pre[1]);
 			}
-			else if(nowindex != -1 && nowindex < data->num+data->atr){
+			else if(data->isPCA && nowindex != -1 && nowindex < data->num+data->atr){
 				int index = nowindex - data->num;
-				//nowindex = -1;
+				data->selectedcoord = index;  
 				std::cerr << data->atrname.at(index)<< std::endl;
 				_pre[0] = ag->getV(index,0);
     			_pre[1]  =ag->getV(index,1);
@@ -668,6 +669,9 @@ void AGIPane::render(wxPaintEvent& evt)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     int width = getWidth();
     int height = getHeight();
+    int atr = data->atr;
+    std::list<int> notselected = data->getNSIndex();
+    int num = data->num;
     // ------------- draw some 2D ----------------
     prepare2DViewport(0, 0, width, height);
     glLoadIdentity();
@@ -680,12 +684,11 @@ void AGIPane::render(wxPaintEvent& evt)
     glVertex3f(width, height, 0);
     glVertex3f(0, height, 0);
     glEnd();
-    std::list<int> notselected = data->getNSIndex();
-    int num = data->num;
+   
     //辺を描く
     glColor4f(0.2f, 0.4f, 0.7f, 0.3f);
+    glLineWidth(1);
 	glBegin(GL_LINES);
-	glLineWidth(1);
 	std::vector<std::pair<int,int> > edge = data->filteredge;
 	for(int i = 0;i< edge.size();i++){
 		int n1 = edge.at(i).first;
@@ -702,7 +705,7 @@ void AGIPane::render(wxPaintEvent& evt)
        	glVertex3f(ag->getB(i,0)*xrate + width/2, ag->getB(i,1)*yrate + height/2,0);
     }
     glEnd();
-    glPointSize(8.0);
+    glPointSize(8.0); 
     glBegin(GL_POINTS);
     //選択されている点を描く
     for(auto c:data->getCluster()){
@@ -715,16 +718,24 @@ void AGIPane::render(wxPaintEvent& evt)
 	glEnd();
 	if(data->isPCA){
 		//元の軸を描く
+		glLineWidth(2.0);
 		glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 		glBegin(GL_LINES);
-		for(int i = 0;i< data->atr;i++){
+		for(int i = 0;i< atr;i++){
 			glVertex3f(width/2,height/2,0);
 			glVertex3f(ag->getV(i,0)*xrate * 2 + width/2, ag->getV(i,1)*yrate * 2+ height/2, 0);
 		}
 		glEnd();
-		int atr = data->atr;
+		//PCPが軸選択モードのとき
 		if(data->isCoord){
 			int o = data->selectedorder;
+			glColor4f(0.8f, 0.1f, 0.1f, 1.0f);
+			glLineWidth(2.0);
+			glBegin(GL_LINES);	
+			glVertex3f(width/2,height/2,0);
+			glVertex3f(ag->getV(data->order[o],0)*xrate * 2 + width/2, ag->getV(data->order[o],1)*yrate * 2+ height/2, 0);
+			glEnd();
+			glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 			int from = std::max(o-1,0);
 			int to = std::min(o+2,atr);
 			for(int i = from;i< to;i++){
@@ -736,6 +747,17 @@ void AGIPane::render(wxPaintEvent& evt)
 			for(int i = 0;i< atr;i++)
 				drawcoodname(i,width,height);
     	}
+    	//agiで軸選択がされているとき
+    	int nowcoord = data->selectedcoord;
+    	if(data->selectedcoord != -1){
+    		glColor4f(0.8f, 0.1f, 0.1f, 1.0f);
+			glBegin(GL_LINES);	
+			glVertex3f(width/2,height/2,0);
+			glVertex3f(ag->getV(nowcoord,0)*xrate * 2 + width/2, ag->getV(nowcoord,1)*yrate * 2+ height/2, 0);
+			glEnd();
+			drawcoodname(nowcoord,width,height);
+    	}
+    	glLineWidth(1);
 	}
 	//pcaを使っていないとき
 	else{

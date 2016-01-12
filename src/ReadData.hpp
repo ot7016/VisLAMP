@@ -93,6 +93,7 @@ class ReadData{
 	vector<string>  atrname;	
 	int* order;
 	int selectedorder;
+	int selectedcoord;
 	double thr ,pthr;
 	int dataid = 1;
 	int makesubnum = 0;

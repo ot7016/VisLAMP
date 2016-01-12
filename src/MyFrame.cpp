@@ -31,7 +31,7 @@ bool MyApp::OnInit()
    
     wxWindow* pcPanel = new wxWindow((wxWindow*)mainPanel,wxID_ANY);
     PCPBorder* upperborder = new PCPBorder((wxWindow*) pcPanel,false,data,25,up);
-    PCPBorder* lowerborder = new PCPBorder((wxWindow*) pcPanel,true,data,25,up);
+    lowerborder = new PCPBorder((wxWindow*) pcPanel,true,data,25,up);
     pcPane = new PCPPane( (wxWindow*) pcPanel, args,data,lowerborder,up);
     wxBoxSizer* pcsizer = new wxBoxSizer(wxVERTICAL);
     pcsizer->Add(upperborder);
@@ -89,6 +89,9 @@ bool MyApp::OnInit()
     polyselectbox-> Connect( wxEVT_CHECKBOX, wxCommandEventHandler(MyApp::polyselect),NULL, this);
     wxCheckBox* coodselectbox = new wxCheckBox((wxPanel*) rightctl,wxID_ANY,"軸選択モード");
     coodselectbox-> Connect( wxEVT_CHECKBOX, wxCommandEventHandler(MyApp::coodselect),NULL, this);
+
+    pcpvisiblebox = new wxCheckBox((wxPanel*) rightctl,wxID_ANY,"PCP非表示");
+    pcpvisiblebox-> Connect( wxEVT_CHECKBOX, wxCommandEventHandler(MyApp::visiblebuttonclicked),NULL, this);
     wxStaticText* pftext;
     pftext = new wxStaticText((wxPanel*) leftctl,wxID_ANY,"Projection Factor");
     slider = new wxSlider((wxPanel*) leftctl,wxID_ANY,50,0,400);
@@ -140,7 +143,7 @@ bool MyApp::OnInit()
     rightsizer->Add(P2,1,wxEXPAND);
     rightsizer->Add(coodselectbox,1,wxEXPAND);
     rightsizer->Add(resetbutton2,1,wxEXPAND);
-   // rightsizer->Add(thrslider,1,wxEXPAND);
+    rightsizer->Add(pcpvisiblebox,1,wxEXPAND);
     rightctl->SetSizer(rightsizer);
     rightctl->SetAutoLayout(true);
    
@@ -209,6 +212,7 @@ bool MyApp::OnInit()
     rb1->SetValue(true);
     rb4->SetValue(true);
     polyselectbox->SetValue(false);
+    pcpvisiblebox->SetValue(false);
     frame->Refresh();
  }
  
@@ -249,6 +253,12 @@ void MyApp::resetbuttonclicked(wxCommandEvent& WXUNUSED(event)){
  // histview->setValue(data->thr);
  // thrslider->SetValue(thr100);
   vcslider->SetValue(0);
+  frame->Refresh();
+}
+void MyApp::visiblebuttonclicked(wxCommandEvent& event){
+  bool b = !pcpvisiblebox->IsChecked();
+  pcPane->isVisible(b);
+  lowerborder->Show(b);
   frame->Refresh();
 }
 
@@ -303,13 +313,15 @@ void MyApp::savelog(wxCommandEvent& event){
 void MyApp::makedatabuttonclicked(wxCommandEvent& event){
   //選択されている部分をサブデータにして保存
   data->makesubdata();
-  //data->clearall();
+
    ReCreate();
-   int subnum = data->makesubnum;
-   menu3->Append(subnum,"cluster" + to_string(subnum), _T("Cluster"));
+   wxTextEntryDialog* dialog =new wxTextEntryDialog(frame,"クラスター名を入力");
+    int subnum = data->makesubnum;
+   menu3->Append(subnum,dialog->GetValue(), _T("Cluster"));
    menu3->Bind(wxEVT_COMMAND_MENU_SELECTED,&MyApp::opentemp,this,subnum) ;
    frame->Refresh();
 
+   
 }
 void MyApp::opentemp(wxCommandEvent& event){
   //id がdatasetの番号を表す　あらかじめどれが何かは読み込んである

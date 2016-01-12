@@ -32,11 +32,9 @@ ReadData::~ReadData(){
 
 void ReadData::readfname(){
   unsigned char isFolder =0x4;
-  //DIR* Dir;
   struct dirent *DirEntry;
   DIR* dir = opendir("../data/");
   while(DirEntry =readdir(dir)){
-   //cout << DirEntry->d_name;
    if ( DirEntry->d_type == isFolder)
    {
     char* folder = DirEntry->d_name;
@@ -120,6 +118,8 @@ void ReadData::setting(double th, int n,int d,int a, bool pc){
   for(int i = 0;i<atr;i++){
     order[i] = i;
   }
+  selectedorder = -1;
+  selectedcoord = -1;
   lastclickid = -1;
 }
 
@@ -166,9 +166,6 @@ void ReadData::readevalue(string dir){
 
 
 void ReadData::readoriginal(string dir){
-
-//string str1[atr];
-  //array<string, atr> atrname;  // = new string[atr];
   string str;
   ifstream ifs1 (dir+ "-atrname.csv");
   if (ifs1.fail()) {
@@ -319,14 +316,14 @@ void ReadData::setOrder(TSPsolver* ts){
   for(int i= 0;i<atr;i++){
     order[i] = ts->getorder(i);
   }
-  isCoord = false;
+  //isCoord = false;
 }
 void ReadData::setOrder(int* o){
   order = new int[atr];
   for(int i = 0;i<atr;i++){
     order[i] = o[i];
   }
-  isCoord =false;
+  //isCoord =false;
 }
 
 vector<std::pair<int, int> > ReadData::getEdge(){
@@ -454,6 +451,7 @@ void ReadData::resetselected(){
   for(pair<int,int>p:edge){
     filteredge.push_back(p);
   }
+  selectedcoord = -1;
 }
 
 void ReadData::setCoodSelected(){
@@ -462,10 +460,7 @@ void ReadData::setCoodSelected(){
 void ReadData::setCood(int l,bool u){
   //どのように情報をもつのがよいのか? 
   //属性の番号をもつよりは何番目かを覚えたほうがよさそう
-  if(u)
-    selectedorder = l;
-  else 
-    selectedorder = l+1;
+    selectedorder = u? l:l+1;  
 }
 bool ReadData::containSelectedCood(int a){
   for(int i = max(selectedorder-1,0); i< min(selectedorder+2,atr);i++){

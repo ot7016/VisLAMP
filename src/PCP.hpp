@@ -50,6 +50,7 @@ public:
 	void setRate();        
 	void refine(double** v);
 	void reselect();
+	void isVisible(bool b);
 	void idplus();
 	typedef std::pair<int,double*> ipair;
 	typedef std::pair<int,double> apair;
