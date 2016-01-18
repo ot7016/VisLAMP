@@ -95,7 +95,7 @@ class ReadData{
 	int selectedorder;
 	int selectedcoord;
 	double thr ,pthr;
-	int dataid = 1;
+	int dataid = 0;
 	int makesubnum = 0;
 	//色をどのように決めるかが最大の問題　色はクラスターごとに一意であるべき
 	vector<S_Cluster > cluster;

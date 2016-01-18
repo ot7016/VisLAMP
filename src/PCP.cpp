@@ -251,17 +251,10 @@ void PCPSub::mouseDown(wxMouseEvent& event) {
             data->setCood(layer,false);
     }
     else{
-        if(y < height/2){    //上がクリックされたとき
-            isUpper =true;
-            from = getOriginalValue(event.GetX()); 
-        }   
-        else{
-            isUpper = false;
-             from = getOriginalValue(event.GetX());
-        }   //下がクリックされたとき
-           
-        isclicked =true;
+        isUpper = y < height/2 ;  //値の選択 
+        from = getOriginalValue(event.GetX());  
     }
+    isclicked =true;
     auto parent = GetParent()->GetGrandParent();
     parent->Refresh();
 }
@@ -334,7 +327,7 @@ void PCPSub::setLength(double p,double l){
 }
 void PCPSub::setSumLength(double l,double w){
     sumlength = l;
-    int size = (length/sumlength) *w;
+    const int size = (length/sumlength) *w;
     SetSize(getWidth(),size);
     SetPosition(wxPoint(0,(prelength/sumlength)*w));
 }
@@ -373,8 +366,10 @@ void PCPSub::render(wxPaintEvent& evt)
     glVertex3f(width,height,0);
     glVertex3f(0,height,0);
     glEnd();
-
-    glColor4f(0.0f,0.0f,0.0f,1.0f);
+    if(upperatr == data->selectedcoord)
+        glColor4f(0.8f,0.1f,0.1f,1.0f);  
+    else
+        glColor4f(0.0f,0.0f,0.0f,1.0f);
     glLineWidth(3.0);
     glBegin(GL_LINES);
     int xright = width*3/4;

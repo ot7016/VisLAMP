@@ -1,5 +1,4 @@
 #include "Agi.hpp"
-#include "wx/wx.h"
 #include <GLUT/glut.h>
 //#include <GL/glew.h>
 
@@ -39,7 +38,7 @@ double Agi::getB(int i,int j){
 
 //in  固有値 evalue 高次元配置ベクトル Aij  out 初期射影行列     
 void Agi::calprj(){
-    int m = data->dim;
+    const int m = data->dim;
 	double  f1[m], f2[m];
 	double distf1 = 0, distf2 = 0;
 
@@ -114,8 +113,8 @@ void Agi::cal2Mtr() {
 //mdsの場合はこのままでも大丈夫 PCAの属性に対応すればOK
 int Agi::refine(double* _pre, double* _new, int index) {
 		//まずはe3を求める
-	int n = data->aginum;
-	int m = data->dim;
+	const int n = data->aginum;
+	const int m = data->dim;
 	double pi[m];
 	double powpinorm = 0;
 	//PCAで属性軸が選択されたとき
@@ -224,7 +223,7 @@ double Agi::getV(int i, int j){
 //評価用
 void Agi::writeprojection(){
     //保存場所とファイル名を考慮
-     string d = data->dataname.at(data->dataid);
+     const string d = data->dataname.at(data->dataid);
      string dir = "../data/" + d +"/"+ d+ "-projection/projection_" +to_string(writenum)+  ".dat";
      int dim = data->dim;
      double projection[dim*2];
@@ -243,9 +242,9 @@ void Agi::writeprojection(){
   }
   void Agi::writeagicood(){
     //保存場所とファイル名を考慮
-     string d = data->dataname.at(data->dataid);
-     string dir = "../data/" + d +"/"+ d+ "-agicood/agicood_" +to_string(writenum)+  ".dat";
-     int num = data->num;
+    const string d = data->dataname.at(data->dataid);
+    const string dir = "../data/" + d +"/"+ d+ "-agicood/agicood_" +to_string(writenum)+  ".dat";
+    const int num = data->num;
      ofstream fs2(dir,ios::out | ios::binary);
      for(int i = 0; i< num *2 ;i++ ){
      fs2.write((char*) &B[i],sizeof(double));
@@ -492,8 +491,8 @@ void AGIPane::calRange(int x2, int y2){
 }
 void AGIPane::calPoly(){
 	std::list<int> selected;
-	double width = getWidth();
-	double height = getHeight();
+	const double width = getWidth();
+	const double height = getHeight();
 	std::vector<pair<int,int> > calpolyvector(polyvector.begin(),polyvector.end());
 	calpolyvector.push_back(polynow);
 	double xg = 0;
@@ -557,8 +556,8 @@ void AGIPane::mouseReleased(wxMouseEvent& event){
 }
 void AGIPane::rightClick(wxMouseEvent& event) {
 	std::cerr << "Right click " << std::endl;
-	double x = event.GetX();
-	double y = event.GetY();
+	const double x = event.GetX();
+	const double y = event.GetY();
 	//ドラッグ中に右クリックされると間違いなくバグるのであとで対処
 	if(!isPoly){
 		nowindex = getindex(x,y);
@@ -723,7 +722,7 @@ void AGIPane::render(wxPaintEvent& evt)
 		glBegin(GL_LINES);
 		for(int i = 0;i< atr;i++){
 			glVertex3f(width/2,height/2,0);
-			glVertex3f(ag->getV(i,0)*xrate * 2 + width/2, ag->getV(i,1)*yrate * 2+ height/2, 0);
+			glVertex3f(ag->getV(i,0)*xrate * coodrate + width/2, ag->getV(i,1)*yrate * coodrate+ height/2, 0);
 		}
 		glEnd();
 		//PCPが軸選択モードのとき
@@ -753,7 +752,7 @@ void AGIPane::render(wxPaintEvent& evt)
     		glColor4f(0.8f, 0.1f, 0.1f, 1.0f);
 			glBegin(GL_LINES);	
 			glVertex3f(width/2,height/2,0);
-			glVertex3f(ag->getV(nowcoord,0)*xrate * 2 + width/2, ag->getV(nowcoord,1)*yrate * 2+ height/2, 0);
+			glVertex3f(ag->getV(nowcoord,0)*xrate * coodrate + width/2, ag->getV(nowcoord,1)*yrate * coodrate+ height/2, 0);
 			glEnd();
 			drawcoodname(nowcoord,width,height);
     	}
@@ -763,11 +762,27 @@ void AGIPane::render(wxPaintEvent& evt)
 	else{
 		glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 		glPointSize(5.0);
-		glBegin(GL_POINTS);
+		glLineWidth(1);
 		for(int i = 0; i<data->atr ;i++){
-			glVertex3f(ag->getB(i+num,0)*xrate + width/2, ag->getB(i+num,1)*yrate + height/2,0);
+			glBegin(GL_POINTS);
+			int x = ag->getB(i+num,0)*xrate + width/2;
+			int y = ag->getB(i+num,1)*yrate + height/2;
+			glVertex3f(x, y, 0);
+			glEnd();
+			
+			glRasterPos2d(x+5, y+5);
+    		std::string str = data->atrname.at(i);
+   			int size = (int)str.size();
+    		for(int j = 0;j< size;j++){
+       			char ic = str[j];
+        		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ic);
+    		} 
+    		glBegin(GL_LINES);
+    		glVertex3f(width/2,height/2,0);
+    		glVertex3f(x,y,0);
+    		glEnd();  		
 		}
-		glEnd();
+		glLineWidth(1);
 	}
 	//範囲選択がされているとき
     if(rangeselect){

@@ -34,6 +34,7 @@ class HistView :public wxGLCanvas
 	list<int> notselected;
 	double xrate;
 	double yrate;
+	double distrate;
 	int histlen;
 	bool iscalc,isdruged,isclicked;
 public:

@@ -5,7 +5,7 @@
 MatrixView::MatrixView(wxWindow* parent,ReadData* d,int l):wxGrid(parent,wxID_ANY,wxDefaultPosition, wxSize(l*100,(d->atr+1)*50), wxFULL_REPAINT_ON_RESIZE){
 	data  = d;
 	//vPanel = new wxPanel(this,wxID_ANY);
-	int atr = data->atr;
+	const int atr = data->atr;
     //sizer = new wxGridSizer(atr+1,2,20,20); 
     nowrow = atr;
     CreateGrid(atr+1,2);
@@ -18,7 +18,7 @@ MatrixView::~MatrixView(){
 }
 
 void MatrixView::Create(){
-	int atr = data->atr;
+	const int atr = data->atr;
 	//wxGridで実装してみる
 	for(int i = 0 ;i< atr;i++){
 		SetRowSize(i,30);
@@ -55,7 +55,7 @@ void MatrixView::Create(){
 
 
 void MatrixView::ReCreate(){
-	int atr = data->atr;
+	const int atr = data->atr;
 	//sizer->SetRows(atr+1);
 	while(nowrow != atr){
 		if(nowrow > atr){
@@ -73,7 +73,7 @@ void MatrixView::ReCreate(){
 }
 
 void MatrixView::setText(int index){
-	int atr = data->atr;
+	const int atr = data->atr;
 	/*
 	wxWindowList & children = GetChildren();
 	int j = 0;

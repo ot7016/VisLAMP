@@ -57,7 +57,7 @@ void XXView::render(wxPaintEvent &event){
     glLoadIdentity();
  
     // black background
-    glColor4f(0, 0, 0, 1);
+    glColor4f(0.7, 0.7, 0.7, 1.0);
     glBegin(GL_QUADS);
     glVertex3f(0,0,0);
     glVertex3f(width,0,0);
@@ -80,7 +80,7 @@ void XXView::render(wxPaintEvent &event){
     //色はあとで調整
     //色の違いをどのように変えるかが問題 とりあえずdistmaxを三等分で
     const double thr = data->thr;
-     glColor4f(0.2f, 0.4f, 0.7f, 1.0f);
+     glColor4f(0.2f, 0.4f, 0.8f, 1.0f);
     for(int i = 0; i< num;i++){
     	auto p1 = xindex.at(i);
     	for(int j = 0;j < num;j++){

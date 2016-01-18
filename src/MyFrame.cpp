@@ -293,9 +293,11 @@ void MyApp::openfile(wxCommandEvent& event){
   //id がdatasetの番号を表す　あらかじめどれが何かは読み込んである
   int id = event.GetId();
   cerr<< id <<endl;
+  /*
    for(int i = 0; i < data->makesubnum;i++){
     menu3->Delete(i+1);
   }
+  */
   data->clearall();
   data->read(id);
   ReCreate();
@@ -314,13 +316,14 @@ void MyApp::makedatabuttonclicked(wxCommandEvent& event){
   //選択されている部分をサブデータにして保存
   data->makesubdata();
 
-   ReCreate();
+   //ReCreate();
    wxTextEntryDialog* dialog =new wxTextEntryDialog(frame,"クラスター名を入力");
     int subnum = data->makesubnum;
-   menu3->Append(subnum,dialog->GetValue(), _T("Cluster"));
-   menu3->Bind(wxEVT_COMMAND_MENU_SELECTED,&MyApp::opentemp,this,subnum) ;
-   frame->Refresh();
-
+  if(dialog->ShowModal() == wxID_OK){
+    menu3->Append(subnum,dialog->GetValue(), _T("Cluster"));
+    menu3->Bind(wxEVT_COMMAND_MENU_SELECTED,&MyApp::opentemp,this,subnum) ;
+    frame->Refresh();
+  }
    
 }
 void MyApp::opentemp(wxCommandEvent& event){

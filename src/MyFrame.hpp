@@ -54,8 +54,7 @@ class MyApp: public wxApp{
       wxMenu* menu3;
 
       bool iMac = true;
-      int up ;
-      int low;
+      int up,low;
 public:
     void radio1clicked(wxCommandEvent& event);
     void radio2clicked(wxCommandEvent& event);

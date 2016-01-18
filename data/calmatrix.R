@@ -51,10 +51,10 @@ readmatrix2<-function(t2,out,thr){
     m <- rbind(data.matrix(tscl),diag(dim))
 	D0 <-dist(m,upper =TRUE)^2 #距離オブジェクト作成　categorical dataは同じ値なら 0 違うなら1とか
     D <- as.matrix(D0) #距離行列に
-    #D1 <- as.double(D)
-    #wt = file(paste(out,"-adjency.dat",sep = ""),"wb")
-	#writeBin(D1,wt)
-	#close(wt)
+    D1 <- as.double(D)
+    wt = file(paste(out,"-dist.dat",sep = ""),"wb")
+	writeBin(D1,wt)
+	close(wt)
 	num <- nrow(m)
 	dij <-sum(D^2)/num^2
 	di <- apply(D,1,powsum)/num
@@ -65,7 +65,7 @@ readmatrix2<-function(t2,out,thr){
 	lamh <- as.double(e$values[e$values>thr])
 	dim <- length(lamh)
 	veclam <- e$vectors[,1:dim]
-	
+	print(dim)
 	wt = file(paste(out,"-evalue.dat",sep = ""),"wb")
 	writeBin(lamh,wt)
 	close(wt)
@@ -79,7 +79,6 @@ readmatrix2<-function(t2,out,thr){
 	wt = file(paste(out,"-cood.dat",sep = ""),"wb")
 	writeBin(X2,wt)
 	close(wt)
-
  }
 powsum <- function(a){
 	sum(a^2)
@@ -122,25 +121,38 @@ readturkiyepca <- function(){
 }
 
 readspidpca <- function(){
-    t <- read.csv("spid-pca/2015SocialprogressIndexData.csv",header = T)
-    t2 <- t[1:133,3:53]  #全部表示すると潰れてしまうので今はこれで
+    t <- read.csv("spid/2015SPID.csv",header = T)
+    t2 <- t[1:133,3:75]  #全部表示すると潰れてしまうので今はこれで
     t1 <- t[1:133,1]
     t3 <- as.double(t(as.matrix(t2)))
-    write.csv(colnames(t)[3:53],"spid-pca/spid-atrname.csv",quote = FALSE,row.names = FALSE)
-    write.csv(t1,"spid-pca/spid-name.csv",quote = FALSE,row.names = FALSE)
+    write.csv(colnames(t)[3:75],"spid/spid-atrname.csv",quote = FALSE,row.names = FALSE)
+    write.csv(t1,"spid/spid-name.csv",quote = FALSE,row.names = FALSE)
     wt = file("spid/spid-original.dat","wb")
     writeBin(t3,wt)
     close(wt)
     calpca(t2,"spid/spid")
 }
+
+readspidpcamin <- function(){
+    t <- read.csv("spid/2015SPID2.csv",header = T)
+    t2 <- t[1:133,3:20]  #全部表示すると潰れてしまうので今はこれで
+    t1 <- t[1:133,1]
+    t3 <- as.double(t(as.matrix(t2)))
+    write.csv(colnames(t)[3:20],"spid2/spid2-atrname.csv",quote = FALSE,row.names = FALSE)
+    write.csv(t1,"spid2/spid2-name.csv",quote = FALSE,row.names = FALSE)
+    wt = file("spid2/spid2-original.dat","wb")
+    writeBin(t3,wt)
+    close(wt)
+    calpca(t2,"spid2/spid2")
+}
 readbikepca <- function(){
-	t <- read.csv("bike-pca/day.csv",header = T)
-    t2 <- t[,3:16]  #全部表示すると潰れてしまうので今はこれで
+	t <- read.csv("bike/day.csv",header = T)
+    t2 <- t[,3:16]  
     t1 <- t[,2]
     t3 <- as.double(t(as.matrix(t2)))
-    write.csv(colnames(t)[3:16],"bike-pca/bike-atrname.csv",quote = FALSE,row.names = FALSE)
-    write.csv(t1,"bike-pca/bike-name.csv",quote = FALSE,row.names = FALSE)
-    wt = file("bike-pca/bike-original.dat","wb")
+    write.csv(colnames(t)[3:16],"bike/bike-atrname.csv",quote = FALSE,row.names = FALSE)
+    write.csv(t1,"bike/bike-name.csv",quote = FALSE,row.names = FALSE)
+    wt = file("bike/bike-original.dat","wb")
     writeBin(t3,wt)
     close(wt)
     calpca(t2,"bike/bike")
@@ -205,26 +217,37 @@ readtenkipca <- function(){
 
 #thrは 閾値
 readcars<- function(thr = 0){
-    t <- read.table("cars-8/auto-mpg_withname.data",header = T)
+    t <- read.table("carsmds/auto-mpg_withname.data",header = T)
     t1 <- t[,1:8]
-	wt = file("cars-8/kcars-original.dat","wb")
+	wt = file("carsmds/carsmds-original.dat","wb")
 	t2 <- t(as.matrix(t1))
 	t3 <- as.double(t2)
 	writeBin(t3,wt)
 	close(wt)
-	write.csv(colnames(t)[1:8],"cars-8/kcars-atrname.csv",quote = FALSE,row.names = FALSE)
+	write.csv(colnames(t)[1:8],"carsmds/carsmds-atrname.csv",quote = FALSE,row.names = FALSE)
 	
-	write.csv(t[,9],"cars-8/kcars-name.csv",quote = FALSE,row.names = FALSE)
-	
-
-    readmatrix2(t1,"cars-8/kcars",thr)
+	write.csv(t[,9],"carsmds/carsmds-name.csv",quote = FALSE,row.names = FALSE)
+    readmatrix2(t1,"carsmds/carsmds",thr)
 }
+readbike <- function(thr = 0){
+	t <- read.csv("bikemds/day.csv",header = T)
+    t2 <- t[,3:16]  #全部表示すると潰れてしまうので今はこれで
+    t1 <- t[,2]
+    t3 <- as.double(t(as.matrix(t2)))
+    write.csv(colnames(t)[3:16],"bikemds/bikemds-atrname.csv",quote = FALSE,row.names = FALSE)
+    write.csv(t1,"bikemds/bikemds-name.csv",quote = FALSE,row.names = FALSE)
+    wt = file("bikemds/bikemds-original.dat","wb")
+    writeBin(t3,wt)
+    close(wt)
+    readmatrix2(t2,"bikemds/bikemds",thr)
+}
+
 readspid <- function(thr = 0){
     t <- read.csv("spid2015/2015SocialprogressIndexData.csv",header = T)
-    t2 <- t[1:133,3:53]  #全部表示すると潰れてしまうので今はこれで
+    t2 <- t[1:133,3:82]  #全部表示すると潰れてしまうので今はこれで
     t1 <- t[1:133,1]
     t3 <- as.double(t(as.matrix(t2)))
-    write.csv(colnames(t)[3:53],"spid2015/spid-atrname.csv",quote = FALSE,row.names = FALSE)
+    write.csv(colnames(t)[3:82],"spid2015/spid-atrname.csv",quote = FALSE,row.names = FALSE)
     write.csv(t1,"spid2015/spid-name.csv",quote = FALSE,row.names = FALSE)
     wt = file("spid2015/spid-original.dat","wb")
     writeBin(t3,wt)

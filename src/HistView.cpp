@@ -15,23 +15,26 @@ void HistView::Setting(){
     //distの最大値を求める
     double distmax = data->distmax;
     int num = data->num;
-    //30のヒストグラムにわける
-    histlen = 45;  
+    //20のヒストグラムにわける 前半分のみ
+    histlen = 20;  
     hist = new int[histlen];
     for(int i = 0; i< histlen;i++){
         hist[i] = 0;
     }
-    double dist10 = distmax /histlen;
+    distrate = distmax/2/histlen;
     for(int i = 0; i< num;i++){
         for(int j= i+1;j< num;j++){
-            int h = (int) ceil(data->alldist[i*num + j] / dist10);
-            if(h == histlen )
-                 h--;
-            hist[h]++;
+            const double dis = data->alldist[i*num + j] ;
+            if(dis <= distmax/2){
+                int h = (int) ceil(dis / distrate);
+                if(h == histlen )
+                    h--;
+                hist[h]++;
+            }
         }
 
     }
-    setValue(data->thr);
+    setValue(data->thr /distrate);
     setRate();
 }
 void HistView::reset(){
@@ -79,12 +82,13 @@ void HistView::mouseMoved(wxMouseEvent& event){
         isdruged = true;
         if(!iscalc){
             iscalc =true;
-             int x = event.GetX();
+             double x = (double)event.GetX();
 
              //selected を決める 
              double r2 = x/xrate;
+             double thr = r2* distrate;
              setValue(r2);
-            data->recalEdge(r2); 
+            data->recalEdge(thr); 
             vcslider->SetValue(0);
             auto grandparent = GetGrandParent()->GetParent();
             grandparent->Refresh(); 

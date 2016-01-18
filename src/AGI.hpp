@@ -123,6 +123,6 @@ private:
 	int logid ;
 	vector<pair<int,int> > polyvector;
 	pair<int,int>  polynow;
-	const int coodrate = 2;
+	const int coodrate = 5;
 };
 #endif

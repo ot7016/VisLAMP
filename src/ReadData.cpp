@@ -151,7 +151,7 @@ void ReadData::readevalue(string dir){
   
   if(isPCA){
     fstream fs3(dir+"-evector.dat",ios::in | ios::binary);
-    if (!fs2){
+    if (!fs3){
       cerr << "evector失敗" << endl;
       exit(1);
     }
@@ -431,8 +431,8 @@ void ReadData::calDgCentrality(int dgthr){
   }
   //filterindexに入っていないものは描かないようにする。辺をどう減らすか?
   for(pair<int,int>e: edge){
-    int i = e.first;
-    int j = e.second;
+    const int i = e.first;
+    const int j = e.second;
     if(filter[i]&& filter[j])
       filteredge.push_back(e);
   }
@@ -460,7 +460,8 @@ void ReadData::setCoodSelected(){
 void ReadData::setCood(int l,bool u){
   //どのように情報をもつのがよいのか? 
   //属性の番号をもつよりは何番目かを覚えたほうがよさそう
-    selectedorder = u? l:l+1;  
+    selectedorder = u? l:l+1; 
+    selectedcoord = order[selectedorder]; 
 }
 bool ReadData::containSelectedCood(int a){
   for(int i = max(selectedorder-1,0); i< min(selectedorder+2,atr);i++){
@@ -473,11 +474,11 @@ bool ReadData::containSelectedCood(int a){
 
 
 RGB ReadData::setColor(){
-  //とりあえずこれで49色
-  int size = cluster.size();
-  float hue = (size % 10 )* 0.1;
+  //とりあえずこれで9色
+  const int size = cluster.size();
+  const float hue = (size % 10 )* 0.1;
   
-  HSV hsv =  HSV(hue,0.7,0.7) ;
+   HSV hsv =  HSV(hue,0.7,0.7) ;
   return  HSVtoRGB(hsv);
 } 
 
