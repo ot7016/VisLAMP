@@ -106,8 +106,7 @@
 
 	DECLARE_EVENT_TABLE()
 private:
-	double xrate ;
-	double yrate ;
+	double xyrate;
 	int nowindex;
 	double* _pre;
 	double* _new;
@@ -123,6 +122,6 @@ private:
 	int logid ;
 	vector<pair<int,int> > polyvector;
 	pair<int,int>  polynow;
-	const int coodrate = 5;
+	const int coodrate = 3;  
 };
 #endif

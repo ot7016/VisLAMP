@@ -403,8 +403,8 @@ int AGIPane::getindex(double x, double y){
     const double min = 0.05;
     double minnow = min; 
     double d; 
-    double x2 = (x - getWidth()/2) /xrate;
-    double y2 = (y - getHeight()/2) /yrate;
+    double x2 = (x - getWidth()/2) /xyrate;
+    double y2 = (y - getHeight()/2) /xyrate;
 
     for(int i :data->filterindex){
         d = sqrt(pow(ag->getB(i, 0)-x2, 2)+pow(ag->getB(i, 1)-y2, 2));
@@ -430,8 +430,8 @@ int AGIPane::getindex(double x, double y){
 } 
 
 void AGIPane::calcagain(double x,double y){
-	_new[0] = (x - getWidth() /2) /xrate;
-     _new[1] = (y - getHeight() /2) /yrate;
+	_new[0] = (x - getWidth() /2) /xyrate;
+     _new[1] = (y - getHeight() /2) /xyrate;
      int n = data->num;
      if(data->isPCA && nowindex >= n){
      	_new[0] = _new[0]/ coodrate;
@@ -469,10 +469,10 @@ void AGIPane::calRange(int x2, int y2){
 	yto = y2;
 	std::vector<double> x;
     std::vector<double> y;
-	x.push_back( (xfrom - getWidth()/2) /xrate);
-    y.push_back( (yfrom - getHeight()/2) /yrate);
- 	x.push_back( (x2 - getWidth()/2) /xrate);
-    y.push_back( (y2 - getHeight()/2) /yrate);
+	x.push_back( (xfrom - getWidth()/2) /xyrate);
+    y.push_back( (yfrom - getHeight()/2) /xyrate);
+ 	x.push_back( (x2 - getWidth()/2) /xyrate);
+    y.push_back( (y2 - getHeight()/2) /xyrate);
     sort(x.begin(),x.end());
     sort(y.begin(),y.end());
     std::list<int> selected;
@@ -489,6 +489,8 @@ void AGIPane::calRange(int x2, int y2){
  	auto parent = GetParent();
     parent->Refresh(); 
 }
+
+//ある多角形の中にある点の位置ベクトルは重心から隣接した各頂点への位置ベクトルのどれかの線形結合で表される
 void AGIPane::calPoly(){
 	std::list<int> selected;
 	const double width = getWidth();
@@ -504,8 +506,8 @@ void AGIPane::calPoly(){
 	xg = xg /calpolyvector.size();
 	yg = yg /calpolyvector.size();  
 	for(int i :data ->filterindex){
-		double x = ag->getB(i,0)*xrate + width/2 -xg;
-		double y = ag->getB(i,1)*yrate + height/2 -yg;
+		double x = ag->getB(i,0)*xyrate + width/2 -xg;
+		double y = ag->getB(i,1)*xyrate + height/2 -yg;
 		for(int j= 0; j< calpolyvector.size();j++){
 			pair<int,int> p1 = calpolyvector.at(j);
 			pair<int,int> p2;
@@ -619,10 +621,7 @@ void AGIPane::setRate(){
    
     double xabs = std::max(ag->getXMax(),-(ag->getXMin()));
     double yabs = std::max(ag->getYMax(),-(ag->getYMin()));
-
-    xrate = getWidth()  / (2 * xabs);
-    yrate = getHeight() /(2 * yabs);
-    //     std::cerr << xrate << std::endl;       
+    xyrate = getWidth()/(2 * max(xabs,yabs));    
   }
 
  void AGIPane::setdelta(double d){
@@ -692,8 +691,8 @@ void AGIPane::render(wxPaintEvent& evt)
 	for(int i = 0;i< edge.size();i++){
 		int n1 = edge.at(i).first;
 		int n2 = edge.at(i).second;
-		glVertex3f(ag->getB(n1,0)*xrate + width/2, ag->getB(n1,1)*yrate + height/2,0);
-		glVertex3f(ag->getB(n2,0)*xrate + width/2, ag->getB(n2,1)*yrate + height/2,0);
+		glVertex3f(ag->getB(n1,0)*xyrate + width/2, ag->getB(n1,1)*xyrate + height/2,0);
+		glVertex3f(ag->getB(n2,0)*xyrate + width/2, ag->getB(n2,1)*xyrate + height/2,0);
 	}
     glEnd();
      glColor4f(0.2f, 0.4f, 0.7f, 1.0f);
@@ -701,7 +700,7 @@ void AGIPane::render(wxPaintEvent& evt)
     glBegin(GL_POINTS);
     //選択されていない点を書く
   	for(int i: notselected){
-       	glVertex3f(ag->getB(i,0)*xrate + width/2, ag->getB(i,1)*yrate + height/2,0);
+       	glVertex3f(ag->getB(i,0)*xyrate + width/2, ag->getB(i,1)*xyrate + height/2,0);
     }
     glEnd();
     glPointSize(8.0); 
@@ -711,7 +710,7 @@ void AGIPane::render(wxPaintEvent& evt)
     	RGB rgb = c.rgb; 
     	glColor4f(rgb.r, rgb.g, rgb.b, 1.0f);
     	for(int i :c.index ){ 
-       		glVertex3f(ag->getB(i,0)*xrate + width/2, ag->getB(i,1)*yrate + height/2, 0);
+       		glVertex3f(ag->getB(i,0)*xyrate + width/2, ag->getB(i,1)*xyrate + height/2, 0);
     	}
 	}
 	glEnd();
@@ -722,7 +721,7 @@ void AGIPane::render(wxPaintEvent& evt)
 		glBegin(GL_LINES);
 		for(int i = 0;i< atr;i++){
 			glVertex3f(width/2,height/2,0);
-			glVertex3f(ag->getV(i,0)*xrate * coodrate + width/2, ag->getV(i,1)*yrate * coodrate+ height/2, 0);
+			glVertex3f(ag->getV(i,0)*xyrate * coodrate + width/2, ag->getV(i,1)*xyrate * coodrate+ height/2, 0);
 		}
 		glEnd();
 		//PCPが軸選択モードのとき
@@ -732,7 +731,7 @@ void AGIPane::render(wxPaintEvent& evt)
 			glLineWidth(2.0);
 			glBegin(GL_LINES);	
 			glVertex3f(width/2,height/2,0);
-			glVertex3f(ag->getV(data->order[o],0)*xrate * 2 + width/2, ag->getV(data->order[o],1)*yrate * 2+ height/2, 0);
+			glVertex3f(ag->getV(data->order[o],0)*xyrate * coodrate + width/2, ag->getV(data->order[o],1)*xyrate * coodrate+ height/2, 0);
 			glEnd();
 			glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 			int from = std::max(o-1,0);
@@ -752,7 +751,7 @@ void AGIPane::render(wxPaintEvent& evt)
     		glColor4f(0.8f, 0.1f, 0.1f, 1.0f);
 			glBegin(GL_LINES);	
 			glVertex3f(width/2,height/2,0);
-			glVertex3f(ag->getV(nowcoord,0)*xrate * coodrate + width/2, ag->getV(nowcoord,1)*yrate * coodrate+ height/2, 0);
+			glVertex3f(ag->getV(nowcoord,0)*xyrate * coodrate + width/2, ag->getV(nowcoord,1)*xyrate * coodrate+ height/2, 0);
 			glEnd();
 			drawcoodname(nowcoord,width,height);
     	}
@@ -765,8 +764,8 @@ void AGIPane::render(wxPaintEvent& evt)
 		glLineWidth(1);
 		for(int i = 0; i<data->atr ;i++){
 			glBegin(GL_POINTS);
-			int x = ag->getB(i+num,0)*xrate + width/2;
-			int y = ag->getB(i+num,1)*yrate + height/2;
+			int x = ag->getB(i+num,0)*xyrate + width/2;
+			int y = ag->getB(i+num,1)*xyrate + height/2;
 			glVertex3f(x, y, 0);
 			glEnd();
 			
@@ -775,7 +774,7 @@ void AGIPane::render(wxPaintEvent& evt)
    			int size = (int)str.size();
     		for(int j = 0;j< size;j++){
        			char ic = str[j];
-        		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ic);
+        		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24,ic);
     		} 
     		glBegin(GL_LINES);
     		glVertex3f(width/2,height/2,0);
@@ -808,12 +807,12 @@ void AGIPane::render(wxPaintEvent& evt)
 
 }
 void AGIPane::drawcoodname(int i, int w, int h){
-	glRasterPos2d(ag->getV(i,0)*xrate * coodrate + w/2, ag->getV(i,1)*yrate *coodrate+ h/2);
+	glRasterPos2d(ag->getV(i,0)*xyrate * coodrate + w/2, ag->getV(i,1)*xyrate *coodrate+ h/2);
     std::string str = data->atrname.at(i);
    	int size = (int)str.size();
     for(int j = 0;j< size;j++){
        	char ic = str[j];
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ic);
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24,ic);
     }   		
 }
 
@@ -835,7 +834,7 @@ void AGIPane::keyPressed(wxKeyEvent& event){
 	   	else {
 	   		_new[0] = nodelog.x;
 	   		_new[1] = nodelog.y;
-	   		calcagain(nodelog.x*xrate + getWidth()/2, nodelog.y *yrate + getHeight()/2);
+	   		calcagain(nodelog.x*xyrate + getWidth()/2, nodelog.y *xyrate + getHeight()/2);
 
 	   	}
 	   	logid++;

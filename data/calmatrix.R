@@ -94,14 +94,14 @@ dee <- function(a,b){
 }
 
 readcarpca<-function(){
-	t <- read.table("cars-pca/auto-mpg_withname.data",header = T)
+	t <- read.table("cars/auto-mpg_withname.data",header = T)
     t1 <- t[,1:8]
-	wt = file("cars-pca/kcars-original.dat","wb")
+	wt = file("cars/cars-original.dat","wb")
 	t2 <- t(as.matrix(t1))
 	t3 <- as.double(t2)
 	writeBin(t3,wt)
 	close(wt)
-	write.csv(colnames(t)[1:8],"cars-pca/kcars-atrname.csv",quote = FALSE,row.names = FALSE)
+	write.csv(colnames(t)[1:8],"cars/cars-atrname.csv",quote = FALSE,row.names = FALSE)
 	
 	write.csv(t[,9],"cars/cars-name.csv",quote = FALSE,row.names = FALSE)
 	 calpca(t1,"cars/cars")
@@ -122,10 +122,10 @@ readturkiyepca <- function(){
 
 readspidpca <- function(){
     t <- read.csv("spid/2015SPID.csv",header = T)
-    t2 <- t[1:133,3:75]  #全部表示すると潰れてしまうので今はこれで
+    t2 <- t[1:133,3:70]  #全部表示すると潰れてしまうので今はこれで
     t1 <- t[1:133,1]
     t3 <- as.double(t(as.matrix(t2)))
-    write.csv(colnames(t)[3:75],"spid/spid-atrname.csv",quote = FALSE,row.names = FALSE)
+    write.csv(colnames(t)[3:70],"spid/spid-atrname.csv",quote = FALSE,row.names = FALSE)
     write.csv(t1,"spid/spid-name.csv",quote = FALSE,row.names = FALSE)
     wt = file("spid/spid-original.dat","wb")
     writeBin(t3,wt)
@@ -135,10 +135,10 @@ readspidpca <- function(){
 
 readspidpcamin <- function(){
     t <- read.csv("spid/2015SPID2.csv",header = T)
-    t2 <- t[1:133,3:20]  #全部表示すると潰れてしまうので今はこれで
+    t2 <- t[1:133,3:25]  #全部表示すると潰れてしまうので今はこれで
     t1 <- t[1:133,1]
     t3 <- as.double(t(as.matrix(t2)))
-    write.csv(colnames(t)[3:20],"spid2/spid2-atrname.csv",quote = FALSE,row.names = FALSE)
+    write.csv(colnames(t)[3:25],"spid2/spid2-atrname.csv",quote = FALSE,row.names = FALSE)
     write.csv(t1,"spid2/spid2-name.csv",quote = FALSE,row.names = FALSE)
     wt = file("spid2/spid2-original.dat","wb")
     writeBin(t3,wt)

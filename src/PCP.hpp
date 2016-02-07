@@ -66,7 +66,7 @@ class PCPSub: public wxGLCanvas
 	wxGLContext* m_context;
 	ReadData* data;
 public:
-	 PCPSub(wxWindow* parent, int l, ReadData* d, int size);
+	 PCPSub(wxWindow* parent, int l, ReadData* d, int size,int h);
 	 virtual ~PCPSub();
 	int getWidth();   
 	int getHeight();  
