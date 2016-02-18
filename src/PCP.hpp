@@ -55,6 +55,7 @@ public:
 	typedef std::pair<int,double*> ipair;
 	typedef std::pair<int,double> apair;
 	int clickid;
+	bool anglemax = false;
 	private:
 	double* rate; 
 	double sumlength;
@@ -80,24 +81,18 @@ public:
 	// events
 	void mouseMoved(wxMouseEvent& event);   
 	void mouseDown(wxMouseEvent& event);
-	void mouseWheelMoved(wxMouseEvent& event);
 	void mouseReleased(wxMouseEvent& event);
-	void rightClick(wxMouseEvent& event);
-	void mouseLeftWindow(wxMouseEvent& event);	
 	DECLARE_EVENT_TABLE()
 	/* data */
 private:
-	int upperatr;
-	int loweratr;
+	int upperatr, loweratr;
 	double length;
 	double prelength;
 	double sumlength;
 	double urate;
 	double lrate;
 	int layer;
-	bool isclicked;
-	bool isdruged;
-	bool iscalc;
+	bool isclicked, isdruged, iscalc;
 	double from;
 	bool isUpper;
 };

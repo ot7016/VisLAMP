@@ -35,24 +35,21 @@
 		int refine(double* _pre, double* _new,int index);
 		void backprj();
 		double getB(int i,int j);
-		double getXMax();
-		double getYMax();
-		double getXMin();
-		double getYMin();
 		double getV(int i,int j);
 		void writeprojection();
 		void writeagicood();
 		void setdelta(double d);
 		typedef std::pair<double,double> prj;
 		std::vector<prj> ee; //射影行列(新)
+		double xmax ,xmin;  
+ 		double ymax ,ymin;
 	private:
 
 		ReadData* data;
 		std::stack<std::vector<prj> > prjstack; //射影行列のスタック 
 		double delta = 0.5;
 		double* B; 
-		double xmax ,xmin;  
- 		double ymax ,ymin;
+		
  		double* v; 
  	    int writenum = 0;
 
@@ -78,7 +75,6 @@
 		void ReCreate();
 		void Setting();
 		int getWidth();
-		int getHeight();
 	void render(wxPaintEvent& evt);
 	void prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y);
 	// events
@@ -94,7 +90,10 @@
 	void calRange(int x2, int y2);
 	void calPoly();
 	void undo();
-	void drawcoodname(int i, int w, int h);
+	double enlarge(double p);
+	double ensmall(double x);
+	void drawcoodname(int i, int w);
+	void drawaxispca(int index);
 	void addLog(int index,int x, int y);
 	void saveLog();
 	void loadLog();
@@ -114,10 +113,8 @@ private:
 	bool polystart = false;
 	bool rangeselect,polyselect;
 	bool logmode;
-	int xfrom;
-	int yfrom;
-	int xto;
-	int yto;
+	int xfrom, yfrom;
+	int xto, yto;
 	int clickid;
 	int logid ;
 	vector<pair<int,int> > polyvector;

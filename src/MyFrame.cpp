@@ -22,7 +22,7 @@ bool MyApp::OnInit()
       low = 3;
 
     }
-    frame = new wxFrame((wxFrame *)NULL, -1, wxT("Pcoordagi"),wxPoint(0,50), wxSize(up*200,(up+low)*100));
+    frame = new wxFrame((wxFrame *)NULL, -1, wxT("VisLAMP"),wxPoint(0,50), wxSize(up*200,(up+low)*100));
     
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
     int args[] = {WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0};
@@ -68,11 +68,11 @@ bool MyApp::OnInit()
     P1sizer->Add(rb2);
     P1->SetSizer(P1sizer);
     P1->SetAutoLayout(true);
+
     wxPanel* P2 = new wxPanel((wxPanel*) rightctl,wxID_ANY);
      wxBoxSizer* P2sizer = new wxBoxSizer(wxHORIZONTAL);
      wxStaticText* text2 = new wxStaticText((wxPanel*) P2,wxID_ANY,"軸間距離");
     rb3 = new wxRadioButton((wxPanel*) P2, -1, wxT("巡回路"),wxDefaultPosition,wxDefaultSize, wxRB_GROUP);
-  
     rb4 = new wxRadioButton((wxPanel*) P2, -1, wxT("角度"));
     rb4->SetValue(true);
     rb3->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio3clicked),NULL,this);
@@ -82,6 +82,21 @@ bool MyApp::OnInit()
     P2sizer->Add(rb4);
     P2->SetSizer(P2sizer);
     P2->SetAutoLayout(true);
+    
+    wxPanel* P3 = new wxPanel((wxPanel*) rightctl,wxID_ANY);
+     wxBoxSizer* P3sizer = new wxBoxSizer(wxHORIZONTAL);
+     wxStaticText* text3 = new wxStaticText((wxPanel*) P3,wxID_ANY,"PCPの両端の角度");
+    rb5 = new wxRadioButton((wxPanel*) P3, -1, wxT("最大"),wxDefaultPosition,wxDefaultSize, wxRB_GROUP);
+    rb6 = new wxRadioButton((wxPanel*) P3, -1, wxT("最小"));
+    rb6->SetValue(true);
+    rb5->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio5clicked),NULL,this);
+    rb6->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio6clicked),NULL,this);
+    P3sizer->Add(text3);
+    P3sizer->Add(rb5);
+    P3sizer->Add(rb6);
+    P3->SetSizer(P3sizer);
+    P3->SetAutoLayout(true);
+
     wxButton* undobutton = new wxButton((wxPanel*) leftctl,wxID_ANY,"射影を戻す");
     wxButton* resetbutton1 = new wxButton((wxPanel*) leftctl,wxID_ANY,"選択をリセット");
     wxButton* resetbutton2 = new wxButton((wxPanel*) rightctl,wxID_ANY,"選択をリセット");
@@ -92,14 +107,13 @@ bool MyApp::OnInit()
 
     pcpvisiblebox = new wxCheckBox((wxPanel*) rightctl,wxID_ANY,"PCP非表示");
     pcpvisiblebox-> Connect( wxEVT_CHECKBOX, wxCommandEventHandler(MyApp::visiblebuttonclicked),NULL, this);
-    wxStaticText* pftext;
-    pftext = new wxStaticText((wxPanel*) leftctl,wxID_ANY,"Projection Factor");
+    
+    wxStaticText* pftext = new wxStaticText((wxPanel*) leftctl,wxID_ANY,"Projection Factor");
     slider = new wxSlider((wxPanel*) leftctl,wxID_ANY,50,0,400);
 
     wxStaticText* thrtext = new wxStaticText((wxPanel*) leftctl,wxID_ANY,"類似度の閾値");
     wxButton* thrbutton = new wxButton((wxPanel*) leftctl,wxID_ANY,"類似度初期化" );
-    //thrslider = new wxSlider((wxPanel*) rightctl,wxID_ANY,data->thr*100,0,data->thr*200);
-     //thr100 = data->thr*100;
+   
     wxStaticText* vctext = new wxStaticText((wxPanel*) leftctl,wxID_ANY,"V-Centrality");
     int avevc =  data->getEdge().size()*2 / data->num;
     vcslider = new wxSlider((wxPanel*) leftctl,wxID_ANY,0,0,avevc*200);
@@ -117,10 +131,6 @@ bool MyApp::OnInit()
         wxCommandEventHandler(MyApp::thrbuttonclicked),NULL, this);
     slider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
       wxCommandEventHandler(MyApp::getslider),NULL, this);
-    /*
-    thrslider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
-      wxCommandEventHandler(MyApp::getthrslider),NULL, this);
-    */
     vcslider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
       wxCommandEventHandler(MyApp::getvcslider),NULL, this);
 
@@ -141,6 +151,7 @@ bool MyApp::OnInit()
 
     rightsizer->Add(P1,1,wxEXPAND);
     rightsizer->Add(P2,1,wxEXPAND);
+    rightsizer->Add(P3,1,wxEXPAND);
     rightsizer->Add(coodselectbox,1,wxEXPAND);
     rightsizer->Add(resetbutton2,1,wxEXPAND);
     rightsizer->Add(pcpvisiblebox,1,wxEXPAND);
@@ -201,9 +212,6 @@ bool MyApp::OnInit()
     pcPane->ReCreate();
     md->ReCreate();
     histview->ReCreate();
-    //thrslider->SetValue(data->thr*100);
-    //thrslider->SetMin(0);
-    //thrslider->SetMax(data->thr*200);
     int vclen = vcslider->GetLineSize();
     int avevc =  data->getEdge().size()*2 / data->num;
     vcslider->SetRange(0,avevc*100);
@@ -211,6 +219,7 @@ bool MyApp::OnInit()
     vcslider->SetValue(0);
     rb1->SetValue(true);
     rb4->SetValue(true);
+    rb6->SetValue(true);
     polyselectbox->SetValue(false);
     pcpvisiblebox->SetValue(false);
     frame->Refresh();
@@ -233,6 +242,14 @@ void MyApp::radio4clicked(wxCommandEvent& event){
    data->isTSP = false;
    frame->Refresh();
 }
+void MyApp::radio5clicked(wxCommandEvent& event){
+   pcPane->anglemax = true;
+   frame->Refresh();
+}
+void MyApp::radio6clicked(wxCommandEvent& event){
+   pcPane->anglemax = false;
+   frame->Refresh();
+}
 
 
 void MyApp::undobuttonclicked(wxCommandEvent& WXUNUSED(event)){
@@ -250,8 +267,6 @@ void MyApp::coodselect(wxCommandEvent& event){
 void MyApp::resetbuttonclicked(wxCommandEvent& WXUNUSED(event)){
   data->resetselected();
   histview->reset();
- // histview->setValue(data->thr);
- // thrslider->SetValue(thr100);
   vcslider->SetValue(0);
   frame->Refresh();
 }
@@ -274,14 +289,6 @@ void MyApp::thrbuttonclicked(wxCommandEvent& WXUNUSED(event)){
   data->recalEdge(thr);
   frame->Refresh();
   }
-/*
-void MyApp::getthrslider(wxCommandEvent& WXUNUSED(event)){
-    double i =  thrslider->GetValue()/100.0;
-    data->recalEdge(i); 
-    vcslider->SetValue(0); 
-    frame->Refresh();
-}
-*/
 
 void MyApp::getvcslider(wxCommandEvent& WXUNUSED(event)){
     double i =  vcslider->GetValue()/100.0;
@@ -354,9 +361,6 @@ BEGIN_EVENT_TABLE(PCPSub, wxGLCanvas)
 EVT_MOTION(PCPSub::mouseMoved)
 EVT_LEFT_DOWN(PCPSub::mouseDown)
 EVT_LEFT_UP(PCPSub::mouseReleased)
-EVT_RIGHT_DOWN(PCPSub::rightClick)
-EVT_LEAVE_WINDOW(PCPSub::mouseLeftWindow)
-EVT_MOUSEWHEEL(PCPSub::mouseWheelMoved)
 EVT_PAINT(PCPSub::render)
 END_EVENT_TABLE()
  

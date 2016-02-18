@@ -43,23 +43,27 @@ class MyApp: public wxApp{
     MatrixView *md;
     HistView* histview ;
     // wxSlider* thrslider ;
-     wxSlider* vcslider;
+    wxSlider* vcslider;
     wxCheckBox* polyselectbox;
     wxCheckBox* pcpvisiblebox;
-     int thr100;
-     wxRadioButton* rb1;
-     wxRadioButton* rb2;
-     wxRadioButton* rb3;
-     wxRadioButton* rb4;
-      wxMenu* menu3;
+    int thr100;
+    wxRadioButton* rb1;
+    wxRadioButton* rb2;
+    wxRadioButton* rb3;
+    wxRadioButton* rb4;
+    wxRadioButton* rb5;
+    wxRadioButton* rb6;
+    wxMenu* menu3;
 
-      bool iMac = true;
-      int up,low;
+    bool iMac = true;
+    int up,low;
 public:
     void radio1clicked(wxCommandEvent& event);
     void radio2clicked(wxCommandEvent& event);
     void radio3clicked(wxCommandEvent& event);
     void radio4clicked(wxCommandEvent& event);
+    void radio5clicked(wxCommandEvent& event);
+    void radio6clicked(wxCommandEvent& event);
 
     void undobuttonclicked(wxCommandEvent& event);
     void resetbuttonclicked(wxCommandEvent& event);

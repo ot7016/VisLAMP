@@ -2,6 +2,7 @@
 #include "OpenGL/glu.h"
 #include "OpenGL/gl.h"
 #include <GLUT/glut.h>
+//#include <FTGL/ftgl.h>
 //PCPを実装する場合 agi描画部分も独立させるべき
 using namespace std;
  
@@ -42,6 +43,7 @@ void PCPPane::ReCreate(){
     const int atr = data->atr;
     wxSizer* sizer = GetSizer();
     sumlength = atr-1;
+    anglemax = false;
     const int len = height/(atr-1);
     
     for(int i = 0 ;i< atr-1;i++){
@@ -74,11 +76,10 @@ void PCPPane::setRate(){
     }
     int k = 0;
     for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
-            PCPSub *current = (PCPSub *)node->GetData();
-            current->setRate(k,k+1,rate[k],rate[k+1]);
-        
+        PCPSub *current = (PCPSub *)node->GetData();
+        current->setRate(k,k+1,rate[k],rate[k+1]);
         k++;
-        }
+    }
 }
 
 void PCPPane::refine(double** v){
@@ -91,9 +92,8 @@ void PCPPane::refine(double** v){
     for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
         PCPSub *current = (PCPSub *)node->GetData(); 
         current->setSumLength(sumlength,getHeight());
-        }
-        // Layout();
-         Refresh();
+    }
+    Refresh();
 }
 void PCPPane::reselect(){
     auto parent = GetGrandParent();
@@ -170,12 +170,24 @@ void PCPPane::solveAngle(double** v){
     angledif[atr-1] = pi2 + angle.at(0).second  - angle.at(atr-1).second ;
     int maxindex = 0;
     double max = angledif[0];
-    for(int i = 0 ;i < atr;i++){
-        if(angledif[i] > max){
-            maxindex = i;
-            max = angledif[i];
-        }    
+    if(anglemax){
+        for(int i = 0 ;i < atr;i++){
+            if(angledif[i] > max){
+                maxindex = i;
+                max = angledif[i];
+            }    
+        }
     }
+    else{
+    //応急処置的に最も幅が近いところで切る方法も
+        for(int i = 0 ;i < atr;i++){
+            if(angledif[i] < max){
+                maxindex = i;
+                max = angledif[i];
+            }       
+        }
+    }
+
     int order[atr];
     double angledif2[atr];
     int j = 0;
@@ -267,16 +279,12 @@ double PCPSub::getOriginalValue(int x){
     return  x/rate +data->Dmin[atr];
 }
 
-
-void PCPSub::mouseWheelMoved(wxMouseEvent& event) {}
 void PCPSub::mouseReleased(wxMouseEvent& event) {
     isclicked = false;
     isdruged = false;
     PCPPane* parent = (PCPPane* )GetParent();
     parent->idplus();
 }
-void PCPSub::rightClick(wxMouseEvent& event) {}
-void PCPSub::mouseLeftWindow(wxMouseEvent& event) {}
 
 PCPSub::PCPSub(wxWindow* parent,int l, ReadData* d, int size,int h) :
     wxGLCanvas(parent, wxID_ANY, NULL, wxPoint(0,l*size), wxSize(h*100 -10,size), wxFULL_REPAINT_ON_RESIZE) //wxsize あとで変更
@@ -373,16 +381,16 @@ void PCPSub::render(wxPaintEvent& evt)
         glColor4f(0.0f,0.0f,0.0f,1.0f);
     glLineWidth(3.0);
     glBegin(GL_LINES);
-    int xright = width*3/4;
-    int xleft = 0 ;
+    const int xright = width*3/4;
+    const int xleft = 0 ;
     glVertex3f(xleft, 0,0);
     glVertex3f(xright,0,0); 
     glEnd();
     glRasterPos2d(xright+10,20);
     //選んだ軸だけでなく上下も表示したい
     if(!data->isCoord || data->containSelectedCood(upperatr) ){
-        string str = data->atrname.at(upperatr);
-        int size = (int)str.size();
+        const string str = data->atrname.at(upperatr);
+        const int size = (int)str.size();
         for(int j = 0;j< size;j++){
             char ic = str[j];
             glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24,ic); 
@@ -493,13 +501,13 @@ void PCPBorder::render(wxPaintEvent& evt)
         glColor4f(0.0f,0.0f,0.0f,1.0f);
         glLineWidth(2.0);
         glBegin(GL_LINES);
-        int xright = width*3/4;
-        int xleft = 0 ;
+        const int xright = width*3/4;
+        const int xleft = 0 ;
         glVertex3f(xleft,0,0);
         glVertex3f(xright,0,0); 
         glEnd();
         glRasterPos2d(xright+10,18);
-        string str = data->atrname.at(atr);
+        const string str = data->atrname.at(atr);
         const int size = (int)str.size();
         for(int j = 0;j< size;j++){
             char ic = str[j];
