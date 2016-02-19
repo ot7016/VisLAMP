@@ -586,10 +586,8 @@ void AGIPane::prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x,
  
     gluOrtho2D(topleft_x, bottomrigth_x, bottomrigth_y, topleft_y);
     glMatrixMode(GL_MODELVIEW);
-
     glLoadIdentity();
 }
- 
  
 int AGIPane::getWidth(){
     return GetSize().x;
@@ -602,22 +600,11 @@ double AGIPane::ensmall(double x){
 }
 
 //呼び出すのは最初の一度だけ
-
 void AGIPane::setRate(){ 
     const double xabs = std::max(ag->xmax,-ag->xmin);
     const double yabs = std::max(ag->ymax,-ag->ymin);
     xyrate = getWidth()/(2 * max(xabs,yabs));    
   }
-
- void AGIPane::setdelta(double d){
- 	ag->setdelta(d);
- 	//不十分　バグあり　ノード移動による射影の変更が反映されない
- 	ag->calprj();
- 	ag->cal2Mtr();
- 	Refresh();
- }
-
-
 
 void AGIPane::undo(){
 	ag->backprj();
@@ -720,12 +707,12 @@ void AGIPane::render(wxPaintEvent& evt)
 			int to = std::min(o+2,atr);
 			for(int i = from;i< to;i++){
 				int k = data->order[i];
-				drawcoodname(k,width);
+				drawcoodname(k);
 			}		
 		}
 		else{
 			for(int i = 0;i< atr;i++)
-				drawcoodname(i,width);
+				drawcoodname(i);
     	}
     	//agiで軸選択がされているとき
     	int nowcoord = data->selectedcoord;
@@ -734,7 +721,7 @@ void AGIPane::render(wxPaintEvent& evt)
 			glBegin(GL_LINES);	
 			drawaxispca(nowcoord);
 			glEnd();
-			drawcoodname(nowcoord,width);
+			drawcoodname(nowcoord);
     	}
     	glLineWidth(1);
 	}
@@ -785,7 +772,6 @@ void AGIPane::render(wxPaintEvent& evt)
     }
     glFlush();
     SwapBuffers();
-
 }
 
 
@@ -795,7 +781,8 @@ void AGIPane::drawaxispca(int index){
 	glVertex3f(ag->getV(index,0)*xyrate * coodrate + width/2, ag->getV(index,1)*xyrate * coodrate+ width/2, 0);
 }
 
-void AGIPane::drawcoodname(int i, int w){
+void AGIPane::drawcoodname(int i){
+	const int w = getWidth();
 	glRasterPos2d(ag->getV(i,0)*xyrate * coodrate + w/2, ag->getV(i,1)*xyrate *coodrate+ w/2);
     std::string str = data->atrname.at(i);
    	int size = (int)str.size();

@@ -45,7 +45,7 @@ public:
 	void ReCreate();
 	int getWidth();   
 	int getHeight();  
-	void solveTSP(double** v, int atr);   
+	void solveTSP(double** v);   
 	void solveAngle(double** v);  
 	void setRate();        
 	void refine(double** v);

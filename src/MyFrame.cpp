@@ -58,11 +58,11 @@ bool MyApp::OnInit()
     wxPanel* P1 = new wxPanel((wxPanel*) rightctl,wxID_ANY);
      wxBoxSizer* P1sizer = new wxBoxSizer(wxHORIZONTAL);
      wxStaticText* text1 = new wxStaticText((wxPanel*) P1,wxID_ANY,"軸間の距離");
-    rb1 = new wxRadioButton((wxPanel*) P1, -1, wxT("可変"),wxDefaultPosition,wxDefaultSize, wxRB_GROUP);
+    rb1 = new wxRadioButton((wxPanel*) P1, 0, wxT("可変"),wxDefaultPosition,wxDefaultSize, wxRB_GROUP);
     rb1->SetValue(true);
-    rb2 = new wxRadioButton((wxPanel*) P1, -1, wxT("固定"));
-    rb1->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio1clicked),NULL,this);
-    rb2->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio2clicked),NULL,this);
+    rb2 = new wxRadioButton((wxPanel*) P1, 1, wxT("固定"));
+    rb1->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::lenVarclicked),NULL,this);
+    rb2->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::lenVarclicked),NULL,this);
     P1sizer->Add(text1);
     P1sizer->Add(rb1);
     P1sizer->Add(rb2);
@@ -70,13 +70,13 @@ bool MyApp::OnInit()
     P1->SetAutoLayout(true);
 
     wxPanel* P2 = new wxPanel((wxPanel*) rightctl,wxID_ANY);
-     wxBoxSizer* P2sizer = new wxBoxSizer(wxHORIZONTAL);
-     wxStaticText* text2 = new wxStaticText((wxPanel*) P2,wxID_ANY,"軸間距離");
-    rb3 = new wxRadioButton((wxPanel*) P2, -1, wxT("巡回路"),wxDefaultPosition,wxDefaultSize, wxRB_GROUP);
-    rb4 = new wxRadioButton((wxPanel*) P2, -1, wxT("角度"));
+    wxBoxSizer* P2sizer = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText* text2 = new wxStaticText((wxPanel*) P2,wxID_ANY,"軸間距離");
+    rb3 = new wxRadioButton((wxPanel*) P2, 0, wxT("巡回路"),wxDefaultPosition,wxDefaultSize, wxRB_GROUP);
+    rb4 = new wxRadioButton((wxPanel*) P2, 1, wxT("角度"));
     rb4->SetValue(true);
-    rb3->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio3clicked),NULL,this);
-    rb4->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio4clicked),NULL,this);
+    rb3->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::isTSPclicked),NULL,this);
+    rb4->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::isTSPclicked),NULL,this);
     P2sizer->Add(text2);
     P2sizer->Add(rb3);
     P2sizer->Add(rb4);
@@ -84,13 +84,13 @@ bool MyApp::OnInit()
     P2->SetAutoLayout(true);
     
     wxPanel* P3 = new wxPanel((wxPanel*) rightctl,wxID_ANY);
-     wxBoxSizer* P3sizer = new wxBoxSizer(wxHORIZONTAL);
-     wxStaticText* text3 = new wxStaticText((wxPanel*) P3,wxID_ANY,"PCPの両端の角度");
-    rb5 = new wxRadioButton((wxPanel*) P3, -1, wxT("最大"),wxDefaultPosition,wxDefaultSize, wxRB_GROUP);
-    rb6 = new wxRadioButton((wxPanel*) P3, -1, wxT("最小"));
+    wxBoxSizer* P3sizer = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText* text3 = new wxStaticText((wxPanel*) P3,wxID_ANY,"PCPの両端の角度");
+    rb5 = new wxRadioButton((wxPanel*) P3, 0, wxT("最大"),wxDefaultPosition,wxDefaultSize, wxRB_GROUP);
+    rb6 = new wxRadioButton((wxPanel*) P3, 1, wxT("最小"));
     rb6->SetValue(true);
-    rb5->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio5clicked),NULL,this);
-    rb6->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::radio6clicked),NULL,this);
+    rb5->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::angleMaxclicked),NULL,this);
+    rb6->Connect(wxEVT_RADIOBUTTON,wxCommandEventHandler(MyApp::angleMaxclicked),NULL,this);
     P3sizer->Add(text3);
     P3sizer->Add(rb5);
     P3sizer->Add(rb6);
@@ -108,8 +108,6 @@ bool MyApp::OnInit()
     pcpvisiblebox = new wxCheckBox((wxPanel*) rightctl,wxID_ANY,"PCP非表示");
     pcpvisiblebox-> Connect( wxEVT_CHECKBOX, wxCommandEventHandler(MyApp::visiblebuttonclicked),NULL, this);
     
-    wxStaticText* pftext = new wxStaticText((wxPanel*) leftctl,wxID_ANY,"Projection Factor");
-    slider = new wxSlider((wxPanel*) leftctl,wxID_ANY,50,0,400);
 
     wxStaticText* thrtext = new wxStaticText((wxPanel*) leftctl,wxID_ANY,"類似度の閾値");
     wxButton* thrbutton = new wxButton((wxPanel*) leftctl,wxID_ANY,"類似度初期化" );
@@ -129,16 +127,13 @@ bool MyApp::OnInit()
     
      thrbutton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
         wxCommandEventHandler(MyApp::thrbuttonclicked),NULL, this);
-    slider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
-      wxCommandEventHandler(MyApp::getslider),NULL, this);
+  
     vcslider-> Connect( wxEVT_COMMAND_SLIDER_UPDATED, 
       wxCommandEventHandler(MyApp::getvcslider),NULL, this);
 
     leftsizer->Add(polyselectbox,1,wxEXPAND);
     leftsizer->Add(undobutton,1,wxEXPAND);
     leftsizer->Add(resetbutton1,1,wxEXPAND);
-    leftsizer->Add(pftext,1,wxEXPAND);
-    leftsizer->Add(slider,1,wxEXPAND);
     leftsizer->Add(histview,1,wxEXPAND);
     leftsizer->Add(thrtext,1,wxEXPAND);
     leftsizer->Add(thrbutton,1,wxEXPAND);
@@ -225,29 +220,27 @@ bool MyApp::OnInit()
     frame->Refresh();
  }
  
- void MyApp::radio1clicked(wxCommandEvent& event){
-   data->isLenVar = true;
-   //現在は長さの計算を描画のときにやってないので要対処
+ void MyApp::lenVarclicked(wxCommandEvent& event){
+  switch(event.GetId()){
+   case 0: data->isLenVar = true; break;
+   case 1: data->isLenVar = false; break;
+ }
    frame->Refresh();
 }
-void MyApp::radio2clicked(wxCommandEvent& event){
-   data->isLenVar = false;
+
+void MyApp::isTSPclicked(wxCommandEvent& event){
+  switch(event.GetId()){
+   case 0: data->isTSP = true; break;
+   case 1: data->isTSP = false; break;
+ }
    frame->Refresh();
 }
-void MyApp::radio3clicked(wxCommandEvent& event){
-   data->isTSP = true;
-   frame->Refresh();
-}
-void MyApp::radio4clicked(wxCommandEvent& event){
-   data->isTSP = false;
-   frame->Refresh();
-}
-void MyApp::radio5clicked(wxCommandEvent& event){
-   pcPane->anglemax = true;
-   frame->Refresh();
-}
-void MyApp::radio6clicked(wxCommandEvent& event){
-   pcPane->anglemax = false;
+
+void MyApp::angleMaxclicked(wxCommandEvent& event){
+  switch(event.GetId()){
+   case 0: pcPane->anglemax = true; break;
+   case 1: pcPane->anglemax = false; break;
+  }
    frame->Refresh();
 }
 
@@ -277,11 +270,7 @@ void MyApp::visiblebuttonclicked(wxCommandEvent& event){
   frame->Refresh();
 }
 
-void MyApp::getslider(wxCommandEvent& WXUNUSED(event)){
-    float d = slider->GetValue()/100;
-    glPane->setdelta(d);
 
-}
 void MyApp::thrbuttonclicked(wxCommandEvent& WXUNUSED(event)){
   double thr =  data->pthr;
   data->thr = thr;
@@ -300,11 +289,6 @@ void MyApp::openfile(wxCommandEvent& event){
   //id がdatasetの番号を表す　あらかじめどれが何かは読み込んである
   int id = event.GetId();
   cerr<< id <<endl;
-  /*
-   for(int i = 0; i < data->makesubnum;i++){
-    menu3->Delete(i+1);
-  }
-  */
   data->clearall();
   data->read(id);
   ReCreate();
@@ -334,7 +318,6 @@ void MyApp::makedatabuttonclicked(wxCommandEvent& event){
    
 }
 void MyApp::opentemp(wxCommandEvent& event){
-  //id がdatasetの番号を表す　あらかじめどれが何かは読み込んである
   int id = event.GetId();
    cerr<< id <<endl;
    data->clearall();

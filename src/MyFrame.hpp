@@ -39,10 +39,8 @@ class MyApp: public wxApp{
     PCPPane *pcPane;
     PCPBorder* lowerborder;
     ReadData *data;
-    wxSlider *slider;
     MatrixView *md;
     HistView* histview ;
-    // wxSlider* thrslider ;
     wxSlider* vcslider;
     wxCheckBox* polyselectbox;
     wxCheckBox* pcpvisiblebox;
@@ -58,12 +56,9 @@ class MyApp: public wxApp{
     bool iMac = true;
     int up,low;
 public:
-    void radio1clicked(wxCommandEvent& event);
-    void radio2clicked(wxCommandEvent& event);
-    void radio3clicked(wxCommandEvent& event);
-    void radio4clicked(wxCommandEvent& event);
-    void radio5clicked(wxCommandEvent& event);
-    void radio6clicked(wxCommandEvent& event);
+    void lenVarclicked(wxCommandEvent& event);
+    void isTSPclicked(wxCommandEvent& event);
+    void angleMaxclicked(wxCommandEvent& event);
 
     void undobuttonclicked(wxCommandEvent& event);
     void resetbuttonclicked(wxCommandEvent& event);
@@ -71,7 +66,7 @@ public:
     void thrbuttonclicked(wxCommandEvent& event);
     void polyselect(wxCommandEvent& event);
     void coodselect(wxCommandEvent& event);
-    void getslider(wxCommandEvent& event);
+   // void getslider(wxCommandEvent& event);
     void getthrslider(wxCommandEvent& event);
     void getvcslider(wxCommandEvent& event);
     void openfile(wxCommandEvent& event);

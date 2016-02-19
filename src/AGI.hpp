@@ -75,50 +75,49 @@
 		void ReCreate();
 		void Setting();
 		int getWidth();
-	void render(wxPaintEvent& evt);
-	void prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y);
-	// events
-	void mouseMoved(wxMouseEvent& event);
-	void mouseDown(wxMouseEvent& event);
-	void mouseReleased(wxMouseEvent& event);
-	void rightClick(wxMouseEvent& event);
-	void keyPressed(wxKeyEvent& event);
-	int getindex(double x, double y);
-	void setRate();
-	void setdelta(double d);
-	void calcagain(double x, double y);
-	void calRange(int x2, int y2);
-	void calPoly();
-	void undo();
-	double enlarge(double p);
-	double ensmall(double x);
-	void drawcoodname(int i, int w);
-	void drawaxispca(int index);
-	void addLog(int index,int x, int y);
-	void saveLog();
-	void loadLog();
+		void render(wxPaintEvent& evt);
+		void prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y);
+		// events
+		void mouseMoved(wxMouseEvent& event);
+		void mouseDown(wxMouseEvent& event);
+		void mouseReleased(wxMouseEvent& event);
+		void rightClick(wxMouseEvent& event);
+		void keyPressed(wxKeyEvent& event);
+		int getindex(double x, double y);
+		void setRate();
+		//void setdelta(double d);
+		void calcagain(double x, double y);
+		void calRange(int x2, int y2);
+		void calPoly();
+		void undo();
+		double enlarge(double p);
+		double ensmall(double x);
+		void drawcoodname(int i);
+		void drawaxispca(int index);
+		void addLog(int index,int x, int y);
+		void saveLog();
+		void loadLog();
 
-	Agi* ag;
-	bool isPoly = false;
-	std::vector<NodeLog > logvector; 
+		Agi* ag;
+		bool isPoly = false;
+		std::vector<NodeLog > logvector; 
  
-
-	DECLARE_EVENT_TABLE()
-private:
-	double xyrate;
-	int nowindex;
-	double* _pre;
-	double* _new;
-	bool isMoved, isDrug, iscalc;
-	bool polystart = false;
-	bool rangeselect,polyselect;
-	bool logmode;
-	int xfrom, yfrom;
-	int xto, yto;
-	int clickid;
-	int logid ;
-	vector<pair<int,int> > polyvector;
-	pair<int,int>  polynow;
-	const int coodrate = 3;  
+		DECLARE_EVENT_TABLE()
+	private:
+		double xyrate;
+		int nowindex;
+		double* _pre;
+		double* _new;
+		bool isMoved, isDrug, iscalc;
+		bool polystart = false;
+		bool rangeselect,polyselect;
+		bool logmode;
+		int xfrom, yfrom;
+		int xto, yto;
+		int clickid;
+		int logid ;
+		vector<pair<int,int> > polyvector;
+		pair<int,int>  polynow;
+		const int coodrate = 3;  
 };
 #endif

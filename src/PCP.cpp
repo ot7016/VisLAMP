@@ -69,9 +69,9 @@ void PCPPane::idplus(){
 }
 void PCPPane::setRate(){
    //各属性ごとに倍率があるので
-    const int dim = data->atr;
-    rate = new double[dim];
-    for(int i = 0;i< dim;i++ ){
+    const int atr = data->atr;
+    rate = new double[atr];
+    for(int i = 0;i< atr;i++ ){
         rate[i] = (getWidth()*3)/(4*(data->Dmax[i]-data->Dmin[i]));
     }
     int k = 0;
@@ -84,9 +84,8 @@ void PCPPane::setRate(){
 
 void PCPPane::refine(double** v){
     //TSPを解く
-    const int atr = data->atr;
      if(data->isTSP)
-        solveTSP(v,atr);
+        solveTSP(v);
      else
         solveAngle(v);
     for ( wxWindowList::Node *node = m_children.GetFirst(); node; node = node->GetNext() ){
@@ -107,7 +106,8 @@ void PCPPane::isVisible(bool b){
     }
 }
 
-void PCPPane::solveTSP(double** v,int atr){
+void PCPPane::solveTSP(double** v){
+    const int atr = data->atr;
     TSPsolver* ts = new TSPsolver(v,atr);
     ts->solve();
     data->setOrder(ts);
