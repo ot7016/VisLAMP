@@ -118,6 +118,6 @@
 		int logid ;
 		vector<pair<int,int> > polyvector;
 		pair<int,int>  polynow;
-		const int coodrate = 3;  
+		const int coodrate = 4;  
 };
 #endif
